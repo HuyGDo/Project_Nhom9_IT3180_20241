@@ -10,4 +10,4 @@ router.all('/*', (req, res, next) => {
 router.get('/', defaultController.index);
 router.get('/index.html', defaultController.index);
 
-module
+
