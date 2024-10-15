@@ -10,3 +10,4 @@ class defaultController {
 }
 
 module.exports = new defaultController;
+
