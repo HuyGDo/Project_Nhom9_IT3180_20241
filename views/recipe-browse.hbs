@@ -1,0 +1,44 @@
+<main class="container recipe-browse">
+    <div class="search-bar"></div>
+    <div class="row">
+        {{!-- Filter column --}}
+        <div class="col-3">
+            <div class="filter-column">
+                <div class="filter-column__wrapper">
+                    <h3 class="filter-column__heading">Filter</h3>
+                </div>
+            </div>
+        </div>
+
+        {{!-- Recipes column --}}
+        <div class="col-9">
+            <div class="row row-cols-3 gy-4">
+                {{#each recipes}}
+                <div class="col">
+                    <div class="recipe-card">
+                        <div class="recipe-card__img-wrap">
+                            <a href="./recipes/{{ this.slug }}" class="">
+                                <img
+                                    src="{{ this.image }}"
+                                    class="recipe-card__thumb"
+                                    alt="{{ this.title }}"
+                                />
+                            </a>
+                        </div>
+                        <div class="recipe-card__content">
+                            <a href="./recipes/{{ this.slug }}">
+                                <h3 class="recipe-card__title">{{ this.title }}</h3>
+                            </a>
+
+                            <p class="recipe-card__desc">{{ this.description }}</p>
+                            <a href="./recipes/{{ this.slug }}" class="btn btn--primary">
+                                See details
+                            </a>
+                        </div>
+                    </div>
+                </div>
+                {{/each}}
+            </div>
+        </div>
+    </div>
+</main>
