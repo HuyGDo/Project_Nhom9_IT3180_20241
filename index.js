@@ -6,7 +6,6 @@ const { engine } = require('express-handlebars');
 const methodOverride = require('method-override')
 const flash = require('connect-flash');
 const session = require('express-session');
-
 const app = express();
 
 /* Configure Mongoose */

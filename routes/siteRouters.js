@@ -1,7 +1,6 @@
-const defaultRouters = require('./defaultRouters');
+const defaultRouter = require('./defaultRouters')
+function route(app){
+    app.use('/', defaultRouter);
 
-function route(app) {
-    app.use('./', defaultRouters);
 }
-
 module.exports = route;
