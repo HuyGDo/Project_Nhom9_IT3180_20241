@@ -11,6 +11,8 @@
     font-weight: 500;
     user-select: none;
 
+    transition: opacity 0.25s;
+
     &--text {
         background-color: transparent;
         font-weight: 500;
@@ -29,6 +31,10 @@
         border-radius: 99999px;
     }
 
+    &--link {
+        text-decoration: underline;
+    }
+
     &[disabled],
     &--disabled {
         opacity: 0.5;
@@ -36,6 +42,6 @@
     }
 
     &:hover {
-        opacity: 0.9;
+        opacity: 0.8;
     }
 }

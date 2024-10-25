@@ -11,6 +11,8 @@
 .navbar {
     margin-left: 130px;
     &__list {
+        height: 100%;
+        margin: auto 0;
         display: flex;
         align-items: center;
         gap: 20px;
@@ -18,7 +20,7 @@
 
     &__link {
         padding: 20px;
-        font-size: 1.5rem;
+        font-size: 1.8rem;
         font-weight: 500;
         line-height: 1.46667; /* 146.667% */
     }
@@ -28,4 +30,11 @@
     margin-left: auto;
     display: flex;
     align-items: center;
+
+    &__avatar {
+        display: block;
+        width: 50px;
+        height: 50px;
+        border-radius: 8px;
+    }
 }

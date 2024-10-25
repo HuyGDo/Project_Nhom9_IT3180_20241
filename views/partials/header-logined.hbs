@@ -17,22 +17,16 @@
                 </li>
 
                 <li class="navbar__item">
-                    <a href="/recipes/create" class="navbar__link">Create Recipes </a>
+                    <a href="/recipes/create-recipe" class="navbar__link">Create Recipes </a>
                 </li>
             </ul>
         </nav>
 
         {{!-- Actions --}}
         <div class="top-act">
-            {{#if user}}
-            <p>Welcome, {{ user.email }}!</p>
-            <a href="/log-out" class="btn btn--text">Log out</a>
-
-            {{else}}
-            <a href="/sign-in" class="btn btn--text">Sign In</a>
-            <a href="/sign-up" class="btn btn--text">Sign Up</a>
-
-            {{/if }}
+            <a href="/me" class="top-act__user">
+                <img src="/assets/img/avatar.jpg" alt="" class="top-act__avatar" />
+            </a>
         </div>
     </div>
 </div>

@@ -1,0 +1,24 @@
+<main class="container recipe-browse">
+    <div class="search-bar"></div>
+    <div class="row">
+        {{!-- Filter column --}}
+        <div class="col-3">
+            <div class="filter-column">
+                <div class="filter-column__wrapper">
+                    <h3 class="filter-column__heading">Filter</h3>
+                </div>
+            </div>
+        </div>
+
+        {{!-- Recipes column --}}
+        <div class="col-9">
+            <div class="row row-cols-3 gy-4">
+                {{#each recipes}}
+                <div class="col">
+                    {{>recipe-card}}
+                </div>
+                {{/each}}
+            </div>
+        </div>
+    </div>
+</main>

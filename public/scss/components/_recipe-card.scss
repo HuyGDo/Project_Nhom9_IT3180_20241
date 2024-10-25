@@ -1,7 +1,12 @@
 .recipe-card {
+    display: flex;
+    flex-direction: column;
     padding: 16px;
+    height: 100%;
     border-radius: 20px;
-    background-color: #ffb7014d;
+    background-color: #eee;
+
+    transition: transform 0.25s, background-color 0.25s;
 
     &__img-wrap {
         position: relative;
@@ -17,8 +22,14 @@
         object-fit: cover;
     }
 
-    &__title {
+    &__content {
+        display: flex;
+        flex-grow: 1;
+        flex-direction: column;
         margin-top: 16px;
+    }
+
+    &__title {
         font-size: 1.6rem;
         font-weight: 500;
         line-height: 150%; /* 150% */
@@ -30,5 +41,14 @@
         font-size: 1.5rem;
         font-weight: 400;
         line-height: 150%; /* 150% */
+    }
+
+    &__btn {
+        margin-top: auto;
+    }
+
+    &:hover {
+        transform: translateY(-10px);
+        background-color: #ffb7014d;
     }
 }

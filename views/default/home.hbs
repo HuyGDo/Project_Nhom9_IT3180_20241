@@ -55,27 +55,10 @@
             <h2 class="home__heading">Trending Recipes</h2>
             <a href="./recipes">See more</a>
         </div>
-        <div class="row row-cols-4 gy-4">
+        <div class="row row-cols-4 gy-3">
             {{#each recipes}}
             <div class="col">
-                <div class="recipe-card">
-                    <div class="recipe-card__img-wrap">
-                        <a href="./recipe-detail" class="">
-                            <img
-                                src="{{ this.image }}"
-                                class="recipe-card__thumb"
-                                alt="{{ this.title }}"
-                            />
-                        </a>
-                    </div>
-                    <div class="recipe-card__content">
-                        <h3 class="recipe-card__title">
-                            <a href="./recipe-detail">{{ this.title }}</a>
-                        </h3>
-                        <p class="recipe-card__desc">{{ this.description }}</p>
-                        <a href="./recipe-detail" class="btn btn--primary">See details</a>
-                    </div>
-                </div>
+                {{>recipe-card}}
             </div>
             {{/each}}
         </div>
