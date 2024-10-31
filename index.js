@@ -6,6 +6,7 @@ const { engine } = require('express-handlebars');
 const methodOverride = require('method-override')
 const flash = require('connect-flash');
 const session = require('express-session');
+const { setupWeeklyEmailCronJob } = require('./services/cronService');
 
 const app = express();
 
@@ -49,6 +50,9 @@ app.use(methodOverride('_method'));
 /* Routes init */
 const route = require('./routes/siteRouters');
 route(app);
+
+/* Initialize cronjob */
+setupWeeklyEmailCronJob();
 
 app.listen(PORT, () => {
   console.log(`Server is running on: http://localhost:${PORT}`);

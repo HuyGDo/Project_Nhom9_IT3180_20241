@@ -1,0 +1,23 @@
+<h1>Weekly Trending Recipes and Blogs</h1>
+
+<h2>Trending Recipes:</h2>
+{{#if trendingRecipes.length}}
+  <ul>
+  {{#each trendingRecipes}}
+    <li><strong>{{title}}</strong> - {{totalInteractions}} interactions</li>
+  {{/each}}
+  </ul>
+{{else}}
+  <p>No trending recipes this week.</p>
+{{/if}}
+
+<h2>Trending Blogs:</h2>
+{{#if trendingBlogs.length}}
+  <ul>
+  {{#each trendingBlogs}}
+    <li><strong>{{title}}</strong> - {{totalInteractions}} interactions</li>
+  {{/each}}
+  </ul>
+{{else}}
+  <p>No trending blogs this week.</p>
+{{/if}}
