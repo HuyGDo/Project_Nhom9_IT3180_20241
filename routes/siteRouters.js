@@ -1,7 +1,13 @@
-const defaultRouters = require('./defaultRouters');
+const defaultRouter = require("./defaultRouters");
+const recipesRouter = require("./recipeRouters");
+const meRouter = require("./meRouters");
+const authRouter = require("./authRouters");
+const { checkUser } = require("../middlewares/authMiddleware");
 
-function route(app) {
-    app.use('./', defaultRouters);
-}
-
-module.exports = route;
+module.exports = (app) => {
+    app.get("*", checkUser);
+    app.use("/", defaultRouter);
+    app.use("/me", meRouter);
+    app.use("/recipes", recipesRouter);
+    app.use(authRouter);
+};

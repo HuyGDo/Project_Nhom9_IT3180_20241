@@ -1,12 +1,22 @@
 const amqp = require('amqplib');
 
 let channel;
+const queue = 'test-queue'
 
 //Connect to rabbitmq and intialize channel
 const rabbitmqConnect = async () => {
     try {
-        const connection = await amqp.connect(process.env.RABBITMQ_URL || 'amqp://localhost');
+        const connection = await amqp.connect(process.env.RABBITMQ_URL ||  'amqp://guest:guest@localhost:5672/');
         channel = await connection.createChannel();
+
+        //testing
+        // await channel.assertQueue(queue);
+
+        // const msg = 'Hello, RabbitMQ!';
+        // await channel.sendToQueue(queue, Buffer.from(msg));
+
+
+        // console.log(`Message sent to ${queue}: ${msg}`);
         console.log('Connected to RabbitMQ');
     } catch (error) {
         console.log('Error connecting to rabbitmq: ', error);

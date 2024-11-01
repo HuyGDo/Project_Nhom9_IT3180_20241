@@ -4,27 +4,34 @@
   "description": "Bussin",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+      "start": "nodemon --inspect index.js",
+      "sass": "sass public/scss:public/css -w",
+      "test": "echo \"Error: no test specified\" && exit 1"
   },
   "keywords": [],
   "author": "",
   "license": "ISC",
   "dependencies": {
-    "amqplib": "^0.10.4",
-    "connect-flash": "^0.1.1",
-    "dotenv": "^16.4.5",
-    "express": "^4.21.0",
-    "express-handlebars": "^8.0.1",
-    "express-session": "^1.18.1",
-    "method-override": "^3.0.0",
-    "mongoose": "^8.7.0",
-    "node-cron": "^3.0.3",
-    "nodemailer": "^6.9.16",
-    "nodemon": "^3.1.7",
-    "redis": "^4.7.0",
-    "web-push": "^3.6.7"
+      "amqplib": "^0.10.4",
+      "bcrypt": "^5.1.1",
+      "connect-flash": "^0.1.1",
+      "cookie-parser": "^1.4.7",
+      "dotenv": "^16.4.5",
+      "express": "^4.21.1",
+      "express-handlebars": "^8.0.1",
+      "express-session": "^1.18.1",
+      "jsonwebtoken": "^9.0.2",
+      "method-override": "^3.0.0",
+      "mongoose": "^8.7.1",
+      "mongoose-slug-updater": "^3.3.0",
+      "node-cron": "^3.0.3",
+      "nodemailer": "^6.9.16",
+      "nodemon": "^3.1.7",
+      "redis": "^4.7.0",
+      "validator": "^13.12.0",
+      "web-push": "^3.6.7"
   },
   "devDependencies": {
-    "@types/node": "^22.7.5"
+      "@types/node": "^22.7.5"
   }
 }

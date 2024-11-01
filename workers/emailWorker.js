@@ -22,3 +22,6 @@ const processEmailJob = async (message) => {
         console.error('Error sending weekly summary emails:', error);
     }
 }
+
+//Consume messages from RabbitMQ emailQueue
+rabbitmqService.consume('emailQueue', processEmailJob);

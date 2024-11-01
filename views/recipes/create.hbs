@@ -1,0 +1,31 @@
+<div class="container">
+    <h1>Create new Recipe</h1>
+    <form method="POST" action="/recipes/store" class="form">
+        <div class="form__group">
+            <div class="form__text-input">
+                <label for="title" class="form__label">title</label>
+                <input
+                    type="text"
+                    name="title"
+                    id="title"
+                    class="form__input"
+                    placeholder="Title"
+                />
+            </div>
+        </div>
+
+        <div class="form__group">
+            <div class="form__text-input">
+                <label for="description" class="form__label">Description</label>
+                <input
+                    type="text"
+                    name="description"
+                    id="description"
+                    class="form__input"
+                    placeholder="Description"
+                />
+            </div>
+        </div>
+        <button type="submit" class="btn btn--primary">Add recipe</button>
+    </form>
+</div>

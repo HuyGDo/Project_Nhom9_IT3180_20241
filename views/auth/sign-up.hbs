@@ -1,0 +1,173 @@
+<main class="auth">
+    <!-- Auth decor -->
+    <div class="auth__left">
+        <img src="./assets/img/logo.png" alt="BussinCookin" class="auth__left-img" />
+    </div>
+
+    <!-- Auth content -->
+    <div class="auth__right">
+        <div class="auth__content">
+            <h1 class="auth__heading">Sign Up</h1>
+            <p class="auth__desc">Let’s create your account and start cookin'!</p>
+            <form method="POST" action="/sign-up" class="form auth__form">
+                {{!-- Name --}}
+                <div class="form__group auth__form-item auth__form-item--row">
+                    <div>
+                        {{!-- First name --}}
+                        <div class="form__text-input">
+                            <input
+                                type="text"
+                                name="first_name"
+                                id="first_name"
+                                value="{{ newUserdata.first_name }}"
+                                placeholder="First name"
+                                class="form__input"
+                            />
+                            <img src="./assets/icons/user.svg" alt="" class="form__input-icon" />
+                            <img
+                                src="./assets/icons/form-error.svg"
+                                alt=""
+                                class="form__input-icon-error"
+                            />
+                        </div>
+                        <p class="form__error">{{ errors.first_name }}</p>
+                    </div>
+                    {{!-- Last name --}}
+                    <div>
+                        <div class="form__text-input">
+                            <input
+                                type="text"
+                                name="last_name"
+                                id="last_name"
+                                value="{{ newUserdata.last_name }}"
+                                placeholder="Last name"
+                                class="form__input"
+                            />
+                            <img src="./assets/icons/user.svg" alt="" class="form__input-icon" />
+                            <img
+                                src="./assets/icons/form-error.svg"
+                                alt=""
+                                class="form__input-icon-error"
+                            />
+                        </div>
+                        <p class="form__error">{{ errors.last_name }}</p>
+                    </div>
+                </div>
+
+                {{!-- Email --}}
+                <div class="form__group auth__form-item">
+                    <div class="form__text-input">
+                        <input
+                            type="text"
+                            name="email"
+                            id="email"
+                            value="{{ newUserdata.email }}"
+                            placeholder="Email"
+                            class="form__input"
+                        />
+                        <img src="./assets/icons/message.svg" alt="" class="form__input-icon" />
+                        <img
+                            src="./assets/icons/form-error.svg"
+                            alt=""
+                            class="form__input-icon-error"
+                        />
+                    </div>
+                    <p class="form__error">{{ errors.email }}</p>
+                </div>
+
+                {{!-- Password --}}
+                <div class="form__group auth__form-item">
+                    <div class="form__text-input">
+                        <input
+                            type="password"
+                            name="password"
+                            id="password"
+                            value="{{ newUserdata.password }}"
+                            placeholder="Password"
+                            class="form__input"
+                        />
+                        <img src="./assets/icons/lock.svg" alt="" class="form__input-icon" />
+                        <img
+                            src="./assets/icons/form-error.svg"
+                            alt=""
+                            class="form__input-icon-error"
+                        />
+                    </div>
+                    <p class="form__error">{{ errors.password }}</p>
+                </div>
+
+                {{!-- Confirm password --}}
+                <div class="form__group auth__form-item">
+                    <div class="form__text-input">
+                        <input
+                            type="password"
+                            name=""
+                            id=""
+                            placeholder="Confirm password"
+                            class="form__input"
+                        />
+                        <img src="./assets/icons/lock.svg" alt="" class="form__input-icon" />
+                        <img
+                            src="./assets/icons/form-error.svg"
+                            alt=""
+                            class="form__input-icon-error"
+                        />
+                    </div>
+                </div>
+
+                <div class="form__group auth__form-item auth__form-item--row">
+                    <label class="form__checkbox">
+                        <input type="checkbox" name="" id="" class="form__checkbox-input d-none" />
+                        <span class="form__checkbox-label">Remember me</span>
+                    </label>
+
+                    <a href="#!" class="auth__link">Forgot Password?</a>
+                </div>
+
+                <div class="form__group auth__form-item">
+                    <button type="submit" class="btn btn--primary auth__btn form__submit-btn">
+                        Sign Up
+                    </button>
+                </div>
+
+                <div class="form__group auth__form-item">
+                    <button class="btn btn--outline auth__btn">
+                        <img src="./assets/icons/google.svg" alt="" class="btn__icon icon" />
+                        Sign in with Gmail
+                    </button>
+                </div>
+            </form>
+
+            <div class="auth__form-item">
+                <p class="auth__text">
+                    You already have an account?
+                    <a href="/sign-in" class="auth__link">Sign In</a>
+                </p>
+            </div>
+        </div>
+    </div>
+</main>
+
+{{!--
+<script>
+    const form = document.querySelector("form");
+
+    form.addEventListener("submit", async (e) => {
+        e.preventDefault();
+
+        // get value
+        const email = form.email.value;
+        const password = form.password.value;
+
+        try {
+            const res = await fetch("/sign-up", {
+                method: "POST",
+                body: JSON.stringify({ email: email, password: password }),
+                header: { "Content-type": "application/json" },
+            });
+        } catch (err) {
+            console.log(err);
+        }
+    });
+</script>
+--}}

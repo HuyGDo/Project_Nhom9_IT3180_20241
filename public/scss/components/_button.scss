@@ -1,0 +1,47 @@
+.btn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    height: 50px;
+    padding: 0 20px;
+    border-radius: 6px;
+
+    font-size: 1.8rem;
+    font-weight: 500;
+    user-select: none;
+
+    transition: opacity 0.25s;
+
+    &--text {
+        background-color: transparent;
+        font-weight: 500;
+    }
+
+    &--primary {
+        background-color: #ffb601;
+    }
+
+    &--outline {
+        background-color: transparent;
+        border: 1.5px solid var(--outline-btn-border-color);
+    }
+
+    &--rounded {
+        border-radius: 99999px;
+    }
+
+    &--link {
+        text-decoration: underline;
+    }
+
+    &[disabled],
+    &--disabled {
+        opacity: 0.5;
+        pointer-events: none;
+    }
+
+    &:hover {
+        opacity: 0.8;
+    }
+}
