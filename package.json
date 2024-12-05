@@ -1,25 +1,28 @@
 {
-  "name": "bussincookin",
-  "version": "1.0.0",
-  "description": "Bussin",
-  "main": "index.js",
-  "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
-  },
-  "keywords": [],
-  "author": "",
-  "license": "ISC",
-  "dependencies": {
-    "connect-flash": "^0.1.1",
-    "dotenv": "^16.4.5",
-    "express": "^4.21.0",
-    "express-handlebars": "^8.0.1",
-    "express-session": "^1.18.1",
-    "method-override": "^3.0.0",
-    "mongoose": "^8.7.0",
-    "nodemon": "^3.1.7"
-  },
-  "devDependencies": {
-    "@types/node": "^22.7.5"
-  }
+    "name": "bussincookin",
+    "version": "1.0.0",
+    "main": "index.js",
+    "scripts": {
+        "start": "nodemon --inspect index.js",
+        "sass": "sass public/scss:public/css -w",
+        "test": "echo \"Error: no test specified\" && exit 1"
+    },
+    "author": "",
+    "license": "ISC",
+    "description": "",
+    "dependencies": {
+        "bcrypt": "^5.1.1",
+        "connect-flash": "^0.1.1",
+        "cookie-parser": "^1.4.7",
+        "dotenv": "^16.4.5",
+        "express": "^4.21.1",
+        "express-handlebars": "^8.0.1",
+        "express-session": "^1.18.1",
+        "jsonwebtoken": "^9.0.2",
+        "method-override": "^3.0.0",
+        "mongoose": "^8.7.1",
+        "mongoose-slug-updater": "^3.3.0",
+        "nodemon": "^3.1.7",
+        "validator": "^13.12.0"
+    }
 }
