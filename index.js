@@ -1,3 +1,4 @@
+// index.js
 require("dotenv").config();
 const { PORT, globalVariables } = require("./config/configuration");
 const express = require("express");
@@ -22,19 +23,8 @@ app.use(
 );
 app.use(express.static(path.join(__dirname, "public")));
 
+/* View Engine Setup */
 app.set("views", path.join(__dirname, "views"));
-
-/* Flash & Session */
-app.use(
-    session({
-        secret: "anysecret",
-        saveUninitialized: true,
-        resave: true,
-    }),
-);
-app.use(flash());
-
-/* Setup View Engine */
 app.engine(
     "hbs",
     engine({
@@ -47,14 +37,24 @@ app.engine(
 );
 app.set("view engine", "hbs");
 
-/* Use Global Variables */
-app.use(globalVariables);
+/* Cookies Parser Middleware*/
+app.use(cookieParser());
+
+/* Flash & Session */
+app.use(
+    session({
+        secret: process.env.SESSION_SECRET || "anysecret",
+        saveUninitialized: true,
+        resave: true,
+    }),
+);
+app.use(flash());
 
 /* Method Override Middleware*/
 app.use(methodOverride("_method"));
 
-/* Cookies Parser Middleware*/
-app.use(cookieParser());
+/* Use Global Variables */
+app.use(globalVariables);
 
 /* Routes init */
 const route = require("./routes/siteRouters");

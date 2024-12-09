@@ -38,7 +38,7 @@ const errorHandler = (err) => {
 
 const maxAge = 24 * 60 * 60; // 1 days
 const createToken = (id) => {
-    return jwt.sign({ id }, "bussin cookin secret", {
+    return jwt.sign({ id }, process.env.JWT_SECRET, {
         expiresIn: maxAge,
     });
 };
@@ -59,6 +59,7 @@ module.exports.authenticate = async (req, res) => {
         const token = createToken(user._id);
         res.cookie("jwt", token, { httpOnly: true, maxAge: maxAge * 1000 });
         console.log(user);
+        res.redirect("/"); // Redirect to home or desired page
     } catch (err) {
         const errors = errorHandler(err);
         res.render("auth/sign-in", {
