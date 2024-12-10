@@ -53,6 +53,7 @@ module.exports.showEditProfile = (req, res) => {
     res.render("me/edit-profile", {
         layout: "default-logined",
         title: "Edit Profile",
+        successMessage: "Your profile has been updated successfully!",
         user,
     });
 };
