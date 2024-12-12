@@ -1,3 +1,4 @@
+//controllers/defaultController.js
 const Config = require("../config/configuration");
 const { redirect } = require("express/lib/response");
 const Recipe = require("../models/Recipe");

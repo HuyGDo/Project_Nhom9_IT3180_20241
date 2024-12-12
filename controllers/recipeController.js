@@ -1,3 +1,4 @@
+//controllers/recipeController.js
 const Recipe = require("../models/Recipe");
 
 // [GET] /recipes/
