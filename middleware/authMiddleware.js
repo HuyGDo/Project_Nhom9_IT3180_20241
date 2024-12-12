@@ -25,7 +25,7 @@ module.exports.requireAuth = (req, res, next) => {
 
 module.exports.checkUser = (req, res, next) => {
     const token = req.cookies.jwt;
-    console.log("checkUser Middleware - JWT Token:", token);
+    // console.log("checkUser Middleware - JWT Token:", token);
 
     if (token) {
         jwt.verify(token, process.env.JWT_SECRET, async (err, decodeToken) => {
