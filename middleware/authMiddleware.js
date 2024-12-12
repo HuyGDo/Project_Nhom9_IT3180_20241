@@ -10,10 +10,10 @@ module.exports.requireAuth = (req, res, next) => {
     if (token) {
         jwt.verify(token, process.env.JWT_SECRET, (err, decodeToken) => {
             if (err) {
-                console.log("JWT Verification Error:", err.message);
+                // console.log("JWT Verification Error:", err.message);
                 res.redirect("/sign-in");
             } else {
-                console.log("JWT Decoded Token:", decodeToken);
+                // console.log("JWT Decoded Token:", decodeToken);
                 next();
             }
         });
@@ -30,11 +30,11 @@ module.exports.checkUser = (req, res, next) => {
     if (token) {
         jwt.verify(token, process.env.JWT_SECRET, async (err, decodeToken) => {
             if (err) {
-                console.log("JWT Verification Error in checkUser:", err.message);
+                // console.log("JWT Verification Error in checkUser:", err.message);
                 res.locals.user = null;
                 next();
             } else {
-                console.log("JWT Decoded Token in checkUser:", decodeToken);
+                // console.log("JWT Decoded Token in checkUser:", decodeToken);
                 let user = await User.findById(decodeToken.id).lean();
                 res.locals.user = user;
                 next();
