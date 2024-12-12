@@ -1,31 +1,254 @@
-<div class="container">
-    <h1>Create new Recipe</h1>
-    <form method="POST" action="/recipes/store" class="form">
-        <div class="form__group">
-            <div class="form__text-input">
-                <label for="title" class="form__label">title</label>
-                <input
-                    type="text"
-                    name="title"
-                    id="title"
-                    class="form__input"
-                    placeholder="Title"
-                />
-            </div>
-        </div>
+<div class="container create-recipe">
+    <div class="create-recipe__container">
+        <h1 class="create-recipe__heading">Create new Recipe</h1>
+    </div>
+    <div class="create-recipe__container">
+        <form
+            method="POST"
+            action="/recipes/store"
+            class="form create-recipe__form"
+            enctype="multipart/form-data"
+        >
+            {{!-- Title --}}
+            <div class="form__group create-recipe__form-item">
+                <label for="title" class="form__label">Title</label>
 
-        <div class="form__group">
-            <div class="form__text-input">
-                <label for="description" class="form__label">Description</label>
-                <input
-                    type="text"
-                    name="description"
-                    id="description"
-                    class="form__input"
-                    placeholder="Description"
-                />
+                <div class="form-input__list">
+                    <div class="form-input__item">
+                        <input
+                            type="text"
+                            name="title"
+                            id="title"
+                            value=""
+                            placeholder="Title"
+                            class="form-input__input"
+                        />
+                    </div>
+                </div>
+                <p class="form__error"></p>
             </div>
-        </div>
-        <button type="submit" class="btn btn--primary">Add recipe</button>
-    </form>
+
+            {{!-- Image --}}
+            <div class="form__group create-recipe__form-item">
+                <label for="recipe-image" class="form__label">Image</label>
+
+                <div class="form-input__list">
+                    <div class="form-input__item">
+                        <input
+                            type="file"
+                            name="recipe-image"
+                            id="recipe-image"
+                            value=""
+                            placeholder="Image"
+                            class="form-input__input"
+                        />
+                    </div>
+                </div>
+                <p class="form__error"></p>
+            </div>
+
+            {{!-- Description --}}
+            <div class="form__group create-recipe__form-item">
+                <label for="description" class="form__label">Description</label>
+
+                <div class="form-input__list">
+                    <div class="form-input__item">
+                        <textarea
+                            name="description"
+                            id="description"
+                            placeholder="Description"
+                            class="form-input__input"
+                        ></textarea>
+                    </div>
+                </div>
+                <p class="form__error"></p>
+            </div>
+
+            {{!-- Ingredients --}}
+            <div class="form__group create-recipe__form-item">
+                <label class="form__label create-recipe__form-label">Ingredients</label>
+
+                <div id="add-ingredient-input" class="form-input__list create-recipe__form-list">
+                    <div class="form-input__item">
+                        <input
+                            type="text"
+                            name="ingredient-name"
+                            id="ingredient-name"
+                            value=""
+                            placeholder="Name"
+                            class="form-input__input form-input__input--first"
+                        />
+
+                        <div class="form-input__input--separate"></div>
+
+                        <input
+                            type="text"
+                            name="ingredient-quantity"
+                            id="ingredient-quantity"
+                            value=""
+                            placeholder="Quantity"
+                            class="form-input__input form-input__input--second"
+                        />
+
+                        <a
+                            class="btn btn--outline form__remove-btn"
+                            style="opacity: 0; pointer-events: none"
+                        >
+                            <img src="/assets/icons/xmark.svg" alt="" class="form__control-thumb" />
+                        </a>
+                    </div>
+                </div>
+
+                <p class="form__error"></p>
+                <a
+                    id="add-ingredient-btn"
+                    class="btn btn--outline form__control-btn create-recipe__form-add-btn"
+                >
+                    <img src="/assets/icons/plus.svg" alt="" class="form__control-thumb" />
+                    Add ingredient
+                </a>
+            </div>
+
+            {{!-- Instructions --}}
+            <div class="form__group create-recipe__form-item">
+                <label class="form__label create-recipe__form-label"> Instructions </label>
+
+                <div id="add-instruction-input" class="form-input__list create-recipe__form-list">
+                    <div class="form-input__item">
+                        <p class="form-input__text">Step</p>
+                        <input
+                            type="text"
+                            name="step-number"
+                            id="step-number"
+                            value="1"
+                            readonly
+                            class="form-input__input form-input__input--second"
+                        />
+
+                        <div class="form-input__input--separate"></div>
+
+                        <input
+                            type="text"
+                            name="instruction-desc"
+                            id="instruction-desc"
+                            value=""
+                            placeholder="Description"
+                            class="form-input__input form-input__input--first"
+                        />
+
+                        <a
+                            class="btn btn--outline form__remove-btn"
+                            style="opacity: 0; pointer-events: none"
+                        >
+                            <img src="/assets/icons/xmark.svg" alt="" class="form__control-thumb" />
+                        </a>
+                    </div>
+                </div>
+
+                <p class="form__error"></p>
+                <a
+                    id="add-instruction-btn"
+                    class="btn btn--outline form__control-btn create-recipe__form-add-btn"
+                >
+                    <img src="/assets/icons/plus.svg" alt="" class="form__control-thumb" />
+                    Add step
+                </a>
+            </div>
+
+            <div class="form__group create-recipe__form-item">
+                <button type="submit" class="btn btn--primary">Add recipe</button>
+            </div>
+        </form>
+    </div>
 </div>
+
+{{!-- Dynamic input for ingredients --}}
+<script>
+    const addIngredientBtn = document.getElementById("add-ingredient-btn");
+    const inputIngredientList = document.getElementById("add-ingredient-input");
+    const addInstructionBtn = document.getElementById("add-instruction-btn");
+    const inputInstructionList = document.getElementById("add-instruction-input");
+    var index = 1;
+
+    function removeInput() {
+        this.parentElement.remove();
+    }
+
+    function addIngredientInput() {
+        event.preventDefault();
+
+        const name = document.createElement("input");
+        name.type = "text";
+        name.name = "ingredient-name";
+        name.placeholder = "Name";
+        name.className = "form-input__input form-input__input--first";
+
+        const quantity = document.createElement("input");
+        quantity.type = "text";
+        quantity.name = "ingredient-quantity";
+        quantity.placeholder = "Quantity";
+        quantity.className = "form-input__input form-input__input--second";
+
+        const delBtn = document.createElement("button");
+        delBtn.className = "btn btn--outline form__control-btn";
+        delBtn.innerHTML =
+            '<img src="/assets/icons/xmark.svg" alt="" class="form__control-thumb" />';
+        delBtn.addEventListener("click", removeInput);
+
+        const separate = document.createElement("div");
+        separate.className = "form-input__input--separate";
+
+        const inputItem = document.createElement("div");
+        inputItem.className = "form-input__item";
+
+        inputIngredientList.appendChild(inputItem);
+
+        inputItem.appendChild(name);
+        inputItem.appendChild(separate);
+        inputItem.appendChild(quantity);
+        inputItem.appendChild(delBtn);
+    }
+
+    function addInstructionInput() {
+        event.preventDefault();
+
+        const step = document.createElement("input");
+        step.type = "number";
+        step.name = "step-number";
+        step.className = "form-input__input form-input__input--second";
+        step.value = ++index;
+
+        const instructionDesc = document.createElement("input");
+        instructionDesc.type = "text";
+        instructionDesc.name = "instruction-desc";
+        instructionDesc.placeholder = "Description";
+        instructionDesc.className = "form-input__input form-input__input--first";
+
+        const delBtn = document.createElement("button");
+        delBtn.className = "btn btn--outline form__control-btn";
+        delBtn.innerHTML =
+            '<img src="/assets/icons/xmark.svg" alt="" class="form__control-thumb" />';
+        delBtn.addEventListener("click", removeInput);
+
+        const separate = document.createElement("div");
+        separate.className = "form-input__input--separate";
+
+        const text = document.createElement("p");
+        text.className = "form-input__text";
+        text.innerHTML = "Step";
+
+        const inputItem = document.createElement("div");
+        inputItem.className = "form-input__item";
+
+        inputInstructionList.appendChild(inputItem);
+
+        inputItem.appendChild(text);
+        inputItem.appendChild(step);
+        inputItem.appendChild(separate);
+        inputItem.appendChild(instructionDesc);
+        inputItem.appendChild(delBtn);
+    }
+
+    addIngredientBtn.addEventListener("click", addIngredientInput);
+    addInstructionBtn.addEventListener("click", addInstructionInput);
+</script>
