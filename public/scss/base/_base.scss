@@ -1,4 +1,4 @@
-@use '../abstracts';
+@use "../abstracts";
 
 *,
 ::before,
@@ -16,7 +16,7 @@ html {
 
 body {
     font-size: 1.6rem;
-    font-family: 'Gordita', sans-serif;
+    font-family: "Gordita", sans-serif;
     color: var(--text-color);
     background-color: var(--body-bg);
 }

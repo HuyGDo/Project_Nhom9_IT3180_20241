@@ -1,4 +1,4 @@
-.home {
+.create-recipe {
     margin-bottom: 60px;
 
     &__container {
@@ -22,5 +22,29 @@
         font-size: 2rem;
         font-weight: 600;
         line-height: 141.667%px; /* 141.667% */
+    }
+
+    &__form {
+        margin-top: 10px;
+
+        &__list {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        &-item {
+            margin-top: 40px;
+
+            &--row {
+                display: flex;
+                justify-content: space-between;
+                gap: 20px;
+            }
+        }
+
+        &-add-btn {
+            margin-top: 20px;
+        }
     }
 }

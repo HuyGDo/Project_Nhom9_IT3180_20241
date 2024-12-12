@@ -36,6 +36,7 @@ const recipeSchema = new mongoose.Schema({
     },
     ingredients: [
         {
+            _id: false,
             name: {
                 type: String,
             },
@@ -44,6 +45,7 @@ const recipeSchema = new mongoose.Schema({
     ],
     instructions: [
         {
+            _id: false,
             stepNumber: Number,
             description: {
                 type: String,

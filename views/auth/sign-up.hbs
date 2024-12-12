@@ -13,43 +13,33 @@
             <form method="POST" action="/sign-up" class="form auth__form">
                 {{!-- Name --}}
                 <div class="form__group auth__form-item auth__form-item--row">
-                    <div>
+                    <div class="form-input__list">
                         {{!-- First name --}}
-                        <div class="form__text-input">
+                        <div class="form-input__item">
                             <input
                                 type="text"
                                 name="first_name"
                                 id="first_name"
                                 value="{{ newUserdata.first_name }}"
                                 placeholder="First name"
-                                class="form__input"
+                                class="form-input__input"
                             />
-                            <img src="./assets/icons/user.svg" alt="" class="form__input-icon" />
-                            <img
-                                src="./assets/icons/form-error.svg"
-                                alt=""
-                                class="form__input-icon-error"
-                            />
+                            <img src="./assets/icons/user.svg" alt="" class="form-input__icon" />
                         </div>
                         <p class="form__error">{{ errors.first_name }}</p>
                     </div>
                     {{!-- Last name --}}
-                    <div>
-                        <div class="form__text-input">
+                    <div class="form-input__list">
+                        <div class="form-input__item">
                             <input
                                 type="text"
                                 name="last_name"
                                 id="last_name"
                                 value="{{ newUserdata.last_name }}"
                                 placeholder="Last name"
-                                class="form__input"
+                                class="form-input__input"
                             />
-                            <img src="./assets/icons/user.svg" alt="" class="form__input-icon" />
-                            <img
-                                src="./assets/icons/form-error.svg"
-                                alt=""
-                                class="form__input-icon-error"
-                            />
+                            <img src="./assets/icons/user.svg" alt="" class="form-input__icon" />
                         </div>
                         <p class="form__error">{{ errors.last_name }}</p>
                     </div>
@@ -57,62 +47,80 @@
 
                 {{!-- Email --}}
                 <div class="form__group auth__form-item">
-                    <div class="form__text-input">
-                        <input
-                            type="text"
-                            name="email"
-                            id="email"
-                            value="{{ newUserdata.email }}"
-                            placeholder="Email"
-                            class="form__input"
-                        />
-                        <img src="./assets/icons/message.svg" alt="" class="form__input-icon" />
-                        <img
-                            src="./assets/icons/form-error.svg"
-                            alt=""
-                            class="form__input-icon-error"
-                        />
+                    <div class="form-input__list">
+                        <div class="form-input__item">
+                            <input
+                                type="text"
+                                name="email"
+                                id="email"
+                                value="{{ newUserdata.email }}"
+                                placeholder="Email"
+                                class="form-input__input"
+                            />
+                            <img
+                                src="./assets/icons/message.svg"
+                                alt=""
+                                class="form-input__input-icon"
+                            />
+                            <img
+                                src="./assets/icons/form-error.svg"
+                                alt=""
+                                class="form-input__input-icon-error"
+                            />
+                        </div>
+                        <p class="form__error">{{ errors.email }}</p>
                     </div>
-                    <p class="form__error">{{ errors.email }}</p>
                 </div>
 
                 {{!-- Password --}}
                 <div class="form__group auth__form-item">
-                    <div class="form__text-input">
-                        <input
-                            type="password"
-                            name="password"
-                            id="password"
-                            value="{{ newUserdata.password }}"
-                            placeholder="Password"
-                            class="form__input"
-                        />
-                        <img src="./assets/icons/lock.svg" alt="" class="form__input-icon" />
-                        <img
-                            src="./assets/icons/form-error.svg"
-                            alt=""
-                            class="form__input-icon-error"
-                        />
+                    <div class="form-input__list">
+                        <div class="form-input__item">
+                            <input
+                                type="password"
+                                name="password"
+                                id="password"
+                                value="{{ newUserdata.password }}"
+                                placeholder="Password"
+                                class="form-input__input"
+                            />
+                            <img
+                                src="./assets/icons/lock.svg"
+                                alt=""
+                                class="form-input__input-icon"
+                            />
+                            <img
+                                src="./assets/icons/form-error.svg"
+                                alt=""
+                                class="form-input__input-icon-error"
+                            />
+                        </div>
+                        <p class="form__error">{{ errors.password }}</p>
                     </div>
-                    <p class="form__error">{{ errors.password }}</p>
                 </div>
 
                 {{!-- Confirm password --}}
                 <div class="form__group auth__form-item">
-                    <div class="form__text-input">
-                        <input
-                            type="password"
-                            name=""
-                            id=""
-                            placeholder="Confirm password"
-                            class="form__input"
-                        />
-                        <img src="./assets/icons/lock.svg" alt="" class="form__input-icon" />
-                        <img
-                            src="./assets/icons/form-error.svg"
-                            alt=""
-                            class="form__input-icon-error"
-                        />
+                    <div class="form-input__list">
+                        <div class="form-input__item">
+                            <input
+                                type="password"
+                                name=""
+                                id=""
+                                placeholder="Confirm password"
+                                class="form-input__input"
+                            />
+                            <img
+                                src="./assets/icons/lock.svg"
+                                alt=""
+                                class="form-input__input-icon"
+                            />
+                            <img
+                                src="./assets/icons/form-error.svg"
+                                alt=""
+                                class="form-input__input-icon-error"
+                            />
+                        </div>
                     </div>
                 </div>
 
