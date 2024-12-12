@@ -9,7 +9,11 @@ const flash = require("connect-flash");
 const cookieParser = require("cookie-parser");
 const session = require("express-session");
 const app = express();
-
+const { requireAuth, checkUser } = require('./middleware/authMiddleware');
+const authRouter = require('./routes/authRouters');
+const defaultRouter = require('./routes/defaultRouters');
+const meRouter = require('./routes/meRouters');
+const recipesRouter = require('./routes/recipeRouters');
 /* Configure Mongoose */
 const db = require("./config/db");
 db.connect();
@@ -63,3 +67,12 @@ route(app);
 app.listen(PORT, () => {
     console.log(`Server is running on: http://localhost:${PORT}`);
 });
+
+// Apply checkUser middleware to all routes
+app.get('*', checkUser);
+
+// Define routes
+app.get('/', (req, res) => res.render('home'));
+app.use('/', defaultRouter);
+app.use('/me', meRouter);
+app.use('/recipes', recipesRouter);

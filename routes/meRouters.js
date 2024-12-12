@@ -9,7 +9,7 @@ const auth = require("../middleware/authMiddleware");
 router.get("/stored/recipes", auth.requireAuth, meController.showStoredRecipes);
 
 // Route to get user's info
-router.get("/", auth.requireAuth, meController.showUserInfo);
+router.get("/", auth.requireAuth, auth.checkUser, meController.showUserInfo);
 
 // Route to show stored recipes
 router.get("/stored/recipes", auth.requireAuth, meController.showStoredRecipes);

@@ -35,7 +35,7 @@ module.exports.checkUser = (req, res, next) => {
                 next();
             } else {
                 console.log("JWT Decoded Token in checkUser:", decodeToken);
-                let user = await User.findById(decodeToken.id);
+                let user = await User.findById(decodeToken.id).lean();
                 res.locals.user = user;
                 next();
             }

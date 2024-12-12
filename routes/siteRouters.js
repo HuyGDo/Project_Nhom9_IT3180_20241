@@ -6,7 +6,7 @@ const authRouter = require("./authRouters");
 const { checkUser } = require("../middleware/authMiddleware");
 
 module.exports = (app) => {
-    app.use(checkUser); // Apply to all routes and methods
+    // app.use(checkUser); // Apply to all routes and methods
     app.use("/", defaultRouter);
     app.use("/me", meRouter);
     app.use("/recipes", recipesRouter);

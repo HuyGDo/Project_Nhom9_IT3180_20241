@@ -71,7 +71,7 @@ module.exports.updateProfile = async (req, res) => {
     }
 
     try {
-        const user = await User.findById(userId);
+        const user = await User.findById(userId).lean();
 
         if (!user) {
             console.log("updateProfile - User Not Found");
