@@ -9,3 +9,5 @@ async function connect(){
         console.log("Connection failure!: ", error);
     }
 }
+
+module.exports = { connect };
