@@ -1,0 +1,177 @@
+<!-- views/me/edit-profile.hbs -->
+<main class="profile">
+    <div class="profile__container">
+        <h1 class="profile__heading">Edit Your Profile</h1>
+        
+        <!-- Success Message -->
+        {{#if successMessage}}
+            <div class="alert alert--success">
+                {{successMessage}}
+            </div>
+        {{/if}}
+
+        <!-- Profile Picture Section -->
+        <div class="profile__avatar-section">
+            <img 
+                src="{{#if user.profile_picture}}{{user.profile_picture}}{{else}}/assets/img/default-avatar.png{{/if}}" 
+                alt="Profile Picture" 
+                class="profile__avatar" 
+                id="avatarPreview"
+            />
+            <div class="profile__upload">
+                <label for="profile_picture" class="btn btn--secondary">Change Profile Picture</label>
+                <input 
+                    type="text" 
+                    name="profile_picture" 
+                    id="profile_picture" 
+                    placeholder="Enter Image URL" 
+                    class="form__input profile__input" 
+                    value="{{user.profile_picture}}"
+                    oninput="updateAvatar(this.value)"
+                />
+                {{#if errors.profile_picture}}
+                    <p class="form__error">{{errors.profile_picture}}</p>
+                {{/if}}
+            </div>
+        </div>
+        
+        <form method="POST" action="/me/edit-profile" class="form profile__form">
+            <!-- First Name -->
+            <div class="form__group">
+                <label for="first_name" class="form__label">First Name</label>
+                <input
+                    type="text"
+                    name="first_name"
+                    id="first_name"
+                    value="{{user.first_name}}"
+                    placeholder="First Name"
+                    class="form__input"
+                />
+                {{#if errors.first_name}}
+                    <p class="form__error">{{errors.first_name}}</p>
+                {{/if}}
+            </div>
+
+            <!-- Last Name -->
+            <div class="form__group">
+                <label for="last_name" class="form__label">Last Name</label>
+                <input
+                    type="text"
+                    name="last_name"
+                    id="last_name"
+                    value="{{user.last_name}}"
+                    placeholder="Last Name"
+                    class="form__input"
+                />
+                {{#if errors.last_name}}
+                    <p class="form__error">{{errors.last_name}}</p>
+                {{/if}}
+            </div>
+
+            <!-- Username -->
+            <div class="form__group">
+                <label for="username" class="form__label">Username</label>
+                <input
+                    type="text"
+                    name="username"
+                    id="username"
+                    value="{{user.username}}"
+                    placeholder="Username"
+                    class="form__input"
+                />
+                {{#if errors.username}}
+                    <p class="form__error">{{errors.username}}</p>
+                {{/if}}
+            </div>
+
+            <!-- Email -->
+            <div class="form__group">
+                <label for="email" class="form__label">Email</label>
+                <input
+                    type="email"
+                    name="email"
+                    id="email"
+                    value="{{user.email}}"
+                    placeholder="Email"
+                    class="form__input"
+                />
+                {{#if errors.email}}
+                    <p class="form__error">{{errors.email}}</p>
+                {{/if}}
+            </div>
+
+            <!-- Profile Picture URL -->
+            <div class="form__group">
+                <label for="profile_picture" class="form__label">Profile Picture URL</label>
+                <input
+                    type="text"
+                    name="profile_picture"
+                    id="profile_picture"
+                    value="{{user.profile_picture}}"
+                    placeholder="Enter Image URL"
+                    class="form__input"
+                    oninput="updateAvatar(this.value)"
+                />
+                {{#if errors.profile_picture}}
+                    <p class="form__error">{{errors.profile_picture}}</p>
+                {{/if}}
+            </div>
+
+            <!-- New Password (Optional) -->
+            <div class="form__group">
+                <label for="password" class="form__label">New Password</label>
+                <input
+                    type="password"
+                    name="password"
+                    id="password"
+                    placeholder="Enter New Password"
+                    class="form__input"
+                />
+                {{#if errors.password}}
+                    <p class="form__error">{{errors.password}}</p>
+                {{/if}}
+                <!-- Password Strength Indicator -->
+                <div id="passwordStrength" class="password-strength"></div>
+            </div>
+
+            <!-- Submit Button -->
+            <div class="form__group form__group--center">
+                <button type="submit" class="btn btn--primary">Update Profile</button>
+            </div>
+        </form>
+    </div>
+
+    <!-- JavaScript for Avatar Preview and Password Strength -->
+    <script>
+        // Avatar Preview Function
+        function updateAvatar(url) {
+            const avatar = document.getElementById('avatarPreview');
+            if (url) {
+                avatar.src = url;
+            } else {
+                avatar.src = '/assets/img/default-avatar.png';
+            }
+        }
+
+        // Password Strength Indicator
+        const passwordInput = document.getElementById('password');
+        const strengthIndicator = document.getElementById('passwordStrength');
+
+        passwordInput.addEventListener('input', () => {
+            const strength = getPasswordStrength(passwordInput.value);
+            strengthIndicator.textContent = strength.message;
+            strengthIndicator.style.color = strength.color;
+        });
+
+        function getPasswordStrength(password) {
+            let strength = { message: 'Weak', color: '#e74c3c' };
+            if (password.length >= 8) {
+                strength = { message: 'Moderate', color: '#f1c40f' };
+            }
+            if (password.length >= 12 && /[A-Z]/.test(password) && /[0-9]/.test(password)) {
+                strength = { message: 'Strong', color: '#2ecc71' };
+            }
+            return strength;
+        }
+    </script>
+</main>

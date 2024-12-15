@@ -1,0 +1,99 @@
+<!-- views/auth/sign-in.hbs -->
+<main class="auth">
+    <!-- Auth decor -->
+    <div class="auth__left">
+        <img src="./assets/img/logo.png" alt="BussinCookin" class="auth__left-img" />
+    </div>
+
+    <!-- Auth content -->
+    <div class="auth__right">
+        <div class="auth__content">
+            <h1 class="auth__heading">Sign In</h1>
+            <p class="auth__desc">Welcome back! Let's sign in and start cookin'!</p>
+            <form method="POST" action="/sign-in" class="form auth__form">
+                {{!-- Email --}}
+                <div class="form__group auth__form-item">
+                    <div class="form-input__list">
+                        <div class="form-input__item">
+                            <input
+                                type="text"
+                                name="email"
+                                id="email"
+                                value="{{ newUserdata.email }}"
+                                placeholder="Email"
+                                class="form-input__input"
+                            />
+                            <img
+                                src="./assets/icons/message.svg"
+                                alt=""
+                                class="form-input__input-icon"
+                            />
+                            <img
+                                src="./assets/icons/form-error.svg"
+                                alt=""
+                                class="form-input__input-icon-error"
+                            />
+                        </div>
+                    </div>
+                    <p class="form__error">{{ errors.email }}</p>
+                </div>
+
+                {{!-- Password --}}
+                <div class="form__group auth__form-item">
+                    <div class="form-input__list">
+                        <div class="form-input__item">
+                            <input
+                                type="password"
+                                name="password"
+                                id="password"
+                                value="{{ newUserdata.password }}"
+                                placeholder="Password"
+                                class="form-input__input"
+                            />
+                            <img
+                                src="./assets/icons/lock.svg"
+                                alt=""
+                                class="form-input__input-icon"
+                            />
+                            <img
+                                src="./assets/icons/form-error.svg"
+                                alt=""
+                                class="form-input__input-icon-error"
+                            />
+                        </div>
+                    </div>
+                    <p class="form__error">{{ errors.password }}</p>
+                </div>
+
+                <div class="form__group auth__form-item auth__form-item--row">
+                    <label class="form__checkbox">
+                        <input type="checkbox" name="" id="" class="form__checkbox-input d-none" />
+                        <span class="form__checkbox-label">Remember me</span>
+                    </label>
+
+                    <a href="#!" class="auth__link">Forgot Password?</a>
+                </div>
+
+                <div class="form__group auth__form-item">
+                    <button type="submit" class="btn btn--primary auth__btn form__submit-btn">
+                        Sign In
+                    </button>
+                </div>
+
+                <div class="form__group auth__form-item">
+                    <button class="btn btn--outline auth__btn">
+                        <img src="./assets/icons/google.svg" alt="" class="btn__icon icon" />
+                        Sign in with Gmail
+                    </button>
+                </div>
+            </form>
+
+            <div class="auth__form-item">
+                <p class="auth__text">
+                    Don't have an account yet?
+                    <a href="./sign-up" class="auth__link">Sign Up</a>
+                </p>
+            </div>
+        </div>
+    </div>
+</main>

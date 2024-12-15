@@ -1,0 +1,26 @@
+.home {
+    margin-bottom: 60px;
+
+    &__container {
+        margin-top: 40px;
+    }
+
+    &__row {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        margin-bottom: 20px;
+    }
+
+    &__heading {
+        font-size: 2.4rem;
+        font-weight: 700;
+        line-height: 141.667%px; /* 141.667% */
+    }
+
+    &__sub-heading {
+        font-size: 2rem;
+        font-weight: 600;
+        line-height: 141.667%px; /* 141.667% */
+    }
+}

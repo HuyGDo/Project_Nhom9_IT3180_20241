@@ -1,0 +1,17 @@
+.logo {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+
+    &__img {
+        height: auto;
+        width: 60px;
+    }
+
+    &__title {
+        font-family: "Bryndan Write", sans-serif;
+        font-size: 2.2rem;
+        font-weight: 700;
+        line-height: 1; /* 145.455% */
+    }
+}

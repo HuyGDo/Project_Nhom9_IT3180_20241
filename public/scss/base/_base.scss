@@ -1,0 +1,74 @@
+@use "../abstracts";
+
+*,
+::before,
+::after {
+    box-sizing: border-box;
+}
+
+* {
+    -webkit-tap-highlight-color: transparent;
+}
+
+html {
+    font-size: 62.5%;
+}
+
+body {
+    font-size: 1.6rem;
+    font-family: "Gordita", sans-serif;
+    color: var(--text-color);
+    background-color: var(--body-bg);
+}
+
+a {
+    color: inherit;
+    text-decoration: none;
+}
+
+button {
+    border: none;
+    outline: none;
+    background-color: transparent;
+    padding: 0;
+    cursor: pointer;
+}
+
+a,
+img,
+button,
+input,
+label,
+textarea,
+select {
+    padding: 0;
+    font-family: inherit;
+    color: inherit;
+    outline: none;
+    border: none;
+}
+
+input {
+    background-color: transparent;
+}
+
+.icon {
+    filter: var(--icon-color);
+}
+
+.container {
+    @include abstracts.screen(sm) {
+        padding-left: 20px !important;
+        padding-right: 20px !important;
+    }
+}
+
+i,
+em {
+    font-style: italic;
+}
+
+b,
+strong {
+    font-weight: 600;
+}

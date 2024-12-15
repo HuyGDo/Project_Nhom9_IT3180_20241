@@ -1,0 +1,30 @@
+<!-- views/me/user-info.hbs -->
+<main class="profile">
+    <div class="profile__container">
+        <h1 class="profile__heading">My Profile</h1>
+        
+        <!-- Profile Information Section -->
+        <div class="profile__info-section">
+            <div class="profile__avatar-section">
+                <img 
+                    src="{{#if user.profile_picture}}{{user.profile_picture}}{{else}}/assets/img/default-avatar.png{{/if}}" 
+                    alt="Profile Picture" 
+                    class="profile__avatar" 
+                />
+            </div>
+            <div class="profile__details">
+                <p><strong>First Name:</strong> {{user.first_name}}</p>
+                <p><strong>Last Name:</strong> {{user.last_name}}</p>
+                <p><strong>Username:</strong> {{user.username}}</p>
+                <p><strong>Email:</strong> {{user.email}}</p>
+                <!-- Add more fields as necessary -->
+            </div>
+        </div>
+        
+        <!-- Action Buttons -->
+        <div class="profile__actions">
+            <a href="/me/edit-profile" class="btn btn--primary">Edit Profile</a>
+            <a href="/log-out" class="btn btn--secondary">Logout</a>
+        </div>
+    </div>
+</main>

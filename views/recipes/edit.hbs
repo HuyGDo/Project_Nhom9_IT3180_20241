@@ -1,0 +1,37 @@
+<div class="container">
+    <h1>Edit Recipe</h1>
+    <form method="POST" action="/recipes/{{ recipe._id }}?_method=PUT" class="form">
+        <div class="form__group">
+            <label for="title" class="form__label">Title</label>
+            <div class="form-input__list">
+                <div class="form-input__item">
+                    <input
+                        type="text"
+                        name="title"
+                        value="{{ recipe.title }}"
+                        id="title"
+                        class="form-input__input"
+                        placeholder="Title"
+                    />
+                </div>
+            </div>
+        </div>
+
+        <div class="form__group">
+            <label for="description" class="form__label">Description</label>
+            <div class="form-input__list">
+                <div class="form-input__item">
+                    <textarea
+                        name="description"
+                        id="description"
+                        class="form-input__input"
+                        placeholder="Description"
+                        >{{ recipe.description }}
+                </textarea
+                    >
+                </div>
+            </div>
+        </div>
+        <button type="submit" class="btn btn--primary">Save recipe</button>
+    </form>
+</div>

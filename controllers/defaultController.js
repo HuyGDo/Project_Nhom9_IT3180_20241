@@ -1,12 +1,22 @@
-const Config = require('../config/configuration');
-const { redirect } = require('express/lib/response');
+//controllers/defaultController.js
+const Config = require("../config/configuration");
+const { redirect } = require("express/lib/response");
+const Recipe = require("../models/Recipe");
 
-class defaultController {
-    // [GET] /index
-    index(req, res, next) {
-        res.render('default/index', { title: 'Trang chủ', path: "index", });
+// Controller function for rendering the home page
+module.exports.show = async (req, res) => {
+    try {
+        // Get recipe data from the database
+        const data = await Recipe.find().lean();
+
+        // Render the home page with the recipe data
+        res.render("default/home", {
+            layout: "default",
+            title: "Browse recipes",
+            recipes: data,
+        });
+    } catch (error) {
+        console.error("Error fetching recipes:", error);
+        res.status(500).send("An error occurred while fetching recipes.");
     }
-
-}
-
-module.exports = new defaultController;
+};
