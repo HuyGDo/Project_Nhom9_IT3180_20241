@@ -32,6 +32,7 @@ app.engine(
         defaultLayout: "default",
         helpers: {
             sum: (a, b) => a + b,
+            eq: (a, b) => a === b, // Added eq helper
         },
     }),
 );
