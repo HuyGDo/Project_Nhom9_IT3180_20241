@@ -1,0 +1,32 @@
+<!-- filepath: views/users/profile.hbs -->
+<div class="profile__details">
+  <p><strong>First Name:</strong> {{user.first_name}}</p>
+  <h3>Followers ({{user.followers.length}})</h3>
+<ul>
+  {{#each user.followers}}
+    <li><a href="/users/{{this}}">{{this}}</a></li>
+  {{/each}}
+</ul>
+
+<h3>Following ({{user.following.length}})</h3>
+<ul>
+  {{#each user.following}}
+    <li><a href="/users/{{this}}">{{this}}</a></li>
+  {{/each}}
+</ul>
+</div>
+
+<!-- Action Buttons -->
+{{#if isOwnProfile}}
+  <p>This is your profile.</p>
+{{else}}
+  {{#if isFollowing}}
+    <form action="/users/{{user._id}}/unfollow" method="POST">
+      <button type="submit">Unfollow</button>
+    </form>
+  {{else}}
+    <form action="/users/{{user._id}}/follow" method="POST">
+      <button type="submit">Follow</button>
+    </form>
+  {{/if}}
+{{/if}}

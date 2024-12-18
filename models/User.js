@@ -35,6 +35,13 @@ const userSchema = new mongoose.Schema({
     profile_picture: {
         type: String,
     },
+    //subscription
+    following: [{ 
+        type: mongoose.Schema.Types.ObjectId, ref: 'User' 
+    }],
+    followers: [{ 
+        type: mongoose.Schema.Types.ObjectId, ref: 'User' 
+    }],
 });
 
 // fire a function after doc saved to db

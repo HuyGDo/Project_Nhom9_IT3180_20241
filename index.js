@@ -9,7 +9,7 @@ const flash = require("connect-flash");
 const cookieParser = require("cookie-parser");
 const session = require("express-session");
 const app = express();
-
+const authMiddleware = require("./middleware/authMiddleware");
 /* Configure Mongoose */
 const db = require("./config/db");
 db.connect();
@@ -56,6 +56,8 @@ app.use(methodOverride("_method"));
 
 /* Use Global Variables */
 app.use(globalVariables);
+
+app.use(authMiddleware.setCurrentUser);
 
 /* Routes init */
 const route = require("./routes/siteRouters");

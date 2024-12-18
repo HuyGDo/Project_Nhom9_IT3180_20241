@@ -27,4 +27,17 @@
             <a href="/log-out" class="btn btn--secondary">Logout</a>
         </div>
     </div>
+    {{#if isOwnProfile}}
+    <p>This is your profile.</p>
+    {{else}}
+    {{#if isFollowing}}
+        <form action="/users/{{user._id}}/unfollow" method="POST">
+        <button type="submit">Unfollow</button>
+        </form>
+    {{else}}
+        <form action="/users/{{user._id}}/follow" method="POST">
+        <button type="submit">Follow</button>
+        </form>
+    {{/if}}
+    {{/if}}
 </main>

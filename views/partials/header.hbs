@@ -33,6 +33,9 @@
             <a href="/sign-up" class="btn btn--text">Sign Up</a>
 
             {{/if }}
+            {{#if user}}
+            <a href="/users/{{user._id}}" class="btn btn--text">My Profile</a>
+            {{/if}}
         </div>
     </div>
 </div>
