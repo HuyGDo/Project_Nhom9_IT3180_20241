@@ -3,6 +3,9 @@ const express = require("express");
 const router = express.Router();
 const userController = require("../controllers/userController");
 
+// List all users
+router.get("/", userController.listUsers);
+
 // View other users profile
 router.get("/:id", userController.viewProfile);
 

@@ -107,3 +107,34 @@ module.exports.unfollowUser = async (req, res) => {
         res.status(500).send("Unable to unfollow this user");
     }
 };
+
+module.exports.listUsers = async (req, res) => {
+    try {
+        // Get current user ID
+        const currentUserId = req.user?._id || res.locals.user?._id;
+
+        // Find all users except current user
+        const users = await User.find({
+            _id: { $ne: currentUserId },
+        }).lean();
+
+        // Get current user's following list
+        const currentUser = await User.findById(currentUserId).lean();
+        const followingList = currentUser?.following || [];
+
+        // Add isFollowing flag to each user
+        const usersWithFollowStatus = users.map((user) => ({
+            ...user,
+            isFollowing: followingList.some((id) => id.toString() === user._id.toString()),
+        }));
+
+        res.render("users/list", {
+            layout: "default",
+            title: "All Users",
+            users: usersWithFollowStatus,
+        });
+    } catch (error) {
+        console.error("Error loading users:", error);
+        res.status(500).send("Error loading users list");
+    }
+};
