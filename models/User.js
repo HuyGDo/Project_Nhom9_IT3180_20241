@@ -36,12 +36,18 @@ const userSchema = new mongoose.Schema({
         type: String,
     },
     //subscription
-    following: [{ 
-        type: mongoose.Schema.Types.ObjectId, ref: 'User' 
-    }],
-    followers: [{ 
-        type: mongoose.Schema.Types.ObjectId, ref: 'User' 
-    }],
+    following: [
+        {
+            type: mongoose.Schema.Types.ObjectId,
+            ref: "User",
+        },
+    ],
+    followers: [
+        {
+            type: mongoose.Schema.Types.ObjectId,
+            ref: "User",
+        },
+    ],
 });
 
 // fire a function after doc saved to db
@@ -67,6 +73,32 @@ userSchema.statics.signin = async function (email, password) {
         throw Error("Incorrect password.");
     }
     throw Error("Incorrect email.");
+};
+
+// Instance method for subscribing to another user
+userSchema.methods.follow = async function (targetUserId) {
+    if (!this.following.includes(targetUserId)) {
+        this.following.push(targetUserId);
+        await this.save();
+
+        const targetUser = await this.model("User").findById(targetUserId);
+        if (!targetUser.followers.includes(this._id)) {
+            targetUser.followers.push(this._id);
+            await targetUser.save();
+        }
+    }
+};
+
+// Instance method for unsubscribing from another user
+userSchema.methods.unfollow = async function (targetUserId) {
+    this.following = this.following.filter((id) => id.toString() !== targetUserId.toString());
+    await this.save();
+
+    const targetUser = await this.model("User").findById(targetUserId);
+    targetUser.followers = targetUser.followers.filter(
+        (id) => id.toString() !== this._id.toString(),
+    );
+    await targetUser.save();
 };
 
 module.exports = mongoose.model("User", userSchema);

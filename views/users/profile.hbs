@@ -1,32 +1,34 @@
 <!-- filepath: views/users/profile.hbs -->
-<div class="profile__details">
-  <p><strong>First Name:</strong> {{user.first_name}}</p>
-  <h3>Followers ({{user.followers.length}})</h3>
-<ul>
-  {{#each user.followers}}
-    <li><a href="/users/{{this}}">{{this}}</a></li>
-  {{/each}}
-</ul>
 
-<h3>Following ({{user.following.length}})</h3>
-<ul>
-  {{#each user.following}}
-    <li><a href="/users/{{this}}">{{this}}</a></li>
-  {{/each}}
-</ul>
+<div class="profile__details">
+    <p><strong>First Name:</strong> {{ profileUser.first_name }}</p>
+    <p><strong>Last Name:</strong> {{ profileUser.last_name }}</p>
+    <h3>Followers ({{ profileUser.followers.length }})</h3>
+    <ul>
+        {{#each profileUser.followers}}
+        <li>
+            <a href="/users/{{ this }}">{{ this }}</a>
+        </li>
+        {{/each}}
+    </ul>
+
+    <h3>Following ({{ profileUser.following.length }})</h3>
+    <ul>
+        {{#each profileUser.following}}
+        <li>
+            <a href="/users/{{ this }}">{{ this }}</a>
+        </li>
+        {{/each}}
+    </ul>
 </div>
 
 <!-- Action Buttons -->
-{{#if isOwnProfile}}
-  <p>This is your profile.</p>
+{{#if isSubscribed}}
+<form action="/users/{{ profileUser._id }}/unfollow" method="POST">
+    <button type="submit">Unfollow</button>
+</form>
 {{else}}
-  {{#if isFollowing}}
-    <form action="/users/{{user._id}}/unfollow" method="POST">
-      <button type="submit">Unfollow</button>
-    </form>
-  {{else}}
-    <form action="/users/{{user._id}}/follow" method="POST">
-      <button type="submit">Follow</button>
-    </form>
-  {{/if}}
+<form action="/users/{{ profileUser._id }}/follow" method="POST">
+    <button type="submit">Follow</button>
+</form>
 {{/if}}

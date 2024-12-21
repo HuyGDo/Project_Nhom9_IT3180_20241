@@ -1,61 +1,109 @@
 //controllers/userController.js
-const User = require('../models/User');
+const User = require("../models/User");
+const mongoose = require("mongoose");
 
-exports.followUser = async (req, res) => {
-  try {
-    const userToFollow = await User.findById(req.params.id);
-    const currentUser = await User.findById(req.user._id);
-
-    if (!currentUser.following.includes(userToFollow._id)) {
-      currentUser.following.push(userToFollow._id);
-      userToFollow.followers.push(currentUser._id);
-      await currentUser.save();
-      await userToFollow.save();
-    }
-
-    res.redirect(`/users/${userToFollow._id}`);
-  } catch (error) {
-    res.status(500).send('Error following user');
-  }
-};
-
-exports.unfollowUser = async (req, res) => {
-  try {
-    const userToUnfollow = await User.findById(req.params.id);
-    const currentUser = await User.findById(req.user._id);
-
-    currentUser.following = currentUser.following.filter(
-      (id) => !id.equals(userToUnfollow._id)
-    );
-    userToUnfollow.followers = userToUnfollow.followers.filter(
-      (id) => !id.equals(currentUser._id)
-    );
-    await currentUser.save();
-    await userToUnfollow.save();
-
-    res.redirect(`/users/${userToUnfollow._id}`);
-  } catch (error) {
-    res.status(500).send('Error unfollowing user');
-  }
-};
-
-exports.viewProfile = async (req, res) => {
+module.exports.viewProfile = async (req, res) => {
     try {
-    console.log('Requested User ID:', req.params.id);
-      const profileUser = await User.findById(req.params.id).lean();
-      const currentUser = req.user;
-  
-      const isOwnProfile = currentUser && profileUser._id.equals(currentUser._id);
-      const isFollowing = currentUser && currentUser.following.includes(profileUser._id);
-  
-      res.render('users/profile', {
-        layout: 'default',
-        user: profileUser,
-        isOwnProfile,
-        isFollowing,
-      });
+        const userId = req.params.id;
+        console.log("Requested User ID:", userId);
+
+        if (!userId || !mongoose.Types.ObjectId.isValid(userId)) {
+            return res.status(400).send("Invalid user ID");
+        }
+
+        const profileUser = await User.findOne({ _id: userId }).lean();
+
+        if (!profileUser) {
+            return res.status(404).send("User not found");
+        }
+
+        const currentUser = await User.findById(req.user?._id || res.locals.user?._id).lean();
+        console.log("Current User:", currentUser);
+
+        let isSubscribed = false;
+        if (currentUser?.following && profileUser) {
+            isSubscribed = currentUser.following.some(
+                (followId) => followId.toString() === profileUser._id.toString(),
+            );
+        }
+        console.log("Is Subscribed:", isSubscribed);
+
+        res.render("users/profile", {
+            layout: "default",
+            title: "View Profile",
+            profileUser,
+            isSubscribed,
+        });
     } catch (error) {
-        console.error('Error loading profile:', error);
-        res.status(500).send('Error loading profile');
+        console.error("Error loading profile:", error);
+        res.status(500).send(`Error loading profile: ${error.message}`);
     }
-  };
+};
+
+module.exports.followUser = async (req, res) => {
+    try {
+        const targetUserId = req.params.id;
+
+        if (!targetUserId || !mongoose.Types.ObjectId.isValid(targetUserId)) {
+            return res.status(400).json({ message: "Invalid user ID" });
+        }
+
+        const currentUserId = req.user?._id || res.locals.user?._id;
+        if (!currentUserId) {
+            return res.status(401).json({ message: "Please login to continue" });
+        }
+
+        if (currentUserId.toString() === targetUserId) {
+            return res.status(400).json({ message: "You cannot follow yourself" });
+        }
+
+        const currentUser = await User.findById(currentUserId);
+        if (!currentUser) {
+            return res.status(404).json({ message: "Current user not found" });
+        }
+
+        const targetUser = await User.findById(targetUserId);
+        if (!targetUser) {
+            return res.status(404).json({ message: "Target user not found" });
+        }
+
+        await currentUser.follow(targetUserId);
+
+        res.redirect(`/users/${targetUserId}`);
+    } catch (error) {
+        console.error("Follow error:", error);
+        res.status(500).send("Unable to follow this user");
+    }
+};
+
+module.exports.unfollowUser = async (req, res) => {
+    try {
+        const targetUserId = req.params.id;
+
+        if (!targetUserId || !mongoose.Types.ObjectId.isValid(targetUserId)) {
+            return res.status(400).json({ message: "Invalid user ID" });
+        }
+
+        const currentUserId = req.user?._id || res.locals.user?._id;
+        if (!currentUserId) {
+            return res.status(401).json({ message: "Please login to continue" });
+        }
+
+        const currentUser = await User.findById(currentUserId);
+        if (!currentUser) {
+            return res.status(404).json({ message: "Current user not found" });
+        }
+
+        const targetUser = await User.findById(targetUserId);
+        if (!targetUser) {
+            return res.status(404).json({ message: "Target user not found" });
+        }
+
+        await currentUser.unfollow(targetUserId);
+
+        res.redirect(`/users/${targetUserId}`);
+    } catch (error) {
+        console.error("Unfollow error:", error);
+        res.status(500).send("Unable to unfollow this user");
+    }
+};
