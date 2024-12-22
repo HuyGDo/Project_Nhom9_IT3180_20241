@@ -59,14 +59,37 @@ const recipeSchema = new mongoose.Schema({
         default: Date.now,
     },
 
+    votes: {
+        upvotes: { type: Number, default: 0 },
+        downvotes: { type: Number, default: 0 }
+    },
     slug: { type: String, slug: "title", unique: true },
+    userVotes: [{
+        user: { type: mongoose.Schema.Types.ObjectId, ref: 'User' },
+        voteType: { type: String, enum: ['up', 'down'] }
+    }]
+}, {
+    toObject: { virtuals: true },
+    toJSON: { virtuals: true }
+});
+
+// Thêm virtual để kiểm tra user đã vote chưa
+recipeSchema.virtual('userVoted').get(function() {
+    if (!this._user) return { up: false, down: false };
+    
+    const userVote = this.userVotes.find(
+        vote => vote.user.toString() === this._user._id.toString()
+    );
+    
+    return {
+        up: userVote?.voteType === 'up',
+        down: userVote?.voteType === 'down'
+    };
 });
 
 // Export the Recipe model
 module.exports = mongoose.model("Recipe", recipeSchema);
 // Mongoose.model(name, [schema], [collection], [skipInit])
-
-// Defines a model or retrieves it.
 
 // Parameters:
 

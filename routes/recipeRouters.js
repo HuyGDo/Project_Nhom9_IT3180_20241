@@ -3,6 +3,9 @@ const router = express.Router();
 const recipeController = require("../controllers/recipeController");
 const auth = require("../middleware/authMiddleware");
 
+// Route to get all recipes
+router.get("/", recipeController.showRecipes);
+
 // Route to create new recipe
 router.get("/create", auth.requireAuth, recipeController.createRecipe);
 
@@ -16,10 +19,9 @@ router.put("/:id", recipeController.updateRecipe);
 // Route to delete recipe
 router.delete("/:id", recipeController.deleteRecipe);
 
-// Route to recipe details
-router.get("/:slug", recipeController.showRecipeDetail);
-
-// Route to get all recipes
-router.get("/", recipeController.showRecipes);
+// Route to vote recipe 
+router.post('/:id/vote', auth.requireAuthAPI, recipeController.handleVote);
+// Route to recipe details 
+router.get("/:id", recipeController.showRecipeDetail);
 
 module.exports = router;

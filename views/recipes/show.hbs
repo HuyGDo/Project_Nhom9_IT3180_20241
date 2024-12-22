@@ -1,0 +1,115 @@
+<script>
+    window.isAuthenticated = {{#if user}}true{{else}}false{{/if}};
+</script>
+<div class="vote-container" data-recipe-id="{{recipe._id}}">
+    <button class="vote-btn upvote-btn {{#if recipe.userVoted.up}}voted{{/if}}" data-vote="up">
+        <i class="fas fa-thumbs-up"></i>
+        <span class="upvote-count">{{recipe.votes.upvotes}}</span>
+    </button>
+    <button class="vote-btn downvote-btn {{#if recipe.userVoted.down}}voted{{/if}}" data-vote="down">
+        <i class="fas fa-thumbs-down"></i>
+        <span class="downvote-count">{{recipe.votes.downvotes}}</span>
+    </button>
+</div>
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const voteContainer = document.querySelector('.vote-container');
+    if (!voteContainer) return;
+
+    const recipeId = voteContainer.dataset.recipeId;
+    const voteButtons = voteContainer.querySelectorAll('.vote-btn');
+    let isVoting = false;
+
+    voteButtons.forEach(button => {
+        button.addEventListener('click', async function(e) {
+            e.preventDefault();
+            
+            if (!window.isAuthenticated) {
+                alert('Vui lòng đăng nhập để bình chọn');
+                window.location.href = '/sign-in';
+                return;
+            }
+
+            if (isVoting) return;
+            
+            const voteType = this.dataset.vote;
+            isVoting = true;
+            
+            this.classList.add('loading');
+
+            try {
+                const response = await fetch(`/recipes/${recipeId}/vote`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'CSRF-Token': '{{csrfToken}}'
+                    },
+                    body: JSON.stringify({ voteType })
+                });
+
+                const data = await response.json();
+
+                if (data.success) {
+                    voteContainer.querySelector('.upvote-count').textContent = data.upvotes;
+                    voteContainer.querySelector('.downvote-count').textContent = data.downvotes;
+
+                    voteButtons.forEach(btn => btn.classList.remove('voted'));
+                    if (data.userVoted.up) {
+                        voteContainer.querySelector('.upvote-btn').classList.add('voted');
+                    }
+                    if (data.userVoted.down) {
+                        voteContainer.querySelector('.downvote-btn').classList.add('voted');
+                    }
+                } else {
+                    alert(data.message || 'Đã xảy ra lỗi khi bình chọn');
+                }
+            } catch (error) {
+                console.error('Lỗi bình chọn:', error);
+                alert('Đã xảy ra lỗi khi gửi bình chọn');
+            } finally {
+                isVoting = false;
+                this.classList.remove('loading');
+            }
+        });
+    });
+});
+</script>
+<style>
+.vote-container {
+    display: flex;
+    gap: 1rem;
+    margin: 1rem 0;
+}
+
+.vote-btn {
+    padding: 0.5rem 1rem;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    background: white;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.vote-btn:hover {
+    background: #f0f0f0;
+}
+
+.vote-btn.voted {
+    background: #e0e0e0;
+    border-color: #999;
+}
+
+.upvote-btn.voted {
+    color: #2ecc71;
+}
+
+.downvote-btn.voted {
+    color: #e74c3c;
+}
+
+.vote-btn.loading {
+    opacity: 0.7;
+    cursor: not-allowed;
+    pointer-events: none;
+}
+</style>
