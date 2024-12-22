@@ -1631,7 +1631,7 @@ html {
   font-size: 1.8rem;
   font-weight: 500;
   user-select: none;
-  transition: opacity 0.25s;
+  transition: all 0.25s ease;
 }
 .btn--text {
   background-color: transparent;
@@ -1640,9 +1640,17 @@ html {
 .btn--primary {
   background-color: #ffb601;
 }
+.btn--primary:hover {
+  background-color: #cd9200;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 8px rgba(255, 182, 1, 0.2);
+}
 .btn--outline {
   background-color: transparent;
   border: 1.5px solid var(--outline-btn-border-color);
+}
+.btn--outline:hover {
+  background-color: rgba(0, 0, 0, 0.05);
 }
 .btn--rounded {
   border-radius: 99999px;
@@ -1653,9 +1661,6 @@ html {
 .btn[disabled], .btn--disabled {
   opacity: 0.5;
   pointer-events: none;
-}
-.btn:hover {
-  opacity: 0.8;
 }
 
 .slider {
@@ -1789,27 +1794,63 @@ html {
 .form__group {
   position: relative;
 }
-.form__text-input {
+.form__control-btn {
   display: flex;
   align-items: center;
-  height: 50px;
-  padding: 0 12px;
+  gap: 10px;
+}
+.form__control-thumb {
+  height: 20px;
+  width: 20px;
+}
+.form-input__list {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+.form-input__item {
+  display: flex;
+  align-items: center;
+  padding: 0 12px 0 0;
   border-radius: 10px;
   border: 1.5px solid #d2d1d6;
 }
-.form__text-input:focus-within {
+.form-input__item:focus-within {
   border: 2px solid #3d1109;
 }
-.form__input {
+.form-input__text {
+  margin-left: 12px;
+  font-size: 1.8rem;
+  font-weight: 500;
+  margin-right: 4px;
+}
+.form-input__input {
+  padding: 12px;
   flex: 1;
-  height: 100%;
   font-size: 1.8rem;
   font-weight: 500;
   line-height: 144.444%; /* 144.444% */
+  border-radius: 10px;
 }
-.form__input-icon {
+.form-input__input--first {
+  flex-grow: 1;
+}
+.form-input__input--second {
+  flex-grow: 0;
+}
+.form-input__input--separate {
+  margin-right: 20px;
+  height: calc(100% - 10px);
+  border: #d2d1d6 solid 1.5px;
+}
+.form-input__icon {
   height: 20px;
-  margin-left: 12px;
+  width: 20px;
+}
+.form__label {
+  font-size: 2rem;
+  font-weight: 600;
+  margin-bottom: 12px;
 }
 .form__error {
   position: absolute;
@@ -1818,13 +1859,6 @@ html {
   font-size: 1.4rem;
   font-weight: 500;
   color: #ed4337;
-}
-.form__input-icon-error {
-  display: none;
-  margin-left: 12px;
-  width: 20px;
-  height: 20px;
-  animation: shake 0.5s;
 }
 .form__checkbox {
   position: relative;
@@ -1880,6 +1914,11 @@ html {
 .home__heading {
   font-size: 2.4rem;
   font-weight: 700;
+  line-height: 141.667% px; /* 141.667% */
+}
+.home__sub-heading {
+  font-size: 2rem;
+  font-weight: 600;
   line-height: 141.667% px; /* 141.667% */
 }
 
@@ -1945,6 +1984,48 @@ html {
   font-size: 1.8rem;
   font-weight: 400;
   line-height: 144.444%; /* 144.444% */
+}
+
+.create-recipe {
+  margin-bottom: 60px;
+}
+.create-recipe__container {
+  margin-top: 40px;
+}
+.create-recipe__row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 20px;
+}
+.create-recipe__heading {
+  font-size: 2.4rem;
+  font-weight: 700;
+  line-height: 141.667% px; /* 141.667% */
+}
+.create-recipe__sub-heading {
+  font-size: 2rem;
+  font-weight: 600;
+  line-height: 141.667% px; /* 141.667% */
+}
+.create-recipe__form {
+  margin-top: 10px;
+}
+.create-recipe__form__list {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+.create-recipe__form-item {
+  margin-top: 40px;
+}
+.create-recipe__form-item--row {
+  display: flex;
+  justify-content: space-between;
+  gap: 20px;
+}
+.create-recipe__form-add-btn {
+  margin-top: 20px;
 }
 
 /*# sourceMappingURL=main.css.map */

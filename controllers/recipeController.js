@@ -1,3 +1,4 @@
+//controllers/recipeController.js
 const Recipe = require("../models/Recipe");
 
 // [GET] /recipes/
@@ -49,14 +50,58 @@ module.exports.createRecipe = (req, res) => {
 };
 
 // [POST] /recipes/store
-module.exports.storeRecipe = (req, res) => {
-    // res.json(req.body);
-    const formData = req.body;
-    const recipe = new Recipe(formData);
-    recipe
-        .save()
-        .then(() => res.redirect("/"))
-        .catch((error) => {});
+module.exports.storeRecipe = async (req, res) => {
+    try {
+        // Extract data from form
+        const {
+            title,
+            description,
+            "ingredient-name": ingredientNames,
+            "ingredient-quantity": ingredientQuantities,
+            "step-number": stepNumbers,
+            "instruction-desc": instructionDescriptions,
+        } = req.body;
+
+        // Format ingredients array
+        const ingredients = Array.isArray(ingredientNames)
+            ? ingredientNames.map((name, index) => ({
+                  name: name.trim(),
+                  quantity: ingredientQuantities[index].trim(),
+              }))
+            : [{ name: ingredientNames.trim(), quantity: ingredientQuantities.trim() }];
+
+        // Format instructions array
+        const instructions = Array.isArray(stepNumbers)
+            ? stepNumbers.map((stepNumber, index) => ({
+                  stepNumber: parseInt(stepNumber, 10),
+                  description: instructionDescriptions[index].trim(),
+              }))
+            : [
+                  {
+                      stepNumber: parseInt(stepNumbers, 10),
+                      description: instructionDescriptions.trim(),
+                  },
+              ];
+
+        console.log(req.file);
+
+        // Create new Recipe object
+        const recipe = new Recipe({
+            title,
+            description,
+            ingredients,
+            instructions,
+            image: req.file ? `/uploads/${req.file.filename}` : null,
+        });
+
+        // Save the recipe to the database
+        await recipe.save();
+        console.log(recipe);
+        res.redirect("/"); // Redirect to the main page or recipe list after saving
+    } catch (error) {
+        console.error("Error saving recipe:", error);
+        res.status(500).send("Failed to create recipe");
+    }
 };
 
 // [GET] /recipes/:id/edit

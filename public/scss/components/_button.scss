@@ -11,7 +11,7 @@
     font-weight: 500;
     user-select: none;
 
-    transition: opacity 0.25s;
+    transition: all 0.25s ease;
 
     &--text {
         background-color: transparent;
@@ -20,11 +20,21 @@
 
     &--primary {
         background-color: #ffb601;
+
+        &:hover {
+            background-color: darken(#ffb601, 10%);
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(255, 182, 1, 0.2);
+        }
     }
 
     &--outline {
         background-color: transparent;
         border: 1.5px solid var(--outline-btn-border-color);
+
+        &:hover {
+            background-color: rgba(0, 0, 0, 0.05);
+        }
     }
 
     &--rounded {
@@ -39,9 +49,5 @@
     &--disabled {
         opacity: 0.5;
         pointer-events: none;
-    }
-
-    &:hover {
-        opacity: 0.8;
     }
 }

@@ -17,8 +17,13 @@
                 </li>
 
                 <li class="navbar__item">
-                    <a href="/recipes/create-recipe" class="navbar__link">Create Recipes </a>
+                    <a href="/users" class="navbar__link">Users </a>
                 </li>
+                {{#if (eq user.role 'admin')}}
+                <li class="navbar__item">
+                    <a href="/admin/dashboard" class="navbar__link">Admin Dashboard</a>
+                </li>
+                {{/if}}
             </ul>
         </nav>
 

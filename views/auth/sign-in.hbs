@@ -1,3 +1,4 @@
+<!-- views/auth/sign-in.hbs -->
 <main class="auth">
     <!-- Auth decor -->
     <div class="auth__left">
@@ -12,42 +13,54 @@
             <form method="POST" action="/sign-in" class="form auth__form">
                 {{!-- Email --}}
                 <div class="form__group auth__form-item">
-                    <div class="form__text-input">
-                        <input
-                            type="text"
-                            name="email"
-                            id="email"
-                            value="{{ newUserdata.email }}"
-                            placeholder="Email"
-                            class="form__input"
-                        />
-                        <img src="./assets/icons/message.svg" alt="" class="form__input-icon" />
-                        <img
-                            src="./assets/icons/form-error.svg"
-                            alt=""
-                            class="form__input-icon-error"
-                        />
+                    <div class="form-input__list">
+                        <div class="form-input__item">
+                            <input
+                                type="text"
+                                name="email"
+                                id="email"
+                                value="{{ newUserdata.email }}"
+                                placeholder="Email"
+                                class="form-input__input"
+                            />
+                            <img
+                                src="./assets/icons/message.svg"
+                                alt=""
+                                class="form-input__input-icon"
+                            />
+                            <img
+                                src="./assets/icons/form-error.svg"
+                                alt=""
+                                class="form-input__input-icon-error"
+                            />
+                        </div>
                     </div>
                     <p class="form__error">{{ errors.email }}</p>
                 </div>
 
                 {{!-- Password --}}
                 <div class="form__group auth__form-item">
-                    <div class="form__text-input">
-                        <input
-                            type="password"
-                            name="password"
-                            id="password"
-                            value="{{ newUserdata.password }}"
-                            placeholder="Password"
-                            class="form__input"
-                        />
-                        <img src="./assets/icons/lock.svg" alt="" class="form__input-icon" />
-                        <img
-                            src="./assets/icons/form-error.svg"
-                            alt=""
-                            class="form__input-icon-error"
-                        />
+                    <div class="form-input__list">
+                        <div class="form-input__item">
+                            <input
+                                type="password"
+                                name="password"
+                                id="password"
+                                value="{{ newUserdata.password }}"
+                                placeholder="Password"
+                                class="form-input__input"
+                            />
+                            <img
+                                src="./assets/icons/lock.svg"
+                                alt=""
+                                class="form-input__input-icon"
+                            />
+                            <img
+                                src="./assets/icons/form-error.svg"
+                                alt=""
+                                class="form-input__input-icon-error"
+                            />
+                        </div>
                     </div>
                     <p class="form__error">{{ errors.password }}</p>
                 </div>
