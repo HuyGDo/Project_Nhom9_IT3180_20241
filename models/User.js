@@ -64,15 +64,20 @@ userSchema.pre("save", async function (next) {
 });
 
 userSchema.statics.signin = async function (email, password) {
-    const user = await this.findOne({ email: email });
-    if (user) {
-        const auth = await bcrypt.compare(password, user.password);
-        if (auth) {
-            return user;
-        }
+    const user = await this.findOne({ email });
+
+    if (!user) {
+        throw Error("Incorrect email.");
+    }
+
+    // Đảm bảo bạn đang sử dụng bcrypt để so sánh mật khẩu
+    const auth = await bcrypt.compare(password, user.password);
+
+    if (!auth) {
         throw Error("Incorrect password.");
     }
-    throw Error("Incorrect email.");
+
+    return user;
 };
 
 // Instance method for subscribing to another user
