@@ -1,5 +1,7 @@
 //controllers/recipeController.js
 const Recipe = require("../models/Recipe");
+const fs = require("fs");
+const path = require("path");
 
 // [GET] /recipes/
 module.exports.showRecipes = (req, res) => {
@@ -52,6 +54,12 @@ module.exports.createRecipe = (req, res) => {
 // [POST] /recipes/store
 module.exports.storeRecipe = async (req, res) => {
     try {
+        // Create uploads directory if it doesn't exist
+        const uploadsDir = path.join(__dirname, "../uploads");
+        if (!fs.existsSync(uploadsDir)) {
+            fs.mkdirSync(uploadsDir, { recursive: true });
+        }
+
         // Extract data from form
         const {
             title,
