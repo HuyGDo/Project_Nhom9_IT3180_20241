@@ -1,119 +1,111 @@
-const Notification = require('../models/Notification');
-const rabbitmqService = require('./rabbitmqService');
-const Recipe = require('../models/Recipe');
-const Blog = require('../models/Blog');
+const Notification = require("../models/Notification");
+const User = require("../models/User");
 
-module.exports.createNotification = async (notificationData) => {
-    const notification = new Notification(notificationData);
-    await notification.save();
-
-    // Publish message to RabbitMQ for further processing
-    rabbitmqService.publish('notificationQueue', notificationData);
-
-    return notification;
-};
-
-module.exports.getUnreadNotifications = async (userId) => {
-    return Notification.find({ recipient_id: userId, is_read: false });
-};
-
-module.exports.markAsRead = async (notificationId) => {
-    return Notification.findByIdAndUpdate(notificationId, { is_read: true }, { new: true });
-};
-
-module.exports.getWeeklyTrendingNotifications = async () => {
-    try {
-        // Get the date for 7 days ago
-        const oneWeekAgo = new Date();
-        oneWeekAgo.setDate(oneWeekAgo.getDate() - 7);
-
-        //Aggregate trending recipes
-        const trendingRecipes = await Recipe.aggregate([
-            {
-                // Filter recipes created or updated in the past week
-                $match: {
-                    updatedAt: { $gte: oneWeekAgo }
-                }
-            },
-            {
-                // Unwind the reviews (comments) array to count total comments
-                $unwind: {
-                    path: "$reviews",
-                    preserveNullAndEmptyArrays: true
-                }
-            },
-            {
-                // Group by recipe and count the number of reviews (comments) and likes
-                $group: {
-                    _id: "$_id",
-                    title: { $first: "$recipe_title" },
-                    likes: { $sum: { $size: { $ifNull: ["$likes", []] } } },
-                    comments: { $sum: 1 },
-                    totalInteractions: {
-                         $sum: {
-                             $add: [{
-                                $size: {
-                                    $ifNull: ["$likes", []]
-                                }}
-                            , 1]
-                        }
-                    }
-                }
-            },
-            {
-                //Limit to top 5
-                $limit: 5
+module.exports = {
+    async createNotification(data) {
+        try {
+            if (data.type === "follow") {
+                const notification = {
+                    recipient_id: data.payload.followedUserId,
+                    message: `${data.payload.follower.username} started following you`,
+                    notification_type: "follow",
+                    content_id: data.payload.follower._id,
+                    content_type: "User",
+                };
+                return await Notification.create(notification);
             }
-        ]);
 
-        //Aggregate trending blogs
-        const trendingBlogs = await Blog.aggregate([
-            {
-                //Filter blog
-                $match: {
-                    updatedAt: { $gte: oneWeekAgo } 
-                }
-            },
-            {
-                // Unwind upvotes and downvotes to count total interactions
-                $unswind: {
-                    path: "$upvotes",
-                    preserveNullAndEmptyArrays: true
-                }
-            },
-            {
-                $unwind: {
-                    path: "$downvotes",
-                    preserveNullAndEmptyArrays: true
-                }
-            },
-            {
-                // Group by blog and count upvotes, downvotes, and comments
-                $group: {
-                    _id: "$_id",
-                    title: { $first: "$blog_title" },
-                    upvotes: { $sum: 1 },
-                    downvotes: { $sum: 1 },
-                    totalInteractions: { $sum: { add: [1, 1] } } //upvotes + downvotes
-                }
-            },
-            {
-                //Sort blogs by totalInteractions
-                $sort: { totalInteractions: -1 }
-            },
-            {
-                //Limit to top 5 trending
-                $limit: 5
-            }
-        ]);
-
-        //Return the trending
-        return {
-            trendingRecipes,
-            trendingBlogs
+            // Handle content notifications (new posts, likes, comments)
+            const notification = await this.createContentNotification(data);
+            return notification;
+        } catch (error) {
+            console.error("Error creating notification:", error);
+            throw error;
         }
-    } catch (error) {
-        console.error('Error querying trending content: ', error);
-        throw error;
-    }
-}
+    },
+
+    async createContentNotification(data) {
+        const { type, payload } = data;
+
+        if (type === "new_content") {
+            // Create notifications for all followers
+            const notifications = await this.createFollowerNotifications(
+                payload.author,
+                payload.contentId,
+                payload.contentType,
+            );
+            return notifications;
+        }
+
+        // Handle interaction notifications (likes, comments)
+        if (["like", "comment"].includes(type)) {
+            const notification = {
+                recipient_id: payload.contentAuthorId,
+                message: `${payload.interactingUser.username} ${type}d your ${payload.contentType}`,
+                notification_type: type,
+                content_id: payload.contentId,
+                content_type: payload.contentType,
+            };
+            return await Notification.create(notification);
+        }
+    },
+
+    async createFollowerNotifications(author, contentId, contentType) {
+        try {
+            // Find all users who follow the author
+            const followers = await User.find({
+                _id: { $in: author.followers },
+                "notification_preferences.web_notifications": true,
+            });
+
+            const notifications = followers.map((follower) => ({
+                recipient_id: follower._id,
+                message: `${author.username} posted a new ${contentType}`,
+                notification_type: "new_post",
+                content_id: contentId,
+                content_type: contentType,
+            }));
+
+            if (notifications.length > 0) {
+                return await Notification.insertMany(notifications);
+            }
+            return [];
+        } catch (error) {
+            console.error("Error creating follower notifications:", error);
+            throw error;
+        }
+    },
+
+    async getUserNotifications(userId) {
+        try {
+            return await Notification.find({ recipient_id: userId })
+                .sort({ created_at: -1 })
+                .limit(50)
+                .lean();
+        } catch (error) {
+            console.error("Error getting notifications:", error);
+            throw error;
+        }
+    },
+
+    async markAsRead(notificationId) {
+        try {
+            return await Notification.findByIdAndUpdate(notificationId, { is_read: true });
+        } catch (error) {
+            console.error("Error marking notification as read:", error);
+            throw error;
+        }
+    },
+
+    async getUnreadCount(userId) {
+        try {
+            return await Notification.countDocuments({
+                recipient_id: userId,
+                is_read: false,
+            });
+        } catch (error) {
+            console.error("Error getting unread count:", error);
+            throw error;
+        }
+    },
+};

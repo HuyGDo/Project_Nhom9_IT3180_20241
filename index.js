@@ -1,6 +1,5 @@
 // index.js
 require("dotenv").config();
-const { PORT, globalVariables } = require("./config/configuration");
 const express = require("express");
 const path = require("path");
 const { engine } = require("express-handlebars");
@@ -8,7 +7,7 @@ const methodOverride = require("method-override");
 const flash = require("connect-flash");
 const cookieParser = require("cookie-parser");
 const session = require("express-session");
-const { setupWeeklyEmailCronJob } = require("./services/cronService");
+// const { setupWeeklyEmailCronJob } = require("./services/cronService");
 const app = express();
 
 /* Configure Mongoose */
@@ -56,18 +55,19 @@ app.use(flash());
 app.use(methodOverride("_method"));
 
 /* Use Global Variables */
-app.use(globalVariables);
+// app.use(globalVariables);
 
 /* Routes init */
 const route = require("./routes/siteRouters");
 route(app);
 
 /* Initialize cronjob */
-setupWeeklyEmailCronJob();
+// setupWeeklyEmailCronJob();
 
 // Serve static files from uploads directory
 app.use("/uploads", express.static(path.join(__dirname, "uploads")));
 
+const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => {
     console.log(`Server is running on: http://localhost:${PORT}`);
 });

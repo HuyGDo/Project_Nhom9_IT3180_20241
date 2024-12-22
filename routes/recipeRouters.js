@@ -59,4 +59,8 @@ router.get("/:slug", recipeController.showRecipeDetail);
 // Route to get all recipes
 router.get("/", recipeController.showRecipes);
 
+// Add these routes
+router.post("/:id/like", auth.requireAuth, recipeController.likeRecipe);
+router.post("/:id/comment", auth.requireAuth, recipeController.addComment);
+
 module.exports = router;
