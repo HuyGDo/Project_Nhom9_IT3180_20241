@@ -8,6 +8,7 @@ const methodOverride = require("method-override");
 const flash = require("connect-flash");
 const cookieParser = require("cookie-parser");
 const session = require("express-session");
+const authMiddleware = require("./middleware/authMiddleware");
 const app = express();
 
 /* Configure Mongoose */
@@ -32,7 +33,7 @@ app.engine(
         defaultLayout: "default",
         helpers: {
             sum: (a, b) => a + b,
-            eq: (a, b) => a === b, // Added eq helper
+            eq: (a, b) => a === b,
         },
     }),
 );
@@ -56,6 +57,9 @@ app.use(methodOverride("_method"));
 
 /* Use Global Variables */
 app.use(globalVariables);
+
+/* Add checkUser middleware BEFORE routes */
+app.use('*', authMiddleware.checkUser);
 
 /* Routes init */
 const route = require("./routes/siteRouters");
