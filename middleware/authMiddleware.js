@@ -46,3 +46,8 @@ module.exports.checkUser = (req, res, next) => {
         next();
     }
 };
+
+module.exports.setCurrentUser = (req, res, next) => {
+    req.user = req.session.user;
+    next();
+};

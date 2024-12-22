@@ -96,6 +96,7 @@ module.exports.storeRecipe = async (req, res) => {
 
         // Save the recipe to the database
         await recipe.save();
+        console.log(recipe);
         res.redirect("/"); // Redirect to the main page or recipe list after saving
     } catch (error) {
         console.error("Error saving recipe:", error);

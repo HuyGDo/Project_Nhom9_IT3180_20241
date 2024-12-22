@@ -8,8 +8,10 @@ const methodOverride = require("method-override");
 const flash = require("connect-flash");
 const cookieParser = require("cookie-parser");
 const session = require("express-session");
-const app = express();
+const passport = require("passport");
 
+const app = express();
+const authMiddleware = require("./middleware/authMiddleware");
 /* Configure Mongoose */
 const db = require("./config/db");
 db.connect();
@@ -22,6 +24,9 @@ app.use(
     }),
 );
 app.use(express.static(path.join(__dirname, "public")));
+
+// Set static file for uploads folder for uploading images
+app.use("/uploads", express.static(path.join(__dirname, "uploads")));
 
 /* View Engine Setup */
 app.set("views", path.join(__dirname, "views"));
@@ -51,11 +56,16 @@ app.use(
 );
 app.use(flash());
 
+app.use(passport.initialize());
+app.use(passport.session()); // Ensure this is used if session-based
+
 /* Method Override Middleware*/
 app.use(methodOverride("_method"));
 
 /* Use Global Variables */
 app.use(globalVariables);
+
+app.use(authMiddleware.setCurrentUser);
 
 /* Routes init */
 const route = require("./routes/siteRouters");
