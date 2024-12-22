@@ -35,7 +35,6 @@ const userSchema = new mongoose.Schema({
     profile_picture: {
         type: String,
     },
-    //subscription
     following: [
         {
             type: mongoose.Schema.Types.ObjectId,
@@ -48,6 +47,16 @@ const userSchema = new mongoose.Schema({
             ref: "User",
         },
     ],
+    notification_preferences: {
+        email_notifications: {
+            type: Boolean,
+            default: true,
+        },
+        web_notifications: {
+            type: Boolean,
+            default: true,
+        },
+    },
 });
 
 // fire a function after doc saved to db
@@ -104,6 +113,36 @@ userSchema.methods.unfollow = async function (targetUserId) {
         (id) => id.toString() !== this._id.toString(),
     );
     await targetUser.save();
+};
+
+userSchema.methods.follow = async function (userId) {
+    if (this._id.equals(userId)) return;
+
+    if (!this.following.includes(userId)) {
+        this.following.push(userId);
+
+        const userToFollow = await this.model("User").findById(userId);
+        if (userToFollow && !userToFollow.followers.includes(this._id)) {
+            userToFollow.followers.push(this._id);
+            await userToFollow.save();
+        }
+
+        await this.save();
+        return true; // Successfully followed
+    }
+    return false; // Already following
+};
+
+userSchema.methods.unfollow = async function (userId) {
+    this.following = this.following.filter((id) => !id.equals(userId));
+
+    const userToUnfollow = await this.model("User").findById(userId);
+    if (userToUnfollow) {
+        userToUnfollow.followers = userToUnfollow.followers.filter((id) => !id.equals(this._id));
+        await userToUnfollow.save();
+    }
+
+    await this.save();
 };
 
 module.exports = mongoose.model("User", userSchema);

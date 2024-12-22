@@ -1,7 +1,11 @@
 <div class="recipe-card">
     <div class="recipe-card__img-wrap">
         <a href="/recipes/{{ this.slug }}" class="">
-            <img src="{{ this.image }}" class="recipe-card__thumb" alt="{{ this.title }}" />
+            {{#if this.image}}
+                <img src="{{ this.image }}" class="recipe-card__thumb" alt="{{ this.title }}" />
+            {{else}}
+                <img src="/assets/img/recipe-placeholder.jpg" class="recipe-card__thumb" alt="{{ this.title }}" />
+            {{/if}}
         </a>
     </div>
     <div class="recipe-card__content">

@@ -4,7 +4,11 @@
             <h1 class="recipe-detail__heading">
                 {{ recipe.title }}
             </h1>
-            <img src="./assets/img/recipes/spaghetti-bolognese.jpg" alt="" />
+            {{#if recipe.image}}
+                <img src="{{ recipe.image }}" alt="{{ recipe.title }}" class="recipe-detail__image" />
+            {{else}}
+                <img src="/assets/img/recipe-placeholder.jpg" alt="{{ recipe.title }}" class="recipe-detail__image" />
+            {{/if}}
 
             <p>
                 {{ recipe.description }}
