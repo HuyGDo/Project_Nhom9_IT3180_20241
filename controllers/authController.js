@@ -54,16 +54,17 @@ module.exports.showSignIn = (req, res) => {
 // [POST] /sign-in/
 module.exports.authenticate = async (req, res) => {
     const formData = req.body;
-    console.log(formData);
+    console.log("Form data:", formData);
 
     try {
         const user = await User.signin(formData.email, formData.password);
-        console.log(user);
+        console.log("User found:", user);
         const token = createToken(user._id);
 
         res.cookie("jwt", token, { httpOnly: true, maxAge: maxAge * 1000 });
-        res.redirect("/"); // Redirect to home or desired page
+        res.redirect("/");
     } catch (err) {
+        console.log("Authentication error:", err);
         const errors = errorHandler(err);
         res.render("auth/sign-in", {
             layout: "auth",
