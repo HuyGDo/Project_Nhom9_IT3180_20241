@@ -13,6 +13,7 @@ const Blog = new Schema({
         type: Number,
         min: 0, // Không cho phép giá trị âm
     },
+    slug: { type: String, unique: true }
 });
 
 module.exports = mongoose.model('Blog',Blog);

@@ -1,2 +1,14 @@
-
-<h1>{{blogs}}</h1>
+<h1>Blog List</h1>
+<ul>
+    {{#each blogs}}
+    <li>
+        <a href="/blogs/{{this.slug}}">
+        <h2>{{this.title}}</h2>
+        </a>
+        <p><strong>Author:</strong> {{this.author}}</p>
+        <p><strong>Content:</strong> {{this.content}}</p>
+        <p><strong>Upvotes:</strong> {{this.upvotes}}</p>
+        <p><strong>Downvotes:</strong> {{this.downvotes}}</p>
+    </li>
+    {{/each}}
+</ul>

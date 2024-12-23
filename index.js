@@ -31,13 +31,17 @@ app.use(session({
 app.use(flash());
 
 /* Setup View Engine */
-app.engine('hbs', engine({
-  extname: '.hbs',
-  defaultLayout: 'default',
-  helpers: {
-    sum: (a, b) => a + b,
-  }
-}));
+app.engine(
+  "hbs",
+  engine({
+      extname: ".hbs",
+      defaultLayout: "default",
+      helpers: {
+          sum: (a, b) => a + b,
+          eq: (a, b) => a === b, // Added eq helper
+      },
+  }),
+);
 app.set('view engine', 'hbs');
 
 /* Use Global Variables */
