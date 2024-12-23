@@ -13,8 +13,8 @@ const notificationSchema = new mongoose.Schema(
             type: mongoose.Schema.Types.ObjectId,
             refPath: "content_type",
             required: true,
-        }, // Blog or Recipe
-        content_type: { type: String, enum: ["Recipe", "Blog"], required: true },
+        },
+        content_type: { type: String, enum: ["Recipe", "Blog", "User"], required: true },
         is_read: { type: Boolean, default: false },
         is_email: { type: Boolean, default: false },
     },

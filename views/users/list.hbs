@@ -1,32 +1,200 @@
-<div class="users-list">
-    <h1>All Users</h1>
+<div class="container mt-4">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h1>Users</h1>
+        <div class="filter-buttons">
+            <button type="button" class="filter-btn active">Most Relevant</button>
+            <button type="button" class="filter-btn">Newest</button>
+            <button type="button" class="filter-btn">Oldest</button>
+        </div>
+    </div>
 
-    <div class="users-grid">
+    <!-- Main Content -->
+    <div class="row g-1">
         {{#each users}}
-        <div class="user-card">
-            <img
-                src="{{#if this.profile_picture}}{{
-                    this.profile_picture
-                }}{{else}}/assets/img/default-avatar.png{{/if}}"
-                alt="{{ this.first_name }}'s avatar"
-                class="user-avatar"
-            />
-            <div class="user-info">
-                <h3>{{ this.first_name }} {{ this.last_name }}</h3>
-                <p>@{{ this.username }}</p>
-                <a href="/users/{{ this._id }}" class="btn btn--secondary">View Profile</a>
-
-                {{#if this.isFollowing}}
-                <form action="/users/{{ this._id }}/unfollow" method="POST">
-                    <button type="submit" class="btn btn--primary">Unfollow</button>
-                </form>
-                {{else}}
-                <form action="/users/{{ this._id }}/follow" method="POST">
-                    <button type="submit" class="btn btn--primary">Follow</button>
-                </form>
-                {{/if}}
+        <div class="col-md-6 px-1">
+            <div class="card">
+                <div class="card-body">
+                    <div class="card-grid">
+                        <div class="avatar-section">
+                            <img 
+                                src="{{#if this.profile_picture}}{{this.profile_picture}}{{else}}/assets/img/default-avatar.png{{/if}}" 
+                                alt="{{ this.first_name }}'s avatar"
+                                class="rounded-circle"
+                            >
+                            <small class="username">@{{ this.username }}</small>
+                        </div>
+                        <div class="name-section">
+                            <h5 class="card-title mb-0">{{ this.first_name }} {{ this.last_name }}</h5>
+                        </div>
+                        <div class="button-section">
+                            {{#if ../isAuthenticated}}
+                                {{#if this.isFollowing}}
+                                    <button 
+                                        onclick="handleFollowAction('unfollow', '{{this._id}}')" 
+                                        class="btn btn--primary btn--rounded follow-btn"
+                                    >
+                                        Unfollow
+                                    </button>
+                                {{else}}
+                                    <button 
+                                        onclick="handleFollowAction('follow', '{{this._id}}')" 
+                                        class="btn btn--primary btn--rounded follow-btn"
+                                    >
+                                        Follow
+                                    </button>
+                                {{/if}}
+                            {{else}}
+                                <button 
+                                    onclick="window.location.href='/sign-in'" 
+                                    class="btn btn--primary btn--rounded follow-btn"
+                                >
+                                    Follow
+                                </button>
+                            {{/if}}
+                        </div>
+                    </div>
+                </div>
             </div>
         </div>
         {{/each}}
     </div>
 </div>
+
+<script src="/js/userActions.js"></script>
+
+<!-- Add some custom styles -->
+<style>
+/* Remove bootstrap button styles from navbar */
+.navbar .btn {
+    all: unset;
+    cursor: pointer;
+}
+
+/* Custom filter buttons */
+.filter-buttons {
+    display: flex;
+    gap: 8px;
+}
+
+.filter-btn {
+    border: 1px solid #e2e2e2;
+    background: none;
+    padding: 6px 16px;
+    border-radius: 20px;
+    font-size: 0.9rem;
+    cursor: pointer;
+}
+
+.filter-btn.active {
+    background-color: #e2e2e2;
+}
+
+.filter-btn:hover {
+    background-color: #f0f0f0;
+}
+
+/* Adjust the follow button */
+.follow-btn {
+    height: 32px !important; /* Override the default height */
+    padding: 0 16px !important; /* Adjust horizontal padding */
+    font-size: 0.9rem !important; /* Smaller font size */
+    min-width: 80px; /* Ensure minimum width */
+}
+
+/* Card styles */
+.card {
+    border-radius: 8px;
+    border: 1px solid #eee;
+    transition: all 0.3s ease;
+    background-color: white;
+    height: 140px;
+    margin-bottom: 4px;
+}
+
+.card-body {
+    padding: 1.5rem;
+    height: 100%;
+}
+
+.card-grid {
+    display: grid;
+    grid-template-columns: auto 1fr auto;
+    grid-gap: 1.5rem;
+    align-items: center;
+    height: 100%;
+}
+
+.avatar-section {
+    text-align: center;
+}
+
+.avatar-section img {
+    width: 48px;
+    height: 48px;
+    object-fit: cover;
+    border-radius: 50%;
+}
+
+.username {
+    display: block;
+    color: #666;
+    font-size: 0.8rem;
+    margin-top: 4px;
+}
+
+.name-section {
+    min-width: 0; /* Allows text truncation */
+}
+
+.card-title {
+    font-size: 1.1rem;
+    font-weight: 600;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.button-section {
+    justify-self: end;
+}
+
+.follow-btn {
+    height: 32px !important;
+    padding: 0 16px !important;
+    font-size: 0.9rem !important;
+    min-width: 80px;
+}
+
+/* Column spacing */
+.col-md-6 {
+    padding-right: 2px;
+    padding-left: 2px;
+}
+
+/* Responsive styles */
+@media (max-width: 768px) {
+    .card {
+        height: 120px;
+    }
+
+    .card-body {
+        padding: 1rem;
+    }
+
+    .card-grid {
+        grid-gap: 1rem;
+    }
+
+    .avatar-section img {
+        width: 40px;
+        height: 40px;
+    }
+
+    .follow-btn {
+        height: 28px !important;
+        padding: 0 12px !important;
+        font-size: 0.85rem !important;
+        min-width: 70px;
+    }
+}
+</style>
