@@ -48,6 +48,10 @@ const userSchema = new mongoose.Schema({
             ref: "User",
         },
     ],
+    author: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'User',
+    },
 });
 
 // fire a function after doc saved to db
