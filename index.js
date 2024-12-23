@@ -7,6 +7,7 @@ const methodOverride = require("method-override");
 const flash = require("connect-flash");
 const cookieParser = require("cookie-parser");
 const session = require("express-session");
+const hbsHelpers = require("./helpers/handlebars");
 // const { setupWeeklyEmailCronJob } = require("./services/cronService");
 const app = express();
 /* Configure Mongoose */
@@ -33,6 +34,7 @@ app.engine(
         extname: ".hbs",
         defaultLayout: "default",
         helpers: {
+            ...hbsHelpers,
             sum: (a, b) => a + b,
             eq: (a, b) => a === b,
         },
