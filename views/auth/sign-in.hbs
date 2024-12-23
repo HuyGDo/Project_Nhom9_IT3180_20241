@@ -11,6 +11,15 @@
             <h1 class="auth__heading">Sign In</h1>
             <p class="auth__desc">Welcome back! Let's sign in and start cookin'!</p>
             <form method="POST" action="/sign-in" class="form auth__form">
+                {{!-- Add hidden input for returnUrl --}}
+                <input type="hidden" name="returnUrl" value="{{returnUrl}}" />
+                
+                {{#if message}}
+                <div class="alert alert-info">
+                    {{message}}
+                </div>
+                {{/if}}
+
                 {{!-- Email --}}
                 <div class="form__group auth__form-item">
                     <div class="form-input__list">
@@ -97,3 +106,9 @@
         </div>
     </div>
 </main>
+
+{{#if redirectMessage}}
+    <div class="alert alert-info">
+        {{redirectMessage}}
+    </div>
+{{/if}}

@@ -8,7 +8,7 @@ const adminRouter = require("./adminRouters");
 const userRouter = require("./userRouters");
 
 module.exports = (app) => {
-    app.use("*", checkUser); // Apply to all routes and methods
+    //app.use("*", checkUser); // Apply to all routes and methods
     app.use("/", defaultRouter);
     app.use("/", authRouter);
     app.use("/me", meRouter);

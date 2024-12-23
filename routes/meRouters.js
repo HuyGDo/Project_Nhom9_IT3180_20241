@@ -20,4 +20,9 @@ router.get("/edit-profile", auth.requireAuth, profileController.showEditProfile)
 // [POST] /me/edit-profile - Handle profile update
 router.post("/edit-profile", auth.requireAuth, profileController.updateProfile);
 
+router.post("/follow/:userId", auth.requireAuth, meController.followUser);
+router.post("/unfollow/:userId", auth.requireAuth, meController.unfollowUser);
+router.get("/following", auth.requireAuth, meController.getFollowing);
+router.get("/followers", auth.requireAuth, meController.getFollowers);
+
 module.exports = router;

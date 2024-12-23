@@ -1,0 +1,75 @@
+<div class="container mt-4">
+    <style>
+        .card-img-top {
+            height: 200px;
+            object-fit: cover;
+            width: 100%;
+        }
+        
+        .card {
+            height: 100%;
+            max-width: 350px;
+            margin: 0 auto;
+        }
+    </style>
+
+    <h2>{{title}}</h2>
+    
+    {{!-- Form tìm kiếm --}}
+    <form action="/search" method="GET" class="mb-4">
+        <div class="input-group">
+            <input type="text" 
+                   name="q" 
+                   class="form-control" 
+                   placeholder="Search recipes..." 
+                   value="{{searchData.keyword}}">
+            <button class="btn btn-primary" type="submit">Search</button>
+        </div>
+    </form>
+
+    {{!-- Hiển thị kết quả --}}
+    {{#if recipes.length}}
+        <p>Found {{searchData.total}} results</p>
+        <div class="row">
+            {{#each recipes}}
+                <div class="col-md-4 mb-4">
+                    <div class="card h-100">
+                        {{#if image}}
+                            <img src="{{image}}" class="card-img-top" alt="{{title}}">
+                        {{/if}}
+                        <div class="card-body">
+                            <h5 class="card-title">{{title}}</h5>
+                            <p class="card-text">{{description}}</p>
+                            <a href="/recipes/{{slug}}" class="btn btn-primary">View Recipe</a>
+                        </div>
+                    </div>
+                </div>
+            {{/each}}
+        </div>
+
+        {{!-- Phân trang --}}
+        <nav aria-label="Search results pages">
+            <ul class="pagination justify-content-center">
+                {{#if searchData.hasPrevPage}}
+                    <li class="page-item">
+                        <a class="page-link" href="/search?q={{searchData.keyword}}&page={{searchData.prevPage}}">Previous</a>
+                    </li>
+                {{/if}}
+                
+                <li class="page-item active">
+                    <span class="page-link">{{searchData.currentPage}}</span>
+                </li>
+                
+                {{#if searchData.hasNextPage}}
+                    <li class="page-item">
+                        <a class="page-link" href="/search?q={{searchData.keyword}}&page={{searchData.nextPage}}">Next</a>
+                    </li>
+                {{/if}}
+            </ul>
+        </nav>
+    {{else}}
+        <div class="alert alert-info">
+            No recipes found for "{{searchData.keyword}}"
+        </div>
+    {{/if}}
+</div> 

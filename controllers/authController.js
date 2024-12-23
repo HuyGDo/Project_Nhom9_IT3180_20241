@@ -37,7 +37,7 @@ const errorHandler = (err) => {
     return errors;
 };
 
-const maxAge = 24 * 60 * 60; // 1 days
+const maxAge = 24 * 60 * 60; // 1 day in seconds
 const createToken = (id) => {
     return jwt.sign({ id }, process.env.JWT_SECRET, {
         expiresIn: maxAge,
@@ -49,21 +49,23 @@ module.exports.showSignIn = (req, res) => {
     res.render("auth/sign-in", {
         layout: "auth",
         title: "Sign In",
+        returnUrl: req.query.returnUrl || "/",
+        message: "Please login to continue",
     });
 };
 
 // [POST] /sign-in/
 module.exports.authenticate = async (req, res) => {
     const formData = req.body;
-    console.log("Attempting to login with email:", formData.email);
+    const returnUrl = req.body.returnUrl || "/";
 
     try {
         const user = await User.signin(formData.email, formData.password);
-        console.log("Login successful for user:", user.email);
-
         const token = createToken(user._id);
         res.cookie("jwt", token, { httpOnly: true, maxAge: maxAge * 1000 });
-        res.redirect("/");
+
+        // Redirect to the return URL if it exists
+        res.redirect(returnUrl);
     } catch (err) {
         console.log("Login error:", err.message);
         const errors = errorHandler(err);
@@ -71,9 +73,10 @@ module.exports.authenticate = async (req, res) => {
             layout: "auth",
             title: "Sign In",
             errors,
+            returnUrl,
             formData: {
                 email: formData.email,
-                password: "", // Don't send back password
+                password: "",
             },
         });
     }

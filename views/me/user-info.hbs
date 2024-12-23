@@ -1,43 +1,42 @@
 <!-- views/me/user-info.hbs -->
 <main class="profile">
-    <div class="profile__container">
-        <h1 class="profile__heading">My Profile</h1>
-        
-        <!-- Profile Information Section -->
-        <div class="profile__info-section">
-            <div class="profile__avatar-section">
-                <img 
-                    src="{{#if user.profile_picture}}{{user.profile_picture}}{{else}}/assets/img/default-avatar.png{{/if}}" 
-                    alt="Profile Picture" 
-                    class="profile__avatar" 
-                />
-            </div>
-            <div class="profile__details">
-                <p><strong>First Name:</strong> {{user.first_name}}</p>
-                <p><strong>Last Name:</strong> {{user.last_name}}</p>
-                <p><strong>Username:</strong> {{user.username}}</p>
-                <p><strong>Email:</strong> {{user.email}}</p>
-                <!-- Add more fields as necessary -->
-            </div>
+
+    <!-- User Info Section -->
+    <section class="profile__info-container">
+        <h2>User Information</h2>
+        <div class="profile__avatar-section">
+            <img 
+                src="{{#if user.profile_picture}}{{user.profile_picture}}{{else}}/assets/img/default-avatar.png{{/if}}" 
+                alt="Profile Picture" 
+                class="profile__avatar" 
+            />
         </div>
-        
-        <!-- Action Buttons -->
+        <div class="profile__details">
+            <p><strong>First Name:</strong> {{user.first_name}}</p>
+            <p><strong>Last Name:</strong> {{user.last_name}}</p>
+            <p><strong>Username:</strong> {{user.username}}</p>
+            <p><strong>Email:</strong> {{user.email}}</p>
+            <p><strong>Follower Count:</strong> {{followerCount}}</p>
+        </div>
         <div class="profile__actions">
             <a href="/me/edit-profile" class="btn btn--primary">Edit Profile</a>
             <a href="/log-out" class="btn btn--secondary">Logout</a>
         </div>
-    </div>
-    {{#if isOwnProfile}}
-    <p>This is your profile.</p>
-    {{else}}
-    {{#if isFollowing}}
-        <form action="/users/{{user._id}}/unfollow" method="POST">
-        <button type="submit">Unfollow</button>
-        </form>
-    {{else}}
-        <form action="/users/{{user._id}}/follow" method="POST">
-        <button type="submit">Follow</button>
-        </form>
-    {{/if}}
-    {{/if}}
+    </section>
+
+    <!-- Recipe Section -->
+    <section class="profile__recipes-container">
+        <h2>My Recipes</h2>
+        <ul>
+            {{#each myRecipes}}
+                <li>
+                    {{this.title}}
+                    <a href="/recipes/{{this.slug}}" class="btn btn--primary">
+                        View
+                    </a>
+                </li>
+            {{/each}}
+        </ul>
+    </section>
+
 </main>

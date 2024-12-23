@@ -27,6 +27,9 @@
 
         {{!-- Scripts --}}
         <script src="/assets/js/scripts.js"></script>
+
+        {{!-- Thêm Font Awesome --}}
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
     </head>
     <body>
         <header class="header">
@@ -50,5 +53,11 @@
             integrity="sha384-0pUGZvbkm6XF6gxjEnlmuGrJXVbNuzT9qBBavbLwCsOGabYfZo0T0to5eqruptLy"
             crossorigin="anonymous"
         ></script>
+
+        {{#if user}}
+            {{!-- Show logged in state --}}
+        {{else}}
+            {{!-- Show login/register buttons --}}
+        {{/if}}
     </body>
 </html>

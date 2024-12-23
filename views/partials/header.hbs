@@ -15,7 +15,11 @@
                 <li class="navbar__item">
                     <a href="/blogs" class="navbar__link">Blogs </a>
                 </li>
-
+                <li class="navbar__item">
+                    <button class="navbar__link search-btn" data-bs-toggle="modal" data-bs-target="#searchModal">
+                        <i class="fas fa-search"></i>
+                    </button>
+                </li>
                 <li class="navbar__item">
                     <a href="/users" class="navbar__link">Users </a>
                 </li>
@@ -24,18 +28,34 @@
 
         {{!-- Actions --}}
         <div class="top-act">
-            {{#if user}}
-            <p>Welcome, {{ user.email }}!</p>
-            <a href="/log-out" class="btn btn--text">Log out</a>
-
+            {{#if isAuthenticated}}
+                <p>Welcome, {{ user.email }}!</p>
+                <a href="/log-out" class="btn btn--text">Log out</a>
+                <a href="/users/{{ user._id }}" class="btn btn--text">My Profile</a>
             {{else}}
-            <a href="/sign-in" class="btn btn--text">Sign In</a>
-            <a href="/sign-up" class="btn btn--text">Sign Up</a>
-
-            {{/if }}
-            {{#if user}}
-            <a href="/users/{{ user._id }}" class="btn btn--text">My Profile</a>
+                <a href="/sign-in" class="btn btn--text">Sign In</a>
+                <a href="/sign-up" class="btn btn--text">Sign Up</a>
             {{/if}}
+        </div>
+    </div>
+</div>
+
+{{!-- Search Modal --}}
+<div class="modal fade" id="searchModal" tabindex="-1">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Search Recipes</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <form action="/search" method="GET">
+                    <div class="input-group">
+                        <input type="text" name="q" class="form-control" placeholder="Enter keywords...">
+                        <button class="btn btn-primary" type="submit">Search</button>
+                    </div>
+                </form>
+            </div>
         </div>
     </div>
 </div>
