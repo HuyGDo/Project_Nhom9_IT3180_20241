@@ -28,46 +28,46 @@ module.exports.showRecipes = (req, res) => {
 module.exports.showRecipeDetail = async (req, res) => {
     try {
         const recipe = await Recipe.findOne({ slug: req.params.slug }).lean();
-        
+
         let recommendedRecipes = [];
-        
+
         try {
             // Thử lấy recommendations
             const recommendations = await recommendationService.getRecommendations(recipe._id);
             if (recommendations && recommendations.length > 0) {
                 recommendedRecipes = await Recipe.find({
-                    '_id': { $in: recommendations }
+                    _id: { $in: recommendations },
                 })
-                .select('title image votes slug')
-                .lean();
+                    .select("title image votes slug")
+                    .lean();
             } else {
                 // Fallback: Lấy ngẫu nhiên 5 công thức khác
                 recommendedRecipes = await Recipe.find({
-                    '_id': { $ne: recipe._id }
+                    _id: { $ne: recipe._id },
                 })
-                .select('title image votes slug')
-                .limit(5)
-                .lean();
+                    .select("title image votes slug")
+                    .limit(5)
+                    .lean();
             }
         } catch (error) {
-            console.log('Error getting recommendations:', error.message);
+            console.log("Error getting recommendations:", error.message);
             // Fallback: Lấy ngẫu nhiên 5 công thức khác
             recommendedRecipes = await Recipe.find({
-                '_id': { $ne: recipe._id }
+                _id: { $ne: recipe._id },
             })
-            .select('title image votes slug')
-            .limit(5)
-            .lean();
+                .select("title image votes slug")
+                .limit(5)
+                .lean();
         }
 
         res.render("recipes/recipe-detail", {
             layout: "default",
             title: recipe.title,
             recipe,
-            recommendations: recommendedRecipes
+            recommendations: recommendedRecipes,
         });
     } catch (err) {
-        console.error('Error in showRecipeDetail:', err);
+        console.error("Error in showRecipeDetail:", err);
         res.render("default/404");
     }
 };
@@ -123,32 +123,33 @@ module.exports.storeRecipe = async (req, res) => {
         const recipe = new Recipe({
             title,
             description,
-            author: res.locals.user._id, // Important: store the user as the author
+            author: req.user._id, // Use req.user._id consistently
             ingredients,
             instructions,
-            author: req.user._id,
             image: req.file ? `/uploads/${req.file.filename}` : null,
         });
 
         await recipe.save();
 
-        // Create notification for new recipe
-        await notificationService.createNotification({
+        // Create notification for new recipe with proper user data
+        const notification = await notificationService.createNotification({
             type: "new_content",
             payload: {
-                author: req.user, // The author of the recipe
+                author: req.user, // Pass the full user object
                 contentId: recipe._id,
                 contentType: "Recipe",
             },
         });
 
-        res.redirect("/"); // Redirect to the main page or recipe list after saving
+        console.log("Recipe created:", recipe);
+        console.log("Notifications created:", notification);
+
+        res.redirect("/recipes"); // Or wherever you want to redirect
     } catch (error) {
         console.error("Error saving recipe:", error);
         res.status(500).send("Failed to create recipe");
     }
 };
-
 
 // [GET] /recipes/:id/edit
 module.exports.editRecipe = (req, res, next) => {
@@ -244,18 +245,18 @@ module.exports.handleVote = (req, res) => {
 
     Recipe.findById(id)
         .lean()
-        .then(recipe => {
+        .then((recipe) => {
             if (!recipe) {
-                throw { status: 404, message: 'Recipe not found' };
+                throw { status: 404, message: "Recipe not found" };
             }
 
             if (recipe.author?.toString() === userId.toString()) {
-                throw { status: 400, message: 'Cannot vote on your own recipe' };
+                throw { status: 400, message: "Cannot vote on your own recipe" };
             }
 
             // Find existing vote
             const existingVote = recipe.userVotes.find(
-                vote => vote.user.toString() === userId.toString()
+                (vote) => vote.user.toString() === userId.toString(),
             );
 
             let updateOperation;
@@ -264,25 +265,25 @@ module.exports.handleVote = (req, res) => {
                     // Case 1: Click same button - Remove vote
                     updateOperation = {
                         $pull: { userVotes: { user: userId } },
-                        $inc: { [`votes.${voteType}votes`]: -1 }
+                        $inc: { [`votes.${voteType}votes`]: -1 },
                     };
                 } else {
                     // Case 2: Switch vote
                     return Recipe.findOneAndUpdate(
                         { _id: id },
                         { $pull: { userVotes: { user: userId } } },
-                        { new: true }
-                    ).then(updatedRecipe => {
+                        { new: true },
+                    ).then((updatedRecipe) => {
                         return Recipe.findOneAndUpdate(
                             { _id: id },
                             {
                                 $push: { userVotes: { user: userId, voteType } },
                                 $inc: {
                                     [`votes.${existingVote.voteType}votes`]: -1,
-                                    [`votes.${voteType}votes`]: 1
-                                }
+                                    [`votes.${voteType}votes`]: 1,
+                                },
                             },
-                            { new: true }
+                            { new: true },
                         ).lean();
                     });
                 }
@@ -290,7 +291,7 @@ module.exports.handleVote = (req, res) => {
                 // Case 3: New vote
                 updateOperation = {
                     $push: { userVotes: { user: userId, voteType } },
-                    $inc: { [`votes.${voteType}votes`]: 1 }
+                    $inc: { [`votes.${voteType}votes`]: 1 },
                 };
             }
 
@@ -299,32 +300,31 @@ module.exports.handleVote = (req, res) => {
                 { _id: id },
                 {
                     ...updateOperation,
-                    $set: { 'votes.score': recipe.votes.upvotes - recipe.votes.downvotes }
+                    $set: { "votes.score": recipe.votes.upvotes - recipe.votes.downvotes },
                 },
-                { new: true }
+                { new: true },
             ).lean();
         })
-        .then(updatedRecipe => {
+        .then((updatedRecipe) => {
             res.json({
                 success: true,
                 upvotes: updatedRecipe.votes.upvotes,
                 downvotes: updatedRecipe.votes.downvotes,
                 score: updatedRecipe.votes.score,
                 userVoted: {
-                    up: voteType === 'up',
-                    down: voteType === 'down'
-                }
+                    up: voteType === "up",
+                    down: voteType === "down",
+                },
             });
         })
-        .catch(error => {
-            console.error('Vote handling error:', error);
-            res.status(error.status || 500).json({ 
-                success: false, 
-                message: error.message || 'Error processing vote' 
+        .catch((error) => {
+            console.error("Vote handling error:", error);
+            res.status(error.status || 500).json({
+                success: false,
+                message: error.message || "Error processing vote",
             });
         });
 };
-
 
 // [GET] /recipes/test-recommendations/:id
 module.exports.testRecommendations = async (req, res) => {

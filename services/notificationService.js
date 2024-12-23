@@ -28,13 +28,26 @@ module.exports = {
         const { type, payload } = data;
 
         if (type === "new_content") {
-            // Create notifications for all followers
-            const notifications = await this.createFollowerNotifications(
+            // For new content, create a single notification
+            const notification = {
+                recipient_id: payload.author._id, // Make sure we have the author's ID
+                message: `You created a new ${payload.contentType}`,
+                notification_type: "new_post",
+                content_id: payload.contentId,
+                content_type: payload.contentType,
+            };
+
+            const newNotification = await Notification.create(notification);
+            console.log("New content notification created:", newNotification);
+
+            // Also create notifications for followers
+            const followerNotifications = await this.createFollowerNotifications(
                 payload.author,
                 payload.contentId,
                 payload.contentType,
             );
-            return notifications;
+
+            return [...followerNotifications, newNotification];
         }
 
         // Handle interaction notifications (likes, comments)

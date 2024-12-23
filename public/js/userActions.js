@@ -21,10 +21,24 @@ function handleFollowAction(action, userId) {
             return response.json();
         })
         .then((data) => {
-            if (data.redirect) {
-                window.location.href = data.redirect;
+            if (data.success) {
+                // Get the button that was clicked
+                const button = document.querySelector(`button[onclick*="${userId}"]`);
+                if (button) {
+                    // Update button text and onclick handler based on new following status
+                    if (data.isFollowing) {
+                        button.setAttribute(
+                            "onclick",
+                            `handleFollowAction('unfollow', '${userId}')`,
+                        );
+                        button.textContent = "Unfollow";
+                    } else {
+                        button.setAttribute("onclick", `handleFollowAction('follow', '${userId}')`);
+                        button.textContent = "Follow";
+                    }
+                }
             } else {
-                window.location.reload();
+                throw new Error(data.message);
             }
         })
         .catch((error) => {

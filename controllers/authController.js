@@ -91,25 +91,32 @@ module.exports.showSignUp = (req, res) => {
 };
 
 // [POST] /sign-up/
-module.exports.createUser = (req, res) => {
-    const newUserdata = req.body;
-    const user = new User(newUserdata);
-    user.save()
-        .then(() => {
-            const token = createToken(user._id);
-            res.cookie("jwt", token, { httpOnly: true, maxAge: maxAge * 1000 });
-            res.json({ user: user._id });
-        })
-        .catch((err) => {
-            const errors = errorHandler(err);
-            console.log(errors.email);
-            res.render("auth/sign-up", {
-                layout: "auth",
-                title: "Sign Up",
-                errors,
-                newUserdata,
-            });
+module.exports.createUser = async (req, res) => {
+    try {
+        const newUserdata = req.body;
+        const user = new User(newUserdata);
+        await user.save();
+
+        // Create JWT token and set cookie - same as login
+        const token = createToken(user._id);
+        res.cookie("jwt", token, { httpOnly: true, maxAge: maxAge * 1000 });
+
+        // Set authentication state
+        res.locals.user = user;
+        res.locals.isAuthenticated = true;
+
+        // Redirect to home page
+        res.redirect("/");
+    } catch (err) {
+        const errors = errorHandler(err);
+        console.log(errors);
+        res.render("auth/sign-up", {
+            layout: "auth",
+            title: "Sign Up",
+            errors,
+            newUserdata: req.body,
         });
+    }
 };
 
 module.exports.logOut = (req, res) => {
