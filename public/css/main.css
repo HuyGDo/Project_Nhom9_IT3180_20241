@@ -2043,4 +2043,54 @@ html {
     box-shadow: 0 4px 8px rgba(0,0,0,0.1);
 }
 
+.recommendation-img {
+    height: 200px;
+    object-fit: cover;
+    width: 100%;
+}
+
+.recommendations .card {
+    max-width: 100%;
+    margin-bottom: 1rem;
+}
+
+.recommendation-card {
+    padding: 12px 15px;
+    border: 1px solid #eee;
+    border-radius: 8px;
+    margin-bottom: 10px;
+}
+
+.recommendation-title {
+    font-size: 1.1rem;
+    margin-bottom: 8px;
+    cursor: pointer;
+    color: #007bff;
+}
+
+.recommendation-title:hover {
+    text-decoration: underline;
+}
+
+.recommendation-stats {
+    display: flex;
+    gap: 15px;
+    align-items: center;
+    font-size: 0.9rem;
+}
+
+.recommendation-stats img {
+    opacity: 0.7;
+    margin-right: 4px;
+    width: 14px;
+    height: 14px;
+}
+
+.modal-recipe-img {
+    width: 100%;
+    max-height: 400px;
+    object-fit: cover;
+    border-radius: 8px;
+}
+
 /*# sourceMappingURL=main.css.map */
