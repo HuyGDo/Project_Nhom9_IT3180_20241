@@ -98,6 +98,7 @@ module.exports.storeRecipe = async (req, res) => {
         const recipe = new Recipe({
             title,
             description,
+            author: res.locals.user._id, // Important: store the user as the author
             ingredients,
             instructions,
             image: req.file ? `/uploads/${req.file.filename}` : null,
