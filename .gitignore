@@ -149,3 +149,5 @@ uploads/
 
 package-lock.json
 package.json
+
+recommendation_service/
