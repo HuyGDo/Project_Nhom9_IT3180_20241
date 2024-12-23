@@ -156,92 +156,80 @@ module.exports.deleteRecipe = (req, res, next) => {
         .catch(next);
 };
 // [POST] /recipes/:id/vote
-module.exports.handleVote = (req, res) => {
-    const { id } = req.params;
-    const { voteType } = req.body;
-    const userId = req.user._id;
+module.exports.handleVote = async (req, res) => {
+    try {
+        const { id } = req.params;
+        const { voteType } = req.body;
+        const userId = req.user._id;
 
-    Recipe.findById(id)
-        .lean()
-        .then(recipe => {
-            if (!recipe) {
-                throw { status: 404, message: 'Recipe not found' };
-            }
+        const recipe = await Recipe.findById(id);
+        
+        if (!recipe) {
+            throw { status: 404, message: 'Recipe not found' };
+        }
 
-            if (recipe.author?.toString() === userId.toString()) {
-                throw { status: 400, message: 'Cannot vote on your own recipe' };
-            }
+        if (recipe.author?.toString() === userId.toString()) {
+            throw { status: 400, message: 'Cannot vote on your own recipe' };
+        }
 
-            // Find existing vote
-            const existingVote = recipe.userVotes.find(
-                vote => vote.user.toString() === userId.toString()
-            );
+        // Find existing vote
+        const existingVote = recipe.userVotes.find(
+            vote => vote.user.toString() === userId.toString()
+        );
 
-            let updateOperation;
-            if (existingVote) {
-                if (existingVote.voteType === voteType) {
-                    // Case 1: Click same button - Remove vote
-                    updateOperation = {
-                        $pull: { userVotes: { user: userId } },
-                        $inc: { [`votes.${voteType}votes`]: -1 }
-                    };
-                } else {
-                    // Case 2: Switch vote
-                    return Recipe.findOneAndUpdate(
-                        { _id: id },
-                        { $pull: { userVotes: { user: userId } } },
-                        { new: true }
-                    ).then(updatedRecipe => {
-                        return Recipe.findOneAndUpdate(
-                            { _id: id },
-                            {
-                                $push: { userVotes: { user: userId, voteType } },
-                                $inc: {
-                                    [`votes.${existingVote.voteType}votes`]: -1,
-                                    [`votes.${voteType}votes`]: 1
-                                }
-                            },
-                            { new: true }
-                        ).lean();
-                    });
-                }
-            } else {
-                // Case 3: New vote
-                updateOperation = {
-                    $push: { userVotes: { user: userId, voteType } },
-                    $inc: { [`votes.${voteType}votes`]: 1 }
-                };
-            }
-
-            // Update recipe
-            return Recipe.findOneAndUpdate(
+        // Xóa vote cũ trước nếu có
+        if (existingVote) {
+            await Recipe.updateOne(
                 { _id: id },
                 {
-                    ...updateOperation,
-                    $set: { 'votes.score': recipe.votes.upvotes - recipe.votes.downvotes }
-                },
-                { new: true }
-            ).lean();
-        })
-        .then(updatedRecipe => {
-            res.json({
-                success: true,
-                upvotes: updatedRecipe.votes.upvotes,
-                downvotes: updatedRecipe.votes.downvotes,
-                score: updatedRecipe.votes.score,
-                userVoted: {
-                    up: voteType === 'up',
-                    down: voteType === 'down'
+                    $pull: { userVotes: { user: userId } },
+                    $inc: { [`votes.${existingVote.voteType}votes`]: -1 }
                 }
-            });
-        })
-        .catch(error => {
-            console.error('Vote handling error:', error);
-            res.status(error.status || 500).json({ 
-                success: false, 
-                message: error.message || 'Error processing vote' 
-            });
+            );
+        }
+
+        // Thêm vote mới (nếu không phải bấm cùng nút)
+        if (!existingVote || existingVote.voteType !== voteType) {
+            await Recipe.updateOne(
+                { _id: id },
+                {
+                    $push: { userVotes: { user: userId, voteType } },
+                    $inc: { [`votes.${voteType}votes`]: 1 }
+                }
+            );
+        }
+
+        // Lấy recipe đã update và tính lại score
+        const updatedRecipe = await Recipe.findOneAndUpdate(
+            { _id: id },
+            {
+                $set: { 
+                    'votes.score': recipe.votes.upvotes - recipe.votes.downvotes + 
+                        (voteType === 'up' ? 1 : -1) * 
+                        (!existingVote ? 1 : existingVote.voteType === voteType ? -1 : 2)
+                }
+            },
+            { new: true }
+        ).lean();
+
+        res.json({
+            success: true,
+            upvotes: updatedRecipe.votes.upvotes,
+            downvotes: updatedRecipe.votes.downvotes,
+            score: updatedRecipe.votes.score,
+            userVoted: {
+                up: voteType === 'up',
+                down: voteType === 'down'
+            }
         });
+
+    } catch (error) {
+        console.error('Vote handling error:', error);
+        res.status(error.status || 500).json({ 
+            success: false, 
+            message: error.message || 'Error processing vote' 
+        });
+    }
 };
 
 

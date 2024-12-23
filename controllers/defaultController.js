@@ -6,14 +6,34 @@ const Recipe = require("../models/Recipe");
 // Controller function for rendering the home page
 module.exports.show = async (req, res) => {
     try {
-        // Get recipe data from the database
-        const data = await Recipe.find().lean();
+        // Lấy trending recipes
+        let trendingRecipes = await Recipe.find()
+            .sort({ 
+                'votes.score': -1,  // Sort by score first
+                'votes.upvotes': -1 // Then by number of upvotes
+            })
+            .limit(8)
+            .lean();
 
-        // Render the home page with the recipe data
+        // Tính lại score cho mỗi recipe
+        trendingRecipes = trendingRecipes.map(recipe => ({
+            ...recipe,
+            votes: {
+                ...recipe.votes,
+                score: recipe.votes.upvotes - recipe.votes.downvotes
+            }
+        }));
+
+        // Lấy các recipes thông thường
+        const regularRecipes = await Recipe.find()
+            .sort({ createdAt: -1 })
+            .lean();
+
         res.render("default/home", {
             layout: "default",
             title: "Browse recipes",
-            recipes: data,
+            trendingRecipes,
+            recipes: regularRecipes,
         });
     } catch (error) {
         console.error("Error fetching recipes:", error);

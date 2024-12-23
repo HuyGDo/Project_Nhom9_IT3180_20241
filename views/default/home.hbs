@@ -49,18 +49,117 @@
         </div>
     </div>
 
-    {{!-- Trending recipes --}}
+    {{!-- Trending recipes section --}}
     <section class="home__container">
         <div class="home__row">
             <h2 class="home__heading">Trending Recipes</h2>
             <a href="./recipes">See more</a>
         </div>
         <div class="row row-cols-4 gy-3">
-            {{#each recipes}}
+            {{#each trendingRecipes}}
             <div class="col">
-                {{>recipe-card}}
+                <div class="recipe-card">
+                    {{#if image}}
+                    <img src="{{image}}" alt="{{title}}" class="recipe-card__img">
+                    {{else}}
+                    <img src="/assets/img/default-recipe.jpg" alt="Default" class="recipe-card__img">
+                    {{/if}}
+                    <div class="recipe-card__content">
+                        <h3 class="recipe-card__title">{{title}}</h3>
+                        <p class="recipe-card__desc">{{description}}</p>
+                        <div class="recipe-card__votes">
+                            <span class="vote-item">
+                                <i class="fas fa-arrow-up text-success"></i> {{votes.upvotes}}
+                            </span>
+                            <span class="vote-item">
+                                <i class="fas fa-arrow-down text-danger"></i> {{votes.downvotes}}
+                            </span>
+                            <span class="vote-score bg-primary">{{votes.score}}</span>
+                        </div>
+                        <a href="/recipes/{{slug}}" class="recipe-card__btn">See details</a>
+                    </div>
+                </div>
             </div>
             {{/each}}
         </div>
     </section>
 </main>
+
+<style>
+.recipe-card {
+    background: #f8f9fa;
+    border-radius: 12px;
+    padding: 0;
+    height: 100%;
+}
+
+.recipe-card__img {
+    width: 100%;
+    height: 200px;
+    object-fit: cover;
+    border-radius: 12px 12px 0 0;
+}
+
+.recipe-card__content {
+    padding: 16px;
+}
+
+.recipe-card__title {
+    font-size: 16px;
+    font-weight: 600;
+    color: #212529;
+    margin-bottom: 8px;
+}
+
+.recipe-card__desc {
+    font-size: 14px;
+    color: #6c757d;
+    margin-bottom: 16px;
+}
+
+.recipe-card__votes {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin: 8px 0;
+}
+
+.vote-item {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    color: #4a5568;
+}
+
+.vote-score {
+    background: #0d6efd;
+    color: white;
+    padding: 2px 8px;
+    border-radius: 4px;
+}
+
+.recipe-card__btn {
+    display: block;
+    width: 100%;
+    padding: 12px;
+    background: #ffc107;
+    color: #000;
+    text-align: center;
+    border-radius: 8px;
+    text-decoration: none;
+    font-weight: 500;
+}
+
+.home__heading {
+    font-size: 24px;
+    font-weight: 600;
+    color: #212529;
+}
+
+.home__row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 24px;
+}
+</style>
