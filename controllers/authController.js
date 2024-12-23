@@ -1,5 +1,6 @@
 const User = require("../models/User");
 const jwt = require("jsonwebtoken");
+const bcrypt = require("bcrypt");
 
 // Error handler
 const errorHandler = (err) => {
@@ -54,23 +55,26 @@ module.exports.showSignIn = (req, res) => {
 // [POST] /sign-in/
 module.exports.authenticate = async (req, res) => {
     const formData = req.body;
-    console.log("Form data:", formData);
+    console.log("Attempting to login with email:", formData.email);
 
     try {
         const user = await User.signin(formData.email, formData.password);
-        console.log("User found:", user);
-        const token = createToken(user._id);
+        console.log("Login successful for user:", user.email);
 
+        const token = createToken(user._id);
         res.cookie("jwt", token, { httpOnly: true, maxAge: maxAge * 1000 });
         res.redirect("/");
     } catch (err) {
-        console.log("Authentication error:", err);
+        console.log("Login error:", err.message);
         const errors = errorHandler(err);
         res.render("auth/sign-in", {
             layout: "auth",
             title: "Sign In",
             errors,
-            formData,
+            formData: {
+                email: formData.email,
+                password: "", // Don't send back password
+            },
         });
     }
 };
@@ -110,31 +114,43 @@ module.exports.logOut = (req, res) => {
     res.redirect("/");
 };
 
-// const mongoose = require("mongoose");
+// Thêm route này chỉ trong môi trường development
+module.exports.resetPassword = async (req, res) => {
+    try {
+        const { email, password } = req.body;
+        console.log("Resetting password for email:", email);
 
-// // Function to check if the index on 'username' exists and remove it
-// async function removeUsernameIndexIfExists() {
-//     try {
-//         // List all indexes on the 'users' collection
-//         const indexes = await User.collection.indexes();
+        const user = await User.findOne({ email });
+        if (!user) {
+            return res.status(404).json({ error: "User not found" });
+        }
 
-//         // Check if there's an index on the 'username' field
-//         const usernameIndex = indexes.find((index) => index.key && index.key.username);
+        // Hash new password
+        const salt = await bcrypt.genSalt(10);
+        const hashedPassword = await bcrypt.hash(password, salt);
 
-//         if (usernameIndex) {
-//             console.log("Found index on 'username': ${usernameIndex.name}. Removing it...");
+        // Update directly in database to bypass middleware
+        await User.updateOne({ email }, { $set: { password: hashedPassword } });
 
-//             // Drop the index
-//             await User.collection.dropIndex(usernameIndex.name);
+        console.log("Password reset successful");
 
-//             console.log("Index '${usernameIndex.name}' on 'username' has been removed.");
-//         } else {
-//             console.log('No index found on "username".');
-//         }
-//     } catch (error) {
-//         console.error("Error checking or removing index:", error);
-//     }
-// }
+        if (req.xhr || req.headers.accept.indexOf("json") > -1) {
+            return res.json({ message: "Password reset successful" });
+        }
 
-// // Call the function
-// removeUsernameIndexIfExists();
+        // Redirect to login page with success message
+        req.flash("success", "Password reset successful. Please login again.");
+        res.redirect("/sign-in");
+    } catch (error) {
+        console.error("Password reset error:", error);
+        res.status(500).json({ error: "Unable to reset password" });
+    }
+};
+
+// Thêm controller này
+module.exports.showResetPassword = (req, res) => {
+    res.render("auth/reset-password", {
+        layout: "auth",
+        title: "Reset Password",
+    });
+};

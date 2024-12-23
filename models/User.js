@@ -35,6 +35,7 @@ const userSchema = new mongoose.Schema({
     profile_picture: {
         type: String,
     },
+    //subscription
     following: [
         {
             type: mongoose.Schema.Types.ObjectId,
@@ -47,16 +48,6 @@ const userSchema = new mongoose.Schema({
             ref: "User",
         },
     ],
-    notification_preferences: {
-        email_notifications: {
-            type: Boolean,
-            default: true,
-        },
-        web_notifications: {
-            type: Boolean,
-            default: true,
-        },
-    },
 });
 
 // fire a function after doc saved to db
@@ -67,26 +58,54 @@ userSchema.post("save", function (doc, next) {
 
 // fire a function before doc saved to db
 userSchema.pre("save", async function (next) {
-    const salt = await bcrypt.genSalt();
-    this.password = await bcrypt.hash(this.password, salt);
-    next();
+    if (!this.isModified("password")) {
+        return next();
+    }
+
+    try {
+        const salt = await bcrypt.genSalt(10);
+        this.password = await bcrypt.hash(this.password, salt);
+        next();
+    } catch (error) {
+        console.error("Lỗi khi hash password:", error);
+        next(error);
+    }
 });
 
+userSchema.methods.checkPassword = async function (password) {
+    try {
+        console.log("=== Password Debug Information ===");
+        console.log("Input password:", password);
+        console.log("Stored hashed password:", this.password);
+        const isMatch = await bcrypt.compare(password, this.password);
+        console.log("Password match result:", isMatch);
+        return isMatch;
+    } catch (error) {
+        console.error("Detailed error:", error);
+        return false;
+    }
+};
+
 userSchema.statics.signin = async function (email, password) {
-    const user = await this.findOne({ email });
+    try {
+        const user = await this.findOne({ email });
 
-    if (!user) {
-        throw Error("Incorrect email.");
+        if (!user) {
+            throw Error("Incorrect email.");
+        }
+
+        console.log("Checking password for user:", email);
+        const isMatch = await user.checkPassword(password);
+
+        if (!isMatch) {
+            throw Error("Incorrect password.");
+        }
+
+        return user;
+    } catch (error) {
+        console.error("Error during signin:", error);
+        throw error;
     }
-
-    // Đảm bảo bạn đang sử dụng bcrypt để so sánh mật khẩu
-    const auth = await bcrypt.compare(password, user.password);
-
-    if (!auth) {
-        throw Error("Incorrect password.");
-    }
-
-    return user;
 };
 
 // Instance method for subscribing to another user
@@ -113,36 +132,6 @@ userSchema.methods.unfollow = async function (targetUserId) {
         (id) => id.toString() !== this._id.toString(),
     );
     await targetUser.save();
-};
-
-userSchema.methods.follow = async function (userId) {
-    if (this._id.equals(userId)) return;
-
-    if (!this.following.includes(userId)) {
-        this.following.push(userId);
-
-        const userToFollow = await this.model("User").findById(userId);
-        if (userToFollow && !userToFollow.followers.includes(this._id)) {
-            userToFollow.followers.push(this._id);
-            await userToFollow.save();
-        }
-
-        await this.save();
-        return true; // Successfully followed
-    }
-    return false; // Already following
-};
-
-userSchema.methods.unfollow = async function (userId) {
-    this.following = this.following.filter((id) => !id.equals(userId));
-
-    const userToUnfollow = await this.model("User").findById(userId);
-    if (userToUnfollow) {
-        userToUnfollow.followers = userToUnfollow.followers.filter((id) => !id.equals(this._id));
-        await userToUnfollow.save();
-    }
-
-    await this.save();
 };
 
 module.exports = mongoose.model("User", userSchema);

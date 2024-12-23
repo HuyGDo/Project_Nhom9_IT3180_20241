@@ -21,7 +21,7 @@ const errorHandler = (err) => {
 
     // Incorrect password
     if (err.message === "Incorrect password.") {
-        errors.password = "Password incorrect.";
+        errors.password = "Password is incorrect.";
     }
 
     // Duplicate error code

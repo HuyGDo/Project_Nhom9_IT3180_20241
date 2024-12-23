@@ -5,8 +5,8 @@ const notificationService = require("../services/notificationService");
 
 // [GET] /me
 module.exports.showUserInfo = (req, res) => {
-    const user = res.locals.user; // Assumes checkUser middleware sets res.locals.user
-    console.log("showUserInfo - User:", user);
+    const user = res.locals.user; // Set by checkUser middleware
+    console.log("Showing user info for:", user);
     res.render("me/user-info", {
         layout: "default-logined",
         title: "My Profile",

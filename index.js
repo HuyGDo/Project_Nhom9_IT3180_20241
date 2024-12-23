@@ -54,8 +54,8 @@ app.use(
 );
 app.use(flash());
 
-app.use(passport.initialize());
-app.use(passport.session()); // Ensure this is used if session-based
+// app.use(passport.initialize());
+// app.use(passport.session()); // Ensure this is used if session-based
 
 /* Method Override Middleware*/
 app.use(methodOverride("_method"));
