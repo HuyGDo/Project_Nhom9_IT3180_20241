@@ -1,4 +1,5 @@
 const Recipe = require("../models/Recipe");
+const recommendationService = require('../services/recommendationService');
 
 // [GET] /recipes/
 module.exports.showRecipes = (req, res) => {
@@ -21,40 +22,51 @@ module.exports.showRecipes = (req, res) => {
 };
 
 // [GET] /recipes/:slug
-module.exports.showRecipeDetail = (req, res) => {
-    Recipe.findOne({ slug: req.params.slug })
-        .lean()
-        .then((recipe) => {
-            if (!recipe) {
-                return res.render("default/404", {
-                    layout: "default-logined",
-                    title: "Page not found",
-                });
+module.exports.showRecipeDetail = async (req, res) => {
+    try {
+        const recipe = await Recipe.findOne({ slug: req.params.slug }).lean();
+        
+        let recommendedRecipes = [];
+        
+        try {
+            // Thử lấy recommendations
+            const recommendations = await recommendationService.getRecommendations(recipe._id);
+            if (recommendations && recommendations.length > 0) {
+                recommendedRecipes = await Recipe.find({
+                    '_id': { $in: recommendations }
+                })
+                .select('title image votes slug')
+                .lean();
+            } else {
+                // Fallback: Lấy ngẫu nhiên 5 công thức khác
+                recommendedRecipes = await Recipe.find({
+                    '_id': { $ne: recipe._id }
+                })
+                .select('title image votes slug')
+                .limit(5)
+                .lean();
             }
+        } catch (error) {
+            console.log('Error getting recommendations:', error.message);
+            // Fallback: Lấy ngẫu nhiên 5 công thức khác
+            recommendedRecipes = await Recipe.find({
+                '_id': { $ne: recipe._id }
+            })
+            .select('title image votes slug')
+            .limit(5)
+            .lean();
+        }
 
-            // Add user vote status to recipe object
-            const userVote = recipe.userVotes.find(
-                vote => vote.user?.toString() === req.user?._id?.toString()
-            );
-            
-            recipe.userVoted = {
-                up: userVote?.voteType === 'up',
-                down: userVote?.voteType === 'down'
-            };
-            
-            res.render("recipes/recipe-detail", {
-                layout: "default",
-                title: recipe.title,
-                recipe,
-            });
-        })
-        .catch((err) => {
-            console.error(err);
-            res.render("default/404", {
-                layout: "default-logined",
-                title: "Page not found",
-            });
+        res.render("recipes/recipe-detail", {
+            layout: "default",
+            title: recipe.title,
+            recipe,
+            recommendations: recommendedRecipes
         });
+    } catch (err) {
+        console.error('Error in showRecipeDetail:', err);
+        res.render("default/404");
+    }
 };
 
 // [GET] /recipes/create
@@ -230,4 +242,15 @@ module.exports.handleVote = (req, res) => {
                 message: error.message || 'Error processing vote' 
             });
         });
+};
+
+
+// [GET] /recipes/test-recommendations/:id
+module.exports.testRecommendations = async (req, res) => {
+    try {
+        const recommendations = await recommendationService.getRecommendations(req.params.id);
+        res.json({ recommendations });
+    } catch (err) {
+        res.status(500).json({ error: err.message });
+    }
 };

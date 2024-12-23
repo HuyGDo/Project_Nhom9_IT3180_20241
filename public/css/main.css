@@ -2023,4 +2023,24 @@ html {
   margin-top: 20px;
 }
 
+/* Styling cho recipe cards */
+.card-img-top {
+    height: 200px;
+    object-fit: cover;
+    width: 100%;
+}
+
+.card {
+    height: 100%;
+    max-width: 350px;
+    margin: 0 auto;
+}
+
+/* Thêm hover effect nếu muốn */
+.card:hover {
+    transform: translateY(-5px);
+    transition: transform 0.2s ease;
+    box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+}
+
 /*# sourceMappingURL=main.css.map */

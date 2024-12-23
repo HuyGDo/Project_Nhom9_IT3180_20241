@@ -4,7 +4,7 @@
 
 <main class="container recipe-detail">
     <div class="row">
-        <div class="col-8">
+        <div class="col-md-8">
             <h1 class="recipe-detail__heading">
                 {{ recipe.title }}
             </h1>
@@ -21,6 +21,7 @@
                 </button>
             </div>
             <img src="./assets/img/recipes/spaghetti-bolognese.jpg" alt="" />
+            {{!-- Include image and recipe description --}}
             {{#if recipe.image}}
                 <img src="{{recipe.image}}" alt="{{recipe.title}}" class="recipe-image">
             {{/if}}
@@ -47,7 +48,41 @@
                 </ol>
             </div>
         </div>
-        <div class="col-4"></div>
+        <div class="col-md-4">
+            {{#if recommendations.length}}
+                <div class="recommendations-section">
+                    <h3 class="recommendations-title">You might also like</h3>
+                    <div class="recommendations-list">
+                        {{#each recommendations}}
+                            <div class="recommendation-card">
+                                <a href="/recipes/{{this.slug}}">
+                                    <div class="recommendation-img">
+                                        {{#if this.image}}
+                                            <img src="{{this.image}}" alt="{{this.title}}">
+                                        {{else}}
+                                            <img src="/assets/img/recipes/spaghetti-bolognese.jpg" alt="Default">
+                                        {{/if}}
+                                    </div>
+                                    <div class="recommendation-content">
+                                        <h4>{{this.title}}</h4>
+                                        <div class="recommendation-stats">
+                                            <span class="upvotes">
+                                                <img src="/assets/icons/thumbs-up.svg" alt="upvotes">
+                                                {{this.votes.upvotes}}
+                                            </span>
+                                        </div>
+                                    </div>
+                                </a>
+                            </div>
+                        {{/each}}
+                    </div>
+                </div>
+            {{else}}
+                <div class="recommendations-section">
+                    <p class="no-recommendations">No similar recipes found yet.</p>
+                </div>
+            {{/if}}
+        </div>
     </div>
 </main>
 
