@@ -2,46 +2,141 @@
     window.isAuthenticated = {{#if user}}true{{else}}false{{/if}};
 </script>
 
-<main class="container recipe-detail">
-    <div class="row">
-        <div class="col-md-8">
-            <h1 class="recipe-detail__heading">
-                {{ recipe.title }}
-            </h1>
+<main class="recipe-detail">
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-8">
+                {{!-- Recipe Header --}}
+                <div class="recipe-detail__header">
+                    <h1 class="recipe-detail__heading">{{ recipe.title }}</h1>
+                    <div class="recipe-detail__meta">
+                        <div class="recipe-detail__author">
+                            {{#if recipe.author.profile_picture}}
+                            <img
+                                src="{{ recipe.author.profile_picture }}"
+                                alt="Author"
+                                class="recipe-detail__author-img"
+                            />
+                            {{else}}
+                            <img
+                                src="/assets/img/default-avatar.png"
+                                alt="Author"
+                                class="recipe-detail__author-img"
+                            />
+                            {{/if}}
+                            <span>By {{ recipe.author.username }}</span>
+                        </div>
+                        <div class="recipe-detail__stats">
+                            <span
+                                class="recipe-detail__date"
+                                >{{ formatDate recipe.createdAt }}</span
+                            >
+                            <span class="recipe-detail__views">{{ recipe.views }} views</span>
+                        </div>
+                    </div>
+                </div>
 
-            {{!-- Add voting buttons --}}
-            <div class="vote-container" data-recipe-id="{{ recipe._id }}">
-                <button
-                    class="vote-btn upvote-btn {{#if recipe.userVoted.up}}voted{{/if}}"
-                    data-vote="up"
-                >
-                    <img src="/assets/icons/thumbs-up.svg" alt="upvote" />
-                    <span class="upvote-count">{{ recipe.votes.upvotes }}</span>
-                </button>
-                <button
-                    class="vote-btn downvote-btn {{#if recipe.userVoted.down}}voted{{/if}}"
-                    data-vote="down"
-                >
-                    <img src="/assets/icons/thumbs-down.svg" alt="downvote" />
-                    <span class="downvote-count">{{ recipe.votes.downvotes }}</span>
-                </button>
+                {{!-- Recipe Image --}}
+                <div class="recipe-detail__image-wrapper">
+                    {{#if recipe.image}}
+                    <img
+                        src="{{ recipe.image }}"
+                        alt="{{ recipe.title }}"
+                        class="recipe-detail__image"
+                    />
+                    {{else}}
+                    <img
+                        src="/assets/img/recipe-placeholder.jpg"
+                        alt="{{ recipe.title }}"
+                        class="recipe-detail__image"
+                    />
+                    {{/if}}
+                </div>
+
+                {{!-- Voting Section --}}
+                <div class="recipe-detail__actions">
+                    <div class="vote-container" data-recipe-id="{{ recipe._id }}">
+                        <button
+                            class="vote-btn upvote-btn {{#if recipe.userVoted.up}}voted{{/if}}"
+                            data-vote="up"
+                        >
+                            <img src="/assets/icons/thumbs-up.svg" alt="upvote" />
+                            <span class="upvote-count">{{ recipe.votes.upvotes }}</span>
+                        </button>
+                        <button
+                            class="vote-btn downvote-btn {{#if recipe.userVoted.down}}voted{{/if}}"
+                            data-vote="down"
+                        >
+                            <img src="/assets/icons/thumbs-down.svg" alt="downvote" />
+                            <span class="downvote-count">{{ recipe.votes.downvotes }}</span>
+                        </button>
+                    </div>
+                    <div class="recipe-detail__share">
+                        <button class="btn btn--outline">
+                            <img src="/assets/icons/share.svg" alt="share" />
+                            Share
+                        </button>
+                    </div>
+                </div>
+
+                {{!-- Recipe Description --}}
+                <div class="recipe-detail__description">
+                    <h2 class="recipe-detail__section-title">Description</h2>
+                    <p>{{ recipe.description }}</p>
+                </div>
+
+                {{!-- Ingredients Section --}}
+                <div class="recipe-detail__ingredients">
+                    <h2 class="recipe-detail__section-title">Ingredients</h2>
+                    <ul class="recipe-detail__ingredients-list">
+                        {{#each recipe.ingredients}}
+                        <li class="recipe-detail__ingredient-item">
+                            <span class="ingredient-name">{{ this.name }}</span>
+                            <span class="ingredient-quantity">{{ this.quantity }}</span>
+                        </li>
+                        {{/each}}
+                    </ul>
+                </div>
+
+                {{!-- Instructions Section --}}
+                <div class="recipe-detail__instructions">
+                    <h2 class="recipe-detail__section-title">Instructions</h2>
+                    <div class="recipe-detail__steps">
+                        {{#each recipe.instructions}}
+                        <div class="recipe-detail__step">
+                            <div class="step-number">{{ this.stepNumber }}</div>
+                            <p class="step-description">{{ this.description }}</p>
+                        </div>
+                        {{/each}}
+                    </div>
+                </div>
             </div>
-            <img src="./assets/img/recipes/spaghetti-bolognese.jpg" alt="" />
-            {{!-- Include image and recipe description --}}
-            {{#if recipe.image}}
-            <img src="{{ recipe.image }}" alt="{{ recipe.title }}" class="recipe-detail__image" />
-            {{else}}
-            <img
-                src="/assets/img/recipe-placeholder.jpg"
-                alt="{{ recipe.title }}"
-                class="recipe-detail__image"
-            />
-            {{/if}}
+
+            {{!-- Sidebar --}}
+            <div class="col-lg-4">
+                <div class="recipe-detail__sidebar">
+                    <div class="recipe-detail__info-card">
+                        <h3>Recipe Info</h3>
+                        <div class="info-item">
+                            <span class="info-label">Prep Time:</span>
+                            <span class="info-value">{{ recipe.prepTime }} mins</span>
+                        </div>
+                        <div class="info-item">
+                            <span class="info-label">Cook Time:</span>
+                            <span class="info-value">{{ recipe.cookTime }} mins</span>
+                        </div>
+                        <div class="info-item">
+                            <span class="info-label">Servings:</span>
+                            <span class="info-value">{{ recipe.servings }}</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
         </div>
     </div>
 </main>
 
-{{!-- Add voting script --}}
+{{!-- Voting Script --}}
 <script>
     document.addEventListener("DOMContentLoaded", function () {
         const voteContainer = document.querySelector(".vote-container");
@@ -103,47 +198,3 @@
         });
     });
 </script>
-
-{{!-- Add voting styles --}}
-<style>
-    .vote-container {
-        display: flex;
-        gap: 1rem;
-        margin: 1rem 0;
-    }
-
-    .vote-btn {
-        padding: 0.5rem 1rem;
-        border: 1px solid #ddd;
-        border-radius: 4px;
-        background: white;
-        cursor: pointer;
-        transition: all 0.2s;
-        display: flex;
-        align-items: center;
-        gap: 0.5rem;
-    }
-
-    .vote-btn:hover {
-        background: #f0f0f0;
-    }
-
-    .vote-btn.voted {
-        background: #e0e0e0;
-        border-color: #999;
-    }
-
-    .upvote-btn.voted {
-        color: #2ecc71;
-    }
-
-    .downvote-btn.voted {
-        color: #e74c3c;
-    }
-
-    .vote-btn.loading {
-        opacity: 0.7;
-        cursor: not-allowed;
-        pointer-events: none;
-    }
-</style>

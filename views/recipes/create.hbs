@@ -1,254 +1,172 @@
-<div class="container create-recipe">
+<main class="create-recipe">
     <div class="create-recipe__container">
-        <h1 class="create-recipe__heading">Create new Recipe</h1>
-    </div>
-    <div class="create-recipe__container">
-        <form
-            method="POST"
-            action="/recipes/store"
-            class="form create-recipe__form"
-            enctype="multipart/form-data"
-        >
-            {{!-- Title --}}
-            <div class="form__group create-recipe__form-item">
-                <label for="title" class="form__label">Title</label>
+        <h1 class="create-recipe__heading">Create New Recipe</h1>
 
-                <div class="form-input__list">
-                    <div class="form-input__item">
+        <form action="/recipes/store" method="POST" class="create-recipe__form">
+            {{!-- Basic Info --}}
+            <div class="form-group">
+                <h2 class="section-title">Basic Information</h2>
+                <div class="form-group">
+                    <label for="title">Recipe Title</label>
+                    <input
+                        type="text"
+                        id="title"
+                        name="title"
+                        placeholder="Enter your recipe title"
+                        required
+                    />
+                </div>
+                <div class="form-group">
+                    <label for="description">Recipe Description</label>
+                    <textarea
+                        id="description"
+                        name="description"
+                        placeholder="Describe your recipe..."
+                        required
+                    ></textarea>
+                </div>
+            </div>
+
+            {{!-- Cooking Info --}}
+            <div class="form-group">
+                <h2 class="section-title">Cooking Information</h2>
+                <div class="create-recipe__form__item--row">
+                    <div class="form-group">
+                        <label for="prepTime">Prep Time</label>
                         <input
-                            type="text"
-                            name="title"
-                            id="title"
-                            value=""
-                            placeholder="Title"
-                            class="form-input__input"
+                            type="number"
+                            id="prepTime"
+                            name="prepTime"
+                            placeholder="Minutes"
+                            min="0"
+                            required
+                        />
+                    </div>
+                    <div class="form-group">
+                        <label for="cookTime">Cook Time</label>
+                        <input
+                            type="number"
+                            id="cookTime"
+                            name="cookTime"
+                            placeholder="Minutes"
+                            min="0"
+                            required
+                        />
+                    </div>
+                    <div class="form-group">
+                        <label for="servings">Servings</label>
+                        <input
+                            type="number"
+                            id="servings"
+                            name="servings"
+                            placeholder="Number of servings"
+                            min="1"
+                            required
                         />
                     </div>
                 </div>
-                <p class="form__error"></p>
-            </div>
-
-            {{!-- Image --}}
-            <div class="form__group create-recipe__form-item">
-                <label for="recipe-image" class="form__label">Image</label>
-
-                <div class="form-input__list">
-                    <div class="form-input__item">
-                        <input
-                            type="file"
-                            name="recipe-image"
-                            id="recipe-image"
-                            value=""
-                            placeholder="Image"
-                            class="form-input__input"
-                        />
-                    </div>
-                </div>
-                <p class="form__error"></p>
-            </div>
-
-            {{!-- Description --}}
-            <div class="form__group create-recipe__form-item">
-                <label for="description" class="form__label">Description</label>
-
-                <div class="form-input__list">
-                    <div class="form-input__item">
-                        <textarea
-                            name="description"
-                            id="description"
-                            placeholder="Description"
-                            class="form-input__input"
-                        ></textarea>
-                    </div>
-                </div>
-                <p class="form__error"></p>
             </div>
 
             {{!-- Ingredients --}}
-            <div class="form__group create-recipe__form-item">
-                <label class="form__label create-recipe__form-label">Ingredients</label>
-
-                <div id="add-ingredient-input" class="form-input__list create-recipe__form-list">
-                    <div class="form-input__item">
+            <div class="form-group">
+                <h2 class="section-title">Ingredients</h2>
+                <div class="ingredients-list" id="ingredientsList">
+                    <div class="ingredient-item">
                         <input
                             type="text"
-                            name="ingredient-name"
-                            id="ingredient-name"
-                            value=""
-                            placeholder="Name"
-                            class="form-input__input form-input__input--first"
+                            name="ingredients[0][name]"
+                            placeholder="Ingredient name"
+                            required
                         />
-
-                        <div class="form-input__input--separate"></div>
-
                         <input
                             type="text"
-                            name="ingredient-quantity"
-                            id="ingredient-quantity"
-                            value=""
-                            placeholder="Quantity"
-                            class="form-input__input form-input__input--second"
+                            name="ingredients[0][quantity]"
+                            placeholder="Amount (e.g., 2 cups)"
+                            required
                         />
-
-                        <a
-                            class="btn btn--outline form__remove-btn"
-                            style="opacity: 0; pointer-events: none"
-                        >
-                            <img src="/assets/icons/xmark.svg" alt="" class="form__control-thumb" />
-                        </a>
+                        <button type="button" class="remove-btn">&times;</button>
                     </div>
                 </div>
-
-                <p class="form__error"></p>
-                <a
-                    id="add-ingredient-btn"
-                    class="btn btn--outline form__control-btn create-recipe__form-add-btn"
-                >
-                    <img src="/assets/icons/plus.svg" alt="" class="form__control-thumb" />
-                    Add ingredient
-                </a>
+                <button type="button" class="add-btn" id="addIngredient">
+                    Add Another Ingredient
+                </button>
             </div>
 
             {{!-- Instructions --}}
-            <div class="form__group create-recipe__form-item">
-                <label class="form__label create-recipe__form-label"> Instructions </label>
-
-                <div id="add-instruction-input" class="form-input__list create-recipe__form-list">
-                    <div class="form-input__item">
-                        <p class="form-input__text">Step</p>
+            <div class="form-group">
+                <h2 class="section-title">Cooking Instructions</h2>
+                <div class="instructions-list" id="instructionsList">
+                    <div class="instruction-item">
                         <input
                             type="text"
-                            name="step-number"
-                            id="step-number"
-                            value="1"
-                            readonly
-                            class="form-input__input form-input__input--second"
+                            name="instructions[0][description]"
+                            placeholder="Step 1: Enter cooking instruction"
+                            required
                         />
-
-                        <div class="form-input__input--separate"></div>
-
-                        <input
-                            type="text"
-                            name="instruction-desc"
-                            id="instruction-desc"
-                            value=""
-                            placeholder="Description"
-                            class="form-input__input form-input__input--first"
-                        />
-
-                        <a
-                            class="btn btn--outline form__remove-btn"
-                            style="opacity: 0; pointer-events: none"
-                        >
-                            <img src="/assets/icons/xmark.svg" alt="" class="form__control-thumb" />
-                        </a>
+                        <button type="button" class="remove-btn">&times;</button>
                     </div>
                 </div>
-
-                <p class="form__error"></p>
-                <a
-                    id="add-instruction-btn"
-                    class="btn btn--outline form__control-btn create-recipe__form-add-btn"
-                >
-                    <img src="/assets/icons/plus.svg" alt="" class="form__control-thumb" />
-                    Add step
-                </a>
+                <button type="button" class="add-btn" id="addInstruction">Add Another Step</button>
             </div>
 
-            <div class="form__group create-recipe__form-item">
-                <button type="submit" class="btn btn--primary">Add recipe</button>
-            </div>
+            <button type="submit" class="btn--submit">Create Recipe</button>
         </form>
     </div>
-</div>
+</main>
 
-{{!-- Dynamic input for ingredients --}}
 <script>
-    const addIngredientBtn = document.getElementById("add-ingredient-btn");
-    const inputIngredientList = document.getElementById("add-ingredient-input");
-    const addInstructionBtn = document.getElementById("add-instruction-btn");
-    const inputInstructionList = document.getElementById("add-instruction-input");
-    var index = 1;
+    // Add dynamic fields for ingredients
+    const ingredientsList = document.getElementById("ingredientsList");
+    const addIngredientBtn = document.getElementById("addIngredient");
+    let ingredientCount = 1;
 
-    function removeInput() {
-        this.parentElement.remove();
-    }
+    addIngredientBtn.addEventListener("click", () => {
+        const newIngredient = document.createElement("div");
+        newIngredient.className = "ingredient-item";
+        newIngredient.innerHTML = `
+            <input 
+                type="text" 
+                name="ingredients[${ingredientCount}][name]" 
+                placeholder="Ingredient name"
+                required
+            >
+            <input 
+                type="text" 
+                name="ingredients[${ingredientCount}][quantity]" 
+                placeholder="Amount (e.g., 2 cups)"
+                required
+            >
+            <button type="button" class="remove-btn">&times;</button>
+        `;
+        ingredientsList.appendChild(newIngredient);
+        ingredientCount++;
+    });
 
-    function addIngredientInput() {
-        event.preventDefault();
+    // Add dynamic fields for instructions
+    const instructionsList = document.getElementById("instructionsList");
+    const addInstructionBtn = document.getElementById("addInstruction");
+    let instructionCount = 1;
 
-        const name = document.createElement("input");
-        name.type = "text";
-        name.name = "ingredient-name";
-        name.placeholder = "Name";
-        name.className = "form-input__input form-input__input--first";
+    addInstructionBtn.addEventListener("click", () => {
+        const newInstruction = document.createElement("div");
+        newInstruction.className = "instruction-item";
+        newInstruction.innerHTML = `
+            <input 
+                type="text" 
+                name="instructions[${instructionCount}][description]" 
+                placeholder="Step ${instructionCount + 1}: Enter cooking instruction"
+                required
+            >
+            <button type="button" class="remove-btn">&times;</button>
+        `;
+        instructionsList.appendChild(newInstruction);
+        instructionCount++;
+    });
 
-        const quantity = document.createElement("input");
-        quantity.type = "text";
-        quantity.name = "ingredient-quantity";
-        quantity.placeholder = "Quantity";
-        quantity.className = "form-input__input form-input__input--second";
-
-        const delBtn = document.createElement("button");
-        delBtn.className = "btn btn--outline form__control-btn";
-        delBtn.innerHTML =
-            '<img src="/assets/icons/xmark.svg" alt="" class="form__control-thumb" />';
-        delBtn.addEventListener("click", removeInput);
-
-        const separate = document.createElement("div");
-        separate.className = "form-input__input--separate";
-
-        const inputItem = document.createElement("div");
-        inputItem.className = "form-input__item";
-
-        inputIngredientList.appendChild(inputItem);
-
-        inputItem.appendChild(name);
-        inputItem.appendChild(separate);
-        inputItem.appendChild(quantity);
-        inputItem.appendChild(delBtn);
-    }
-
-    function addInstructionInput() {
-        event.preventDefault();
-
-        const step = document.createElement("input");
-        step.type = "number";
-        step.name = "step-number";
-        step.className = "form-input__input form-input__input--second";
-        step.value = ++index;
-
-        const instructionDesc = document.createElement("input");
-        instructionDesc.type = "text";
-        instructionDesc.name = "instruction-desc";
-        instructionDesc.placeholder = "Description";
-        instructionDesc.className = "form-input__input form-input__input--first";
-
-        const delBtn = document.createElement("button");
-        delBtn.className = "btn btn--outline form__control-btn";
-        delBtn.innerHTML =
-            '<img src="/assets/icons/xmark.svg" alt="" class="form__control-thumb" />';
-        delBtn.addEventListener("click", removeInput);
-
-        const separate = document.createElement("div");
-        separate.className = "form-input__input--separate";
-
-        const text = document.createElement("p");
-        text.className = "form-input__text";
-        text.innerHTML = "Step";
-
-        const inputItem = document.createElement("div");
-        inputItem.className = "form-input__item";
-
-        inputInstructionList.appendChild(inputItem);
-
-        inputItem.appendChild(text);
-        inputItem.appendChild(step);
-        inputItem.appendChild(separate);
-        inputItem.appendChild(instructionDesc);
-        inputItem.appendChild(delBtn);
-    }
-
-    addIngredientBtn.addEventListener("click", addIngredientInput);
-    addInstructionBtn.addEventListener("click", addInstructionInput);
+    // Remove items
+    document.addEventListener("click", (e) => {
+        if (e.target.classList.contains("remove-btn")) {
+            e.target.parentElement.remove();
+        }
+    });
 </script>
