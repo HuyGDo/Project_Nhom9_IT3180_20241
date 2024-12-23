@@ -23,77 +23,83 @@ const reviewSchema = new mongoose.Schema({
 });
 
 // Define the recipe schema
-const recipeSchema = new mongoose.Schema({
-    author: {
-        type: mongoose.Schema.Types.ObjectId, // Reference to the user who created the recipe
-        ref: "User", // Assuming there is a User model
-    },
-    title: {
-        type: String,
-    },
-    description: {
-        type: String,
-    },
-    ingredients: [
-        {
-            _id: false,
-            name: {
-                type: String,
+const recipeSchema = new mongoose.Schema(
+    {
+        author: {
+            type: mongoose.Schema.Types.ObjectId, // Reference to the user who created the recipe
+            ref: "User", // Assuming there is a User model
+            required: true,
+        },
+        title: {
+            type: String,
+        },
+        description: {
+            type: String,
+        },
+        ingredients: [
+            {
+                _id: false,
+                name: {
+                    type: String,
+                },
+                quantity: String,
             },
-            quantity: String,
-        },
-    ],
-    instructions: [
-        {
-            _id: false,
-            stepNumber: Number,
-            description: {
-                type: String,
+        ],
+        instructions: [
+            {
+                _id: false,
+                stepNumber: Number,
+                description: {
+                    type: String,
+                },
             },
+        ],
+        image: {
+            type: String, // Store URL or path to the image
         },
-    ],
-    image: {
-        type: String, // Store URL or path to the image
-    },
-    reviews: [reviewSchema], // Embed reviews directly into the recipe
-    created_at: {
-        type: Date,
-        default: Date.now,
-    },
-    likes: [
-        {
-            type: mongoose.Schema.Types.ObjectId,
-            ref: "User",
+        reviews: [reviewSchema], // Embed reviews directly into the recipe
+        created_at: {
+            type: Date,
+            default: Date.now,
         },
-    ],
+        likes: [
+            {
+                type: mongoose.Schema.Types.ObjectId,
+                ref: "User",
+            },
+        ],
 
-    votes: {
-        upvotes: { type: Number, default: 0 },
-        downvotes: { type: Number, default: 0 },
-        score: { type: Number, default: 0 }
+        votes: {
+            upvotes: { type: Number, default: 0 },
+            downvotes: { type: Number, default: 0 },
+            score: { type: Number, default: 0 },
+        },
+        userVotes: [
+            {
+                user: { type: mongoose.Schema.Types.ObjectId, ref: "User" },
+                voteType: { type: String, enum: ["up", "down"] },
+            },
+        ],
+        slug: { type: String, slug: "title", unique: true },
     },
-    userVotes: [{
-        user: { type: mongoose.Schema.Types.ObjectId, ref: 'User' },
-        voteType: { type: String, enum: ['up', 'down'] }
-    }],
-    slug: { type: String, slug: "title", unique: true }
-}, {
-    timestamps: true,
-    toObject: { virtuals: true },
-    toJSON: { virtuals: true }
-});
+    {
+        timestamps: true,
+        toObject: { virtuals: true },
+        toJSON: { virtuals: true },
+    },
+);
 
 // Add virtual to check if user has voted
-recipeSchema.virtual('userVoted').get(function() {
+recipeSchema.virtual("userVoted").get(function () {
     if (!this._user) return { up: false, down: false };
-    
+
     const userVote = this.userVotes.find(
-        vote => vote.user.toString() === this._user._id.toString()
+        (vote) => vote.user.toString() === this._user._id.toString(),
     );
-    
+
     return {
-        up: userVote?.voteType === 'up',
-        down: userVote?.voteType === 'down'
+        up: userVote?.voteType === "up",
+        down: userVote?.voteType === "down",
     };
 });
 

@@ -14,17 +14,20 @@
                             {{#if recipe.author.profile_picture}}
                             <img
                                 src="{{ recipe.author.profile_picture }}"
-                                alt="Author"
+                                alt="{{ recipe.author.username }}"
                                 class="recipe-detail__author-img"
                             />
                             {{else}}
                             <img
-                                src="/assets/img/default-avatar.png"
-                                alt="Author"
+                                src="/assets/img/avatar.jpg"
+                                alt="{{ recipe.author.username }}"
                                 class="recipe-detail__author-img"
                             />
                             {{/if}}
-                            <span>By {{ recipe.author.username }}</span>
+                            <span
+                                >By {{ recipe.author.first_name }}
+                                {{ recipe.author.last_name }}</span
+                            >
                         </div>
                         <div class="recipe-detail__stats">
                             <span
