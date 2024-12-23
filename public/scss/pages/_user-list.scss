@@ -1,0 +1,151 @@
+.user-list {
+    padding: 40px 0;
+    background-color: #fafafa;
+
+    &__header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 30px;
+    }
+
+    &__heading {
+        font-size: 2.8rem;
+        font-weight: 700;
+        color: #1a162e;
+    }
+
+    &__filters {
+        display: flex;
+        gap: 10px;
+    }
+
+    &__filter-btn {
+        padding: 6px 16px;
+        border-radius: 100px;
+        font-size: 1.4rem;
+        font-weight: 500;
+        color: #666;
+        background: white;
+        border: 1px solid #eee;
+        transition: all 0.3s ease;
+
+        &:hover {
+            background: #f5f5f5;
+        }
+
+        &.active {
+            background: #ffb601;
+            color: white;
+            border-color: #ffb601;
+        }
+    }
+
+    &__grid {
+        display: grid;
+        grid-template-columns: repeat(2, 1fr);
+        gap: 16px;
+        max-width: 900px;
+        margin: 0 auto;
+    }
+
+    &__card {
+        background: white;
+        border-radius: 12px;
+        padding: 16px;
+        display: flex;
+        align-items: center;
+        gap: 16px;
+        transition: all 0.3s ease;
+        border: 1px solid #eee;
+
+        &:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+        }
+    }
+
+    &__avatar {
+        width: 45px;
+        height: 45px;
+        border-radius: 50%;
+        object-fit: cover;
+        border: 2px solid #ffb601;
+    }
+
+    &__info {
+        flex-grow: 1;
+        min-width: 0;
+    }
+
+    &__name {
+        font-size: 1.6rem;
+        font-weight: 600;
+        color: #1a162e;
+        margin-bottom: 4px;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+    }
+
+    &__username {
+        font-size: 1.3rem;
+        color: #666;
+    }
+
+    &__follow-btn {
+        min-width: 90px;
+        height: 32px;
+        padding: 0 16px;
+        font-size: 1.3rem;
+        position: relative;
+        z-index: 2;
+    }
+
+    &__card-link {
+        text-decoration: none;
+        color: inherit;
+        display: block;
+
+        &:hover {
+            text-decoration: none;
+        }
+    }
+
+    &__action {
+        position: relative;
+        z-index: 1;
+    }
+
+    @media (max-width: 768px) {
+        &__grid {
+            grid-template-columns: 1fr;
+            max-width: 450px;
+        }
+
+        &__card {
+            padding: 12px;
+            gap: 12px;
+        }
+
+        &__avatar {
+            width: 40px;
+            height: 40px;
+        }
+
+        &__name {
+            font-size: 1.5rem;
+        }
+
+        &__username {
+            font-size: 1.2rem;
+        }
+
+        &__follow-btn {
+            min-width: 80px;
+            height: 30px;
+            padding: 0 12px;
+            font-size: 1.2rem;
+        }
+    }
+}

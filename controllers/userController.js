@@ -1,5 +1,6 @@
 //controllers/userController.js
 const User = require("../models/User");
+const Recipe = require("../models/Recipe");
 const mongoose = require("mongoose");
 
 module.exports.viewProfile = async (req, res) => {
@@ -17,6 +18,11 @@ module.exports.viewProfile = async (req, res) => {
             return res.status(404).send("User not found");
         }
 
+        const recipes = await Recipe.find({ author: userId })
+            .sort({ createdAt: -1 })
+            .limit(4)
+            .lean();
+
         const currentUser = await User.findById(req.user?._id || res.locals.user?._id).lean();
         console.log("Current User:", currentUser);
 
@@ -33,6 +39,7 @@ module.exports.viewProfile = async (req, res) => {
             title: "View Profile",
             profileUser,
             isSubscribed,
+            recipes,
         });
     } catch (error) {
         console.error("Error loading profile:", error);

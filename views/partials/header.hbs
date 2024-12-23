@@ -1,41 +1,61 @@
 <div class="container">
-    <div class="top-bar">
-        {{!-- Logo --}}
-        {{>logo}}
+    <div class="header__wrapper">
+        {{!-- Left Section --}}
+        <div class="header__left">
+            {{!-- Logo --}}
+            {{> logo}}
 
-        {{!-- Navbar --}}
-        <nav class="navbar">
-            <ul class="navbar__list">
-                <li class="navbar__item">
-                    <a href="/" class="navbar__link">Home </a>
-                </li>
-                <li class="navbar__item">
-                    <a href="/recipes" class="navbar__link">Recipes </a>
-                </li>
-                <li class="navbar__item">
-                    <a href="/blogs" class="navbar__link">Blogs </a>
-                </li>
-                <li class="navbar__item">
-                    <button class="navbar__link search-btn" data-bs-toggle="modal" data-bs-target="#searchModal">
-                        <i class="fas fa-search"></i>
-                    </button>
-                </li>
-                <li class="navbar__item">
-                    <a href="/users" class="navbar__link">Users </a>
-                </li>
-            </ul>
-        </nav>
+            {{!-- Main Navigation --}}
+            <nav class="header__nav">
+                <a href="/" class="header__nav-link {{#if isHome}}active{{/if}}">
+                    <i class="fas fa-home"></i>
+                    <span>Home</span>
+                </a>
+                <a href="/recipes" class="header__nav-link {{#if isRecipes}}active{{/if}}">
+                    <i class="fas fa-utensils"></i>
+                    <span>Recipes</span>
+                </a>
+                <a href="/users" class="header__nav-link {{#if isUsers}}active{{/if}}">
+                    <i class="fas fa-users"></i>
+                    <span>Community</span>
+                </a>
+            </nav>
+        </div>
 
-        {{!-- Actions --}}
-        <div class="top-act">
-            {{#if isAuthenticated}}
-                <p>Welcome, {{ user.email }}!</p>
-                <a href="/log-out" class="btn btn--text">Log out</a>
-                <a href="/users/{{ user._id }}" class="btn btn--text">My Profile</a>
-            {{else}}
-                <a href="/sign-in" class="btn btn--text">Sign In</a>
-                <a href="/sign-up" class="btn btn--text">Sign Up</a>
-            {{/if}}
+        {{!-- Right Section --}}
+        <div class="header__right">
+            {{!-- Search --}}
+            <div class="header__search">
+                <button
+                    class="header__search-btn"
+                    data-bs-toggle="modal"
+                    data-bs-target="#searchModal"
+                >
+                    <i class="fas fa-search"></i>
+                    <span>Search</span>
+                </button>
+            </div>
+
+            {{!-- Auth Actions --}}
+            <div class="header__auth">
+                {{#if isAuthenticated}}
+                <div class="header__user">
+                    <a href="/me" class="header__user-link">
+                        <img
+                            src="{{#if user.profile_picture}}{{
+                                user.profile_picture
+                            }}{{else}}/assets/img/avatar.jpg{{/if}}"
+                            alt="Profile"
+                            class="header__user-avatar"
+                        />
+                        <span class="header__user-name">{{ user.first_name }}</span>
+                    </a>
+                </div>
+                {{else}}
+                <a href="/sign-in" class="btn btn--outline btn--sm">Sign In</a>
+                <a href="/sign-up" class="btn btn--primary btn--sm">Sign Up</a>
+                {{/if}}
+            </div>
         </div>
     </div>
 </div>
@@ -51,7 +71,12 @@
             <div class="modal-body">
                 <form action="/search" method="GET">
                     <div class="input-group">
-                        <input type="text" name="q" class="form-control" placeholder="Enter keywords...">
+                        <input
+                            type="text"
+                            name="q"
+                            class="form-control"
+                            placeholder="Enter keywords..."
+                        />
                         <button class="btn btn-primary" type="submit">Search</button>
                     </div>
                 </form>

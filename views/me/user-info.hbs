@@ -1,42 +1,113 @@
 <!-- views/me/user-info.hbs -->
 <main class="profile">
+    <div class="container">
+        <div class="profile__container">
+            {{!-- Header Section --}}
+            <div class="profile__header">
+                <div class="profile__avatar">
+                    <img
+                        src="{{#if user.profile_picture}}{{
+                            user.profile_picture
+                        }}{{else}}/assets/img/avatar.jpg{{/if}}"
+                        alt="Profile Picture"
+                    />
+                </div>
+                <div class="profile__info">
+                    <h1 class="profile__name">{{ user.first_name }} {{ user.last_name }}</h1>
+                    <p class="profile__username">@{{ user.username }}</p>
+                    <div class="profile__actions">
+                        <a href="/me/edit-profile" class="btn btn--primary">Edit Profile</a>
+                        <a href="/recipes/create" class="btn btn--outline">Create Recipe</a>
+                    </div>
+                </div>
+            </div>
 
-    <!-- User Info Section -->
-    <section class="profile__info-container">
-        <h2>User Information</h2>
-        <div class="profile__avatar-section">
-            <img 
-                src="{{#if user.profile_picture}}{{user.profile_picture}}{{else}}/assets/img/default-avatar.png{{/if}}" 
-                alt="Profile Picture" 
-                class="profile__avatar" 
-            />
-        </div>
-        <div class="profile__details">
-            <p><strong>First Name:</strong> {{user.first_name}}</p>
-            <p><strong>Last Name:</strong> {{user.last_name}}</p>
-            <p><strong>Username:</strong> {{user.username}}</p>
-            <p><strong>Email:</strong> {{user.email}}</p>
-            <p><strong>Follower Count:</strong> {{followerCount}}</p>
-        </div>
-        <div class="profile__actions">
-            <a href="/me/edit-profile" class="btn btn--primary">Edit Profile</a>
-            <a href="/log-out" class="btn btn--secondary">Logout</a>
-        </div>
-    </section>
+            {{!-- Stats Section --}}
+            <div class="profile__stats">
+                <div class="profile__stat-item">
+                    <span class="profile__stat-value">{{ user.followers.length }}</span>
+                    <span class="profile__stat-label">Followers</span>
+                </div>
+                <div class="profile__stat-item">
+                    <span class="profile__stat-value">{{ user.following.length }}</span>
+                    <span class="profile__stat-label">Following</span>
+                </div>
+                <div class="profile__stat-item">
+                    <span class="profile__stat-value">{{ myRecipes.length }}</span>
+                    <span class="profile__stat-label">Recipes</span>
+                </div>
+            </div>
 
-    <!-- Recipe Section -->
-    <section class="profile__recipes-container">
-        <h2>My Recipes</h2>
-        <ul>
-            {{#each myRecipes}}
-                <li>
-                    {{this.title}}
-                    <a href="/recipes/{{this.slug}}" class="btn btn--primary">
-                        View
-                    </a>
-                </li>
-            {{/each}}
-        </ul>
-    </section>
-
+            {{!-- Content Section --}}
+            <div class="profile__content">
+                <div class="profile__main">
+                    <h2 class="profile__section-title">My Recipes</h2>
+                    <div class="profile__recipes">
+                        {{#if myRecipes.length}}
+                        {{#each myRecipes}}
+                        <div class="recipe-card">
+                            <div class="recipe-card__img-wrap">
+                                {{#if this.image}}
+                                <img
+                                    src="{{ this.image }}"
+                                    alt="{{ this.title }}"
+                                    class="recipe-card__img"
+                                />
+                                {{else}}
+                                <img
+                                    src="/assets/img/recipe-placeholder.jpg"
+                                    alt="{{ this.title }}"
+                                    class="recipe-card__img"
+                                />
+                                {{/if}}
+                            </div>
+                            <div class="recipe-card__content">
+                                <h3 class="recipe-card__title">{{ this.title }}</h3>
+                                <p class="recipe-card__description">{{ this.description }}</p>
+                                <div class="recipe-card__stats">
+                                    <span class="recipe-card__votes"
+                                        >{{ this.votes.upvotes }} upvotes</span
+                                    >
+                                </div>
+                                <div class="recipe-card__actions">
+                                    <a
+                                        href="/recipes/{{ this.slug }}"
+                                        class="btn btn--primary recipe-card__btn"
+                                        >View</a
+                                    >
+                                    <a
+                                        href="/recipes/{{ this.slug }}/edit"
+                                        class="btn btn--outline recipe-card__btn"
+                                        >Edit</a
+                                    >
+                                </div>
+                            </div>
+                        </div>
+                        {{/each}}
+                        {{else}}
+                        <p class="profile__empty">You haven't created any recipes yet</p>
+                        {{/if}}
+                    </div>
+                </div>
+                <div class="profile__sidebar">
+                    <div class="profile__section">
+                        <h2 class="profile__section-title">Account Info</h2>
+                        <div class="profile__info-list">
+                            <div class="profile__info-item">
+                                <span class="profile__info-label">Email</span>
+                                <span class="profile__info-value">{{ user.email }}</span>
+                            </div>
+                            <div class="profile__info-item">
+                                <span class="profile__info-label">Member Since</span>
+                                <span
+                                    class="profile__info-value"
+                                    >{{formatDate user.createdAt}}</span
+                                >
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
 </main>

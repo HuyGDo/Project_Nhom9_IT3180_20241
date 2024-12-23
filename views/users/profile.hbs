@@ -1,42 +1,122 @@
 <!-- filepath: views/users/profile.hbs -->
 
-<div class="profile__details">
-    <p><strong>First Name:</strong> {{ profileUser.first_name }}</p>
-    <p><strong>Last Name:</strong> {{ profileUser.last_name }}</p>
-    <h3>Followers ({{ profileUser.followers.length }})</h3>
-    <ul>
-        {{#each profileUser.followers}}
-        <li>
-            <a href="/users/{{ this }}">{{ this }}</a>
-        </li>
-        {{/each}}
-    </ul>
+<main class="profile">
+    <div class="container">
+        <div class="profile__container">
+            {{!-- Header Section --}}
+            <div class="profile__header">
+                {{!-- Avatar & Basic Info --}}
+                <div class="profile__avatar">
+                    <img
+                        src="{{#if profileUser.profile_picture}}{{
+                            profileUser.profile_picture
+                        }}{{else}}/assets/img/avatar.jpg{{/if}}"
+                        alt="{{ profileUser.first_name }}'s avatar"
+                    />
+                </div>
+                <div class="profile__info">
+                    <h1 class="profile__name">
+                        {{ profileUser.first_name }} {{ profileUser.last_name }}
+                    </h1>
+                    <p class="profile__username">@{{ profileUser.username }}</p>
 
-    <h3>Following ({{ profileUser.following.length }})</h3>
-    <ul>
-        {{#each profileUser.following}}
-        <li>
-            <a href="/users/{{ this }}">{{ this }}</a>
-        </li>
-        {{/each}}
-    </ul>
-</div>
+                    {{!-- Follow Button --}}
+                    {{#if user}}
+                    {{#if isSubscribed}}
+                    <button
+                        onclick="handleFollowAction('unfollow', '{{ profileUser._id }}')"
+                        class="btn btn--outline profile__follow-btn"
+                    >
+                        Unfollow
+                    </button>
+                    {{else}}
+                    <button
+                        onclick="handleFollowAction('follow', '{{ profileUser._id }}')"
+                        class="btn btn--primary profile__follow-btn"
+                    >
+                        Follow
+                    </button>
+                    {{/if}}
+                    {{else}}
+                    <button
+                        onclick="window.location.href='/sign-in'"
+                        class="btn btn--primary profile__follow-btn"
+                    >
+                        Follow
+                    </button>
+                    {{/if}}
+                </div>
+            </div>
 
-<!-- Action Buttons -->
-{{#if user}}
-    {{#if isSubscribed}}
-        <button onclick="handleFollowAction('unfollow', '{{profileUser._id}}')">
-            Unfollow
-        </button>
-    {{else}}
-        <button onclick="handleFollowAction('follow', '{{profileUser._id}}')">
-            Follow
-        </button>
-    {{/if}}
-{{else}}
-    <button onclick="window.location.href='/sign-in'">
-        Follow
-    </button>
-{{/if}}
+            {{!-- Stats Section --}}
+            <div class="profile__stats">
+                <div class="profile__stat-item">
+                    <span class="profile__stat-value">{{ profileUser.followers.length }}</span>
+                    <span class="profile__stat-label">Followers</span>
+                </div>
+                <div class="profile__stat-item">
+                    <span class="profile__stat-value">{{ profileUser.following.length }}</span>
+                    <span class="profile__stat-label">Following</span>
+                </div>
+                <div class="profile__stat-item">
+                    <span class="profile__stat-value">0</span>
+                    <span class="profile__stat-label">Recipes</span>
+                </div>
+            </div>
+
+            {{!-- Content Section --}}
+            <div class="profile__content">
+                <div class="profile__main">
+                    <h2 class="profile__section-title">Recent Recipes</h2>
+                    <div class="profile__recipes">
+                        {{#if recipes.length}}
+                        {{#each recipes}}
+                        <div class="recipe-card">
+                            <div class="recipe-card__img-wrap">
+                                {{#if this.image}}
+                                <img
+                                    src="{{ this.image }}"
+                                    alt="{{ this.title }}"
+                                    class="recipe-card__img"
+                                />
+                                {{else}}
+                                <img
+                                    src="/assets/img/recipe-placeholder.jpg"
+                                    alt="{{ this.title }}"
+                                    class="recipe-card__img"
+                                />
+                                {{/if}}
+                            </div>
+                            <div class="recipe-card__content">
+                                <h3 class="recipe-card__title">{{ this.title }}</h3>
+                                <p class="recipe-card__description">{{ this.description }}</p>
+                                <div class="recipe-card__stats">
+                                    <span class="recipe-card__votes"
+                                        >{{ this.votes.upvotes }} upvotes</span
+                                    >
+                                </div>
+                                <a
+                                    href="/recipes/{{ this.slug }}"
+                                    class="btn btn--primary recipe-card__btn"
+                                    >View Recipe</a
+                                >
+                            </div>
+                        </div>
+                        {{/each}}
+                        {{else}}
+                        <p class="profile__empty">No recipes yet</p>
+                        {{/if}}
+                    </div>
+                </div>
+                <div class="profile__sidebar">
+                    <h2 class="profile__section-title">About</h2>
+                    <p class="profile__bio">
+                        {{#if profileUser.bio}}{{ profileUser.bio }}{{else}}No bio yet{{/if}}
+                    </p>
+                </div>
+            </div>
+        </div>
+    </div>
+</main>
 
 <script src="/js/userActions.js"></script>

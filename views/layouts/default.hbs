@@ -1,4 +1,4 @@
-        {{!-- views/layouts/default.hbs --}}
+{{!-- views/layouts/default.hbs --}}
 <html lang="en">
     <head>
         <meta charset="UTF-8" />
@@ -29,7 +29,10 @@
         <script src="/assets/js/scripts.js"></script>
 
         {{!-- Thêm Font Awesome --}}
-        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
+        <link
+            rel="stylesheet"
+            href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css"
+        />
     </head>
     <body>
         <header class="header">
@@ -55,9 +58,11 @@
         ></script>
 
         {{#if user}}
-            {{!-- Show logged in state --}}
+        {{!-- Show logged in state --}}
         {{else}}
-            {{!-- Show login/register buttons --}}
+        {{!-- Show login/register buttons --}}
         {{/if}}
+
+        <script src="/js/slider.js"></script>
     </body>
 </html>

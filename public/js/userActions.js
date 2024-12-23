@@ -1,4 +1,10 @@
-function handleFollowAction(action, userId) {
+function handleFollowAction(action, userId, event) {
+    // Prevent the card click event
+    if (event) {
+        event.preventDefault();
+        event.stopPropagation();
+    }
+
     fetch(`/users/${userId}/${action}`, {
         method: "POST",
         headers: {
