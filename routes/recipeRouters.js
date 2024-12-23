@@ -44,7 +44,12 @@ const upload = multer({
 router.get("/create", auth.requireAuth, recipeController.createRecipe);
 
 // Route to store new recipe
-router.post("/store", upload.single("recipe-image"), recipeController.storeRecipe);
+router.post(
+    "/store",
+    auth.requireAuth,
+    upload.single("recipe-image"),
+    recipeController.storeRecipe,
+);
 
 // Route to update recipe
 router.get("/:id/edit", recipeController.editRecipe);
@@ -53,6 +58,8 @@ router.put("/:id", recipeController.updateRecipe);
 // Route to delete recipe
 router.delete("/:id", recipeController.deleteRecipe);
 
+// Route to vote for a recipe
+router.post("/:id/vote", auth.requireAuth, recipeController.handleVote);
 // Route to recipe details
 router.get("/:slug", recipeController.showRecipeDetail);
 

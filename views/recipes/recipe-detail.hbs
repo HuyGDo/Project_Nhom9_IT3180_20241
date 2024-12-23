@@ -1,19 +1,194 @@
+<script>
+    window.isAuthenticated = {{#if user}}true{{else}}false{{/if}};
+</script>
+
 <main class="container recipe-detail">
     <div class="row">
-        <div class="col-8">
+        <div class="col-md-8">
             <h1 class="recipe-detail__heading">
                 {{ recipe.title }}
             </h1>
+
+            {{!-- Add voting buttons --}}
+            <div class="vote-container" data-recipe-id="{{recipe._id}}">
+                <button class="vote-btn upvote-btn {{#if recipe.userVoted.up}}voted{{/if}}" data-vote="up">
+                    <img src="/assets/icons/thumbs-up.svg" alt="upvote">
+                    <span class="upvote-count">{{recipe.votes.upvotes}}</span>
+                </button>
+                <button class="vote-btn downvote-btn {{#if recipe.userVoted.down}}voted{{/if}}" data-vote="down">
+                    <img src="/assets/icons/thumbs-down.svg" alt="downvote">
+                    <span class="downvote-count">{{recipe.votes.downvotes}}</span>
+                </button>
+            </div>
+            <img src="./assets/img/recipes/spaghetti-bolognese.jpg" alt="" />
+            {{!-- Include image and recipe description --}}
             {{#if recipe.image}}
-                <img src="{{ recipe.image }}" alt="{{ recipe.title }}" class="recipe-detail__image" />
-            {{else}}
-                <img src="/assets/img/recipe-placeholder.jpg" alt="{{ recipe.title }}" class="recipe-detail__image" />
+                <img src="{{recipe.image}}" alt="{{recipe.title}}" class="recipe-image">
             {{/if}}
 
-            <p>
-                {{ recipe.description }}
-            </p>
+            <div class="recipe-description">
+                <p>{{ recipe.description }}</p>
+            </div>
+
+            <div class="recipe-ingredients">
+                <h2>Ingredients</h2>
+                <ul>
+                    {{#each recipe.ingredients}}
+                        <li>{{this.name}} - {{this.quantity}}</li>
+                    {{/each}}
+                </ul>
+            </div>
+
+            <div class="recipe-instructions">
+                <h2>Instructions</h2>
+                <ol>
+                    {{#each recipe.instructions}}
+                        <li>{{this.description}}</li>
+                    {{/each}}
+                </ol>
+            </div>
         </div>
-        <div class="col-4"></div>
+        <div class="col-md-4">
+            {{#if recommendations.length}}
+                <div class="recommendations-section">
+                    <h3 class="recommendations-title">You might also like</h3>
+                    <div class="recommendations-list">
+                        {{#each recommendations}}
+                            <div class="recommendation-card">
+                                <a href="/recipes/{{this.slug}}">
+                                    <div class="recommendation-img">
+                                        {{#if this.image}}
+                                            <img src="{{this.image}}" alt="{{this.title}}">
+                                        {{else}}
+                                            <img src="/assets/img/recipes/spaghetti-bolognese.jpg" alt="Default">
+                                        {{/if}}
+                                    </div>
+                                    <div class="recommendation-content">
+                                        <h4>{{this.title}}</h4>
+                                        <div class="recommendation-stats">
+                                            <span class="upvotes">
+                                                <img src="/assets/icons/thumbs-up.svg" alt="upvotes">
+                                                {{this.votes.upvotes}}
+                                            </span>
+                                        </div>
+                                    </div>
+                                </a>
+                            </div>
+                        {{/each}}
+                    </div>
+                </div>
+            {{else}}
+                <div class="recommendations-section">
+                    <p class="no-recommendations">No similar recipes found yet.</p>
+                </div>
+            {{/if}}
+        </div>
     </div>
 </main>
+
+{{!-- Add voting script --}}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const voteContainer = document.querySelector('.vote-container');
+    if (!voteContainer) return;
+
+    const recipeId = voteContainer.dataset.recipeId;
+    const voteButtons = voteContainer.querySelectorAll('.vote-btn');
+    let isVoting = false;
+
+    voteButtons.forEach(button => {
+        button.addEventListener('click', async function(e) {
+            e.preventDefault();
+            
+            if (!window.isAuthenticated) {
+                alert('Please login to vote');
+                window.location.href = '/sign-in';
+                return;
+            }
+
+            if (isVoting) return;
+            
+            const voteType = this.dataset.vote;
+            isVoting = true;
+            this.classList.add('loading');
+
+            try {
+                const response = await fetch(`/recipes/${recipeId}/vote`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ voteType })
+                });
+
+                const data = await response.json();
+
+                if (data.success) {
+                    voteContainer.querySelector('.upvote-count').textContent = data.upvotes;
+                    voteContainer.querySelector('.downvote-count').textContent = data.downvotes;
+
+                    voteButtons.forEach(btn => btn.classList.remove('voted'));
+                    if (data.userVoted.up) {
+                        voteContainer.querySelector('.upvote-btn').classList.add('voted');
+                    }
+                    if (data.userVoted.down) {
+                        voteContainer.querySelector('.downvote-btn').classList.add('voted');
+                    }
+                } else {
+                    alert(data.message || 'Error voting');
+                }
+            } catch (error) {
+                console.error('Vote error:', error);
+                alert('Error submitting vote');
+            } finally {
+                isVoting = false;
+                this.classList.remove('loading');
+            }
+        });
+    });
+});
+</script>
+
+{{!-- Add voting styles --}}
+<style>
+.vote-container {
+    display: flex;
+    gap: 1rem;
+    margin: 1rem 0;
+}
+
+.vote-btn {
+    padding: 0.5rem 1rem;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    background: white;
+    cursor: pointer;
+    transition: all 0.2s;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.vote-btn:hover {
+    background: #f0f0f0;
+}
+
+.vote-btn.voted {
+    background: #e0e0e0;
+    border-color: #999;
+}
+
+.upvote-btn.voted {
+    color: #2ecc71;
+}
+
+.downvote-btn.voted {
+    color: #e74c3c;
+}
+
+.vote-btn.loading {
+    opacity: 0.7;
+    cursor: not-allowed;
+    pointer-events: none;
+}
+</style>

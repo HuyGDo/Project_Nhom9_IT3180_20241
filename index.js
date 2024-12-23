@@ -9,7 +9,6 @@ const cookieParser = require("cookie-parser");
 const session = require("express-session");
 // const { setupWeeklyEmailCronJob } = require("./services/cronService");
 const app = express();
-const authMiddleware = require("./middleware/authMiddleware");
 /* Configure Mongoose */
 const db = require("./config/db");
 db.connect();
@@ -35,7 +34,7 @@ app.engine(
         defaultLayout: "default",
         helpers: {
             sum: (a, b) => a + b,
-            eq: (a, b) => a === b, // Added eq helper
+            eq: (a, b) => a === b,
         },
     }),
 );
@@ -43,6 +42,11 @@ app.set("view engine", "hbs");
 
 /* Cookies Parser Middleware*/
 app.use(cookieParser());
+
+const authMiddleware = require("./middleware/authMiddleware");
+
+// Add checkLoggedIn middleware after cookie-parser but before routes
+app.use(authMiddleware.checkLoggedIn);
 
 /* Flash & Session */
 app.use(
@@ -54,14 +58,8 @@ app.use(
 );
 app.use(flash());
 
-// app.use(passport.initialize());
-// app.use(passport.session()); // Ensure this is used if session-based
-
 /* Method Override Middleware*/
 app.use(methodOverride("_method"));
-
-/* Use Global Variables */
-// app.use(globalVariables);
 
 /* Routes init */
 const route = require("./routes/siteRouters");

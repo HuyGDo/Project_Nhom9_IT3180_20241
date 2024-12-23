@@ -23,12 +23,20 @@
 </div>
 
 <!-- Action Buttons -->
-{{#if isSubscribed}}
-<form action="/users/{{ profileUser._id }}/unfollow" method="POST">
-    <button type="submit">Unfollow</button>
-</form>
+{{#if user}}
+    {{#if isSubscribed}}
+        <button onclick="handleFollowAction('unfollow', '{{profileUser._id}}')">
+            Unfollow
+        </button>
+    {{else}}
+        <button onclick="handleFollowAction('follow', '{{profileUser._id}}')">
+            Follow
+        </button>
+    {{/if}}
 {{else}}
-<form action="/users/{{ profileUser._id }}/follow" method="POST">
-    <button type="submit">Follow</button>
-</form>
+    <button onclick="window.location.href='/sign-in'">
+        Follow
+    </button>
 {{/if}}
+
+<script src="/js/userActions.js"></script>

@@ -48,7 +48,7 @@ module.exports.followUser = async (req, res) => {
             return res.status(400).json({ message: "Invalid user ID" });
         }
 
-        const currentUserId = req.user?._id || res.locals.user?._id;
+        const currentUserId = req.user?._id;
         if (!currentUserId) {
             return res.status(401).json({ message: "Please login to continue" });
         }
@@ -69,15 +69,38 @@ module.exports.followUser = async (req, res) => {
 
         await currentUser.follow(targetUserId);
 
+        if (req.xhr || req.headers.accept.indexOf("json") > -1) {
+            return res.json({ success: true });
+        }
         res.redirect(`/users/${targetUserId}`);
     } catch (error) {
         console.error("Follow error:", error);
+        if (req.xhr || req.headers.accept.indexOf("json") > -1) {
+            return res.status(500).json({
+                status: "error",
+                message: "Unable to follow this user",
+            });
+        }
         res.status(500).send("Unable to follow this user");
     }
 };
 
 module.exports.unfollowUser = async (req, res) => {
     try {
+        // Check for JWT token
+        const token = req.cookies.jwt;
+        if (!token) {
+            // If AJAX request
+            if (req.xhr || req.headers.accept.indexOf("json") > -1) {
+                return res.status(401).json({
+                    redirect: "/sign-in",
+                    message: "Please login to unfollow users",
+                });
+            }
+            // For regular requests
+            return res.redirect("/sign-in");
+        }
+
         const targetUserId = req.params.id;
 
         if (!targetUserId || !mongoose.Types.ObjectId.isValid(targetUserId)) {
