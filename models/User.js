@@ -58,26 +58,54 @@ userSchema.post("save", function (doc, next) {
 
 // fire a function before doc saved to db
 userSchema.pre("save", async function (next) {
-    const salt = await bcrypt.genSalt();
-    this.password = await bcrypt.hash(this.password, salt);
-    next();
+    if (!this.isModified("password")) {
+        return next();
+    }
+
+    try {
+        const salt = await bcrypt.genSalt(10);
+        this.password = await bcrypt.hash(this.password, salt);
+        next();
+    } catch (error) {
+        console.error("Lỗi khi hash password:", error);
+        next(error);
+    }
 });
 
+userSchema.methods.checkPassword = async function (password) {
+    try {
+        console.log("=== Password Debug Information ===");
+        console.log("Input password:", password);
+        console.log("Stored hashed password:", this.password);
+        const isMatch = await bcrypt.compare(password, this.password);
+        console.log("Password match result:", isMatch);
+        return isMatch;
+    } catch (error) {
+        console.error("Detailed error:", error);
+        return false;
+    }
+};
+
 userSchema.statics.signin = async function (email, password) {
-    const user = await this.findOne({ email });
+    try {
+        const user = await this.findOne({ email });
 
-    if (!user) {
-        throw Error("Incorrect email.");
+        if (!user) {
+            throw Error("Incorrect email.");
+        }
+
+        console.log("Checking password for user:", email);
+        const isMatch = await user.checkPassword(password);
+
+        if (!isMatch) {
+            throw Error("Incorrect password.");
+        }
+
+        return user;
+    } catch (error) {
+        console.error("Error during signin:", error);
+        throw error;
     }
-
-    // Đảm bảo bạn đang sử dụng bcrypt để so sánh mật khẩu
-    const auth = await bcrypt.compare(password, user.password);
-
-    if (!auth) {
-        throw Error("Incorrect password.");
-    }
-
-    return user;
 };
 
 // Instance method for subscribing to another user

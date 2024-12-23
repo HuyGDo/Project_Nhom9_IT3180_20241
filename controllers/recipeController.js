@@ -1,5 +1,8 @@
 //controllers/recipeController.js
 const Recipe = require("../models/Recipe");
+const fs = require("fs");
+const path = require("path");
+const notificationService = require("../services/notificationService");
 
 // [GET] /recipes/
 module.exports.showRecipes = (req, res) => {
@@ -52,6 +55,12 @@ module.exports.createRecipe = (req, res) => {
 // [POST] /recipes/store
 module.exports.storeRecipe = async (req, res) => {
     try {
+        // Create uploads directory if it doesn't exist
+        const uploadsDir = path.join(__dirname, "../uploads");
+        if (!fs.existsSync(uploadsDir)) {
+            fs.mkdirSync(uploadsDir, { recursive: true });
+        }
+
         // Extract data from form
         const {
             title,
@@ -96,7 +105,17 @@ module.exports.storeRecipe = async (req, res) => {
 
         // Save the recipe to the database
         await recipe.save();
-        console.log(recipe);
+
+        // Create notification for new recipe
+        await notificationService.createNotification({
+            type: "new_content",
+            payload: {
+                author: req.user, // The author of the recipe
+                contentId: recipe._id,
+                contentType: "Recipe",
+            },
+        });
+
         res.redirect("/"); // Redirect to the main page or recipe list after saving
     } catch (error) {
         console.error("Error saving recipe:", error);
@@ -130,4 +149,63 @@ module.exports.deleteRecipe = (req, res, next) => {
     Recipe.deleteOne({ _id: req.params.id })
         .then(() => res.redirect("back"))
         .catch(next);
+};
+
+// Add like functionality
+module.exports.likeRecipe = async (req, res) => {
+    try {
+        const recipe = await Recipe.findById(req.params.id);
+        if (!recipe.likes.includes(req.user._id)) {
+            await Recipe.findByIdAndUpdate(req.params.id, {
+                $push: { likes: req.user._id },
+            });
+
+            // Create notification directly
+            await notificationService.createNotification({
+                type: "like",
+                payload: {
+                    contentAuthorId: recipe.author,
+                    interactingUser: req.user,
+                    contentId: recipe._id,
+                    contentType: "Recipe",
+                },
+            });
+        }
+        res.redirect("back");
+    } catch (error) {
+        console.error("Error liking recipe:", error);
+        res.status(500).send("Failed to like recipe");
+    }
+};
+
+// Add comment functionality
+module.exports.addComment = async (req, res) => {
+    try {
+        const recipe = await Recipe.findById(req.params.id);
+        const comment = {
+            user_id: req.user._id,
+            comments: req.body.comment,
+            rating: req.body.rating,
+        };
+
+        await Recipe.findByIdAndUpdate(req.params.id, {
+            $push: { reviews: comment },
+        });
+
+        // Create notification directly
+        await notificationService.createNotification({
+            type: "comment",
+            payload: {
+                contentAuthorId: recipe.author,
+                interactingUser: req.user,
+                contentId: recipe._id,
+                contentType: "Recipe",
+            },
+        });
+
+        res.redirect("back");
+    } catch (error) {
+        console.error("Error adding comment:", error);
+        res.status(500).send("Failed to add comment");
+    }
 };
