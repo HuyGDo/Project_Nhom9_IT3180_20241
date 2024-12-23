@@ -5,9 +5,13 @@
                 {{ recipe.title }}
             </h1>
             {{#if recipe.image}}
-                <img src="{{ recipe.image }}" alt="{{ recipe.title }}" class="recipe-detail__image" />
+            <img src="{{ recipe.image }}" alt="{{ recipe.title }}" class="recipe-detail__image" />
             {{else}}
-                <img src="/assets/img/recipe-placeholder.jpg" alt="{{ recipe.title }}" class="recipe-detail__image" />
+            <img
+                src="/assets/img/recipe-placeholder.jpg"
+                alt="{{ recipe.title }}"
+                class="recipe-detail__image"
+            />
             {{/if}}
 
             <p>

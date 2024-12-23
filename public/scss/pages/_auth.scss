@@ -26,6 +26,8 @@
     }
 
     &__desc {
+        text-align: center;
+
         margin-top: 10px;
         padding: 0 20px;
         color: #9e9da8;
@@ -61,6 +63,7 @@
     }
 
     &__text {
+        text-align: center;
         color: #9e9da8;
         font-size: 1.8rem;
         font-weight: 400;
