@@ -27,7 +27,11 @@ module.exports.showRecipes = (req, res) => {
 // [GET] /recipes/:slug
 module.exports.showRecipeDetail = async (req, res) => {
     try {
-        const recipe = await Recipe.findOne({ slug: req.params.slug }).lean();
+        const recipe = await Recipe.findOne({ slug: req.params.slug })
+            .populate("author", "username first_name last_name profile_picture")
+            .lean();
+
+        console.log("Recipe data:", recipe);
 
         let recommendedRecipes = [];
 
@@ -123,28 +127,25 @@ module.exports.storeRecipe = async (req, res) => {
         const recipe = new Recipe({
             title,
             description,
-            author: req.user._id, // Use req.user._id consistently
             ingredients,
             instructions,
+            author: req.user._id,
             image: req.file ? `/uploads/${req.file.filename}` : null,
         });
 
         await recipe.save();
 
-        // Create notification for new recipe with proper user data
-        const notification = await notificationService.createNotification({
+        // Create notification for new recipe
+        await notificationService.createNotification({
             type: "new_content",
             payload: {
-                author: req.user, // Pass the full user object
+                author: req.user, // The author of the recipe
                 contentId: recipe._id,
                 contentType: "Recipe",
             },
         });
 
-        console.log("Recipe created:", recipe);
-        console.log("Notifications created:", notification);
-
-        res.redirect("/recipes"); // Or wherever you want to redirect
+        res.redirect("/"); // Redirect to the main page or recipe list after saving
     } catch (error) {
         console.error("Error saving recipe:", error);
         res.status(500).send("Failed to create recipe");
