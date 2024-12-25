@@ -7,7 +7,7 @@ module.exports.showUserInfo = async (req, res) => {
         // Load user with followers
         const user = await User.findById(res.locals.user._id).populate("followers").lean();
         const followerCount = user.followers.length;
-
+        const followingCount = user.following?.length || 0;
         // Load recipes authored by this user
         const myRecipes = await Recipe.find({ author: user._id }).lean();
 
@@ -16,6 +16,7 @@ module.exports.showUserInfo = async (req, res) => {
             title: "My Profile",
             user,
             followerCount,
+            followingCount,
             myRecipes,
         });
     } catch (error) {
