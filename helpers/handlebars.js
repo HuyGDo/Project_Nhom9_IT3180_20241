@@ -20,4 +20,13 @@ module.exports = {
     add: function (a, b) {
         return a + b;
     },
+    limit: function (arr, limit) {
+        if (!Array.isArray(arr)) {
+            return [];
+        }
+        return arr.slice(0, limit);
+    },
+    eq: function (a, b) {
+        return a === b;
+    },
 };

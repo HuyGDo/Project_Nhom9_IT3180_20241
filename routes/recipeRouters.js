@@ -2,17 +2,26 @@ const express = require("express");
 const router = express.Router();
 const recipeController = require("../controllers/recipeController");
 const auth = require("../middleware/authMiddleware");
+const multer = require("multer");
 const { uploadRecipeImage } = require("../services/uploadService");
+
+// Setup multer for recipe image uploads
+const upload = multer({ dest: "uploads/recipes/" });
 
 // Route to create new recipe
 router.get("/create", auth.requireAuth, recipeController.createRecipe);
 
 // Route to store new recipe
-router.post("/store", auth.requireAuth, uploadRecipeImage, recipeController.storeRecipe);
+router.post(
+    "/store",
+    auth.requireAuth,
+    upload.single("recipe-image"),
+    recipeController.storeRecipe,
+);
 
 // Route to update recipe
-router.get("/:id/edit", recipeController.editRecipe);
-router.put("/:id", recipeController.updateRecipe);
+router.get("/:id/edit", auth.requireAuth, recipeController.editRecipe);
+router.put("/:id", auth.requireAuth, upload.single("recipe-image"), recipeController.updateRecipe);
 
 // Route to delete recipe
 router.delete("/:id", recipeController.deleteRecipe);

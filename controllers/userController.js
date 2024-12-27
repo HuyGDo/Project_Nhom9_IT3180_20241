@@ -14,7 +14,7 @@ module.exports.showUserInfo = async (req, res) => {
         // Load recipes authored by this user
         const myRecipes = await Recipe.find({ author: user._id }).lean();
 
-        res.render("me/user-info", {
+        res.render("users/me/user-info", {
             layout: "default",
             title: "My Profile",
             user,
@@ -27,25 +27,11 @@ module.exports.showUserInfo = async (req, res) => {
     }
 };
 
-// [GET] /me/stored/recipes
-module.exports.showStoredRecipes = (req, res, next) => {
-    Recipe.find()
-        .lean()
-        .then((recipes) => {
-            res.render("me/stored-recipes", {
-                layout: "default",
-                title: "My Recipes",
-                recipes,
-            });
-        })
-        .catch(next);
-};
-
 // [GET] /me/following
 module.exports.getFollowing = async (req, res) => {
     try {
         const user = await User.findById(req.user._id).populate("following");
-        res.render("me/following", {
+        res.render("users/me/following", {
             layout: "default",
             title: "Following",
             following: user.following,
@@ -60,7 +46,7 @@ module.exports.getFollowing = async (req, res) => {
 module.exports.getFollowers = async (req, res) => {
     try {
         const user = await User.findById(req.user._id).populate("followers");
-        res.render("me/followers", {
+        res.render("users/me/followers", {
             layout: "default",
             title: "Followers",
             followers: user.followers,

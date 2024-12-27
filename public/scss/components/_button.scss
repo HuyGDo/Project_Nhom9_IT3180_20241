@@ -50,4 +50,63 @@
         opacity: 0.5;
         pointer-events: none;
     }
+
+    &--danger {
+        background-color: #dc3545;
+        color: white;
+
+        &:hover {
+            background-color: darken(#dc3545, 10%);
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(220, 53, 69, 0.2);
+        }
+    }
+
+    &--add {
+        &::before {
+            content: "+";
+            font-size: 2rem;
+            font-weight: 400;
+        }
+
+        width: 100%;
+        padding: 12px;
+        background: #fff9e6;
+        border: 2px dashed #ffb601;
+        border-radius: 8px;
+        color: #1a162e;
+        font-weight: 500;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 8px;
+
+        &::before {
+            content: "+";
+            font-size: 2rem;
+            font-weight: 400;
+        }
+
+        &:hover {
+            background: #ffb601;
+            color: white;
+        }
+    }
+}
+
+.recipe-card {
+    &__actions {
+        display: flex;
+        gap: 8px;
+        margin-top: 16px;
+    }
+
+    &__btn {
+        flex: 1;
+        height: 36px;
+        font-size: 1.4rem;
+        padding: 0 12px;
+    }
 }

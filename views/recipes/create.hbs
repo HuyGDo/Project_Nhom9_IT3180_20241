@@ -118,7 +118,7 @@
                         <button type="button" class="remove-btn">&times;</button>
                     </div>
                 </div>
-                <button type="button" class="add-btn" id="addIngredient">
+                <button type="button" class="btn btn--add" id="addIngredient">
                     Add Another Ingredient
                 </button>
             </div>
@@ -138,10 +138,26 @@
                         <button type="button" class="remove-btn">&times;</button>
                     </div>
                 </div>
-                <button type="button" class="add-btn" id="addInstruction">Add Another Step</button>
+                <button type="button" class="btn btn--add" id="addInstruction">
+                    Add Another Step
+                </button>
             </div>
 
-            <button type="submit" class="btn--submit">Create Recipe</button>
+            <div class="create-recipe__form__actions">
+                <div class="create-recipe__form__buttons">
+                    <button type="submit" class="btn btn--primary create-recipe__form__submit">
+                        <i class="fas fa-save"></i>
+                        Create Recipe
+                    </button>
+                    <a
+                        href="/recipes/{{ recipe.slug }}"
+                        class="btn btn--outline create-recipe__form__cancel"
+                    >
+                        <i class="fas fa-times"></i>
+                        Cancel
+                    </a>
+                </div>
+            </div>
         </form>
     </div>
 </main>

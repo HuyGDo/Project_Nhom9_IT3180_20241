@@ -1,24 +1,92 @@
-<main class="container recipe-browse">
-    <div class="search-bar"></div>
-    <div class="row">
-        {{!-- Filter column --}}
-        <div class="col-3">
-            <a href="/recipes/create" class="btn btn--primary mb-3">Create Recipe</a>
-            <div class="filter-column">
-                <div class="filter-column__wrapper">
-                    <h3 class="filter-column__heading">Filter</h3>
-                </div>
-            </div>
+<main class="recipe-browse">
+    <div class="container">
+        {{!-- Header --}}
+        <div class="recipe-browse__header">
+            <h1 class="recipe-browse__title">Browse Recipes</h1>
+            <a href="/recipes/create" class="btn btn--primary recipe-browse__create-btn">
+                <i class="fas fa-plus"></i>
+                Create Recipe
+            </a>
         </div>
 
-        {{!-- Recipes column --}}
-        <div class="col-9">
-            <div class="row row-cols-3 gy-4">
-                {{#each recipes}}
-                <div class="col">
-                    {{>recipe-card}}
+        <div class="row">
+            {{!-- Filter column --}}
+            <div class="col-lg-3">
+                <div class="recipe-browse__filter">
+                    <h3 class="recipe-browse__filter-heading">Filters</h3>
+
+                    {{!-- Categories --}}
+                    <div class="recipe-browse__filter-section">
+                        <h4 class="recipe-browse__filter-title">Categories</h4>
+                        <div class="recipe-browse__filter-list">
+                            <label class="recipe-browse__filter-item">
+                                <input type="checkbox" name="category" value="main-course" />
+                                Main Course
+                            </label>
+                            <label class="recipe-browse__filter-item">
+                                <input type="checkbox" name="category" value="appetizer" />
+                                Appetizer
+                            </label>
+                            <label class="recipe-browse__filter-item">
+                                <input type="checkbox" name="category" value="dessert" />
+                                Dessert
+                            </label>
+                            <label class="recipe-browse__filter-item">
+                                <input type="checkbox" name="category" value="beverage" />
+                                Beverage
+                            </label>
+                        </div>
+                    </div>
+
+                    {{!-- Cooking Time --}}
+                    <div class="recipe-browse__filter-section">
+                        <h4 class="recipe-browse__filter-title">Cooking Time</h4>
+                        <div class="recipe-browse__filter-list">
+                            <label class="recipe-browse__filter-item">
+                                <input type="checkbox" name="time" value="quick" />
+                                Under 30 mins
+                            </label>
+                            <label class="recipe-browse__filter-item">
+                                <input type="checkbox" name="time" value="medium" />
+                                30-60 mins
+                            </label>
+                            <label class="recipe-browse__filter-item">
+                                <input type="checkbox" name="time" value="long" />
+                                Over 60 mins
+                            </label>
+                        </div>
+                    </div>
+
+                    {{!-- Difficulty --}}
+                    <div class="recipe-browse__filter-section">
+                        <h4 class="recipe-browse__filter-title">Difficulty</h4>
+                        <div class="recipe-browse__filter-list">
+                            <label class="recipe-browse__filter-item">
+                                <input type="checkbox" name="difficulty" value="easy" />
+                                Easy
+                            </label>
+                            <label class="recipe-browse__filter-item">
+                                <input type="checkbox" name="difficulty" value="medium" />
+                                Medium
+                            </label>
+                            <label class="recipe-browse__filter-item">
+                                <input type="checkbox" name="difficulty" value="hard" />
+                                Hard
+                            </label>
+                        </div>
+                    </div>
                 </div>
-                {{/each}}
+            </div>
+
+            {{!-- Recipes column --}}
+            <div class="col-9">
+                <div class="row row-cols-3 gy-4">
+                    {{#each recipes}}
+                    <div class="col">
+                        {{>recipe-card}}
+                    </div>
+                    {{/each}}
+                </div>
             </div>
         </div>
     </div>

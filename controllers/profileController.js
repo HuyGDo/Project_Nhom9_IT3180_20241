@@ -50,7 +50,7 @@ const createToken = (id) => {
 module.exports.showEditProfile = (req, res) => {
     const user = res.locals.user;
     console.log("showEditProfile - User:", user);
-    res.render("me/edit-profile", {
+    res.render("users/me/edit-profile", {
         layout: "default",
         title: "Edit Profile",
         successMessage: "Your profile has been updated successfully!",
@@ -105,7 +105,7 @@ module.exports.updateProfile = async (req, res) => {
         res.redirect("/users/me");
     } catch (error) {
         console.error("Profile update error:", error);
-        res.render("me/edit-profile", {
+        res.render("users/me/edit-profile", {
             layout: "default",
             title: "Edit Profile",
             user: { ...req.body, _id: userId },

@@ -155,10 +155,68 @@ module.exports.editRecipe = (req, res, next) => {
 };
 
 // [PUT] /recipes/:id
-module.exports.updateRecipe = (req, res, next) => {
-    Recipe.updateOne({ _id: req.params.id }, req.body)
-        .then(() => res.redirect("users/me/stored/recipes"))
-        .catch(next);
+module.exports.updateRecipe = async (req, res) => {
+    try {
+        const recipeId = req.params.id;
+        const updateData = {
+            title: req.body.title,
+            description: req.body.description,
+            prepTime: req.body.prepTime,
+            cookTime: req.body.cookTime,
+            servings: req.body.servings,
+            ingredients: [],
+            instructions: [],
+        };
+
+        // Handle ingredients
+        if (req.body.ingredients) {
+            const ingredients = Array.isArray(req.body.ingredients)
+                ? req.body.ingredients
+                : Object.values(req.body.ingredients);
+
+            updateData.ingredients = ingredients.map((ing) => ({
+                name: ing.name,
+                quantity: ing.quantity,
+            }));
+        }
+
+        // Handle instructions
+        if (req.body.instructions) {
+            const instructions = Array.isArray(req.body.instructions)
+                ? req.body.instructions
+                : Object.values(req.body.instructions);
+
+            updateData.instructions = instructions.map((inst) => ({
+                description: inst.description,
+            }));
+        }
+
+        // Handle image upload
+        if (req.file) {
+            updateData.image = "/uploads/recipes/" + req.file.filename;
+        }
+
+        const updatedRecipe = await Recipe.findByIdAndUpdate(recipeId, updateData, {
+            new: true,
+            runValidators: true,
+        });
+
+        if (!updatedRecipe) {
+            return res.status(404).json({ message: "Recipe not found" });
+        }
+
+        res.status(200).json({
+            success: true,
+            message: "Recipe updated successfully",
+            recipe: updatedRecipe,
+        });
+    } catch (error) {
+        console.error("Update error:", error);
+        res.status(500).json({
+            message: "Error updating recipe",
+            error: error.message,
+        });
+    }
 };
 
 // [DELETE] /recipes/:id
@@ -368,7 +426,7 @@ module.exports.showStoredRecipes = async (req, res) => {
             .populate("author", "username first_name last_name profile_picture")
             .lean();
 
-        res.render("me/stored-recipes", {
+        res.render("recipes/store", {
             layout: "default",
             title: "My Recipes",
             recipes,

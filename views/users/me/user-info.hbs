@@ -42,7 +42,16 @@
             <div class="profile__content">
                 <div class="profile__main">
                     <h2 class="profile__section-title">My Recipes</h2>
-                    <div class="profile__recipes"></div>
+                    <div class="profile__recipes">
+                        {{#each (limit myRecipes 2)}}
+                        <div class="col">
+                            {{>recipe-card}}
+                        </div>
+                        {{/each}}
+                    </div>
+                    <a href="/users/me/stored/recipes" class="btn btn--outline"
+                        >See all {{ user.first_name }} {{ user.last_name }}'s recipes</a
+                    >
                 </div>
                 <div class="profile__sidebar">
                     <div class="profile__section">
