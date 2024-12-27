@@ -137,6 +137,7 @@ table {
 ::before,
 ::after {
   box-sizing: border-box;
+  user-select: none;
 }
 
 * {
@@ -204,6 +205,13 @@ em {
 b,
 strong {
   font-weight: 600;
+}
+
+input,
+textarea,
+[contenteditable=true],
+.selectable {
+  user-select: text !important;
 }
 
 .row > *, .container-fluid, .container {

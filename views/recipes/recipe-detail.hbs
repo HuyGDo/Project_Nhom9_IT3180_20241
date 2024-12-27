@@ -10,7 +10,7 @@
                 <div class="recipe-detail__header">
                     <h1 class="recipe-detail__heading">{{ recipe.title }}</h1>
                     <div class="recipe-detail__meta">
-                        <div class="recipe-detail__author">
+                        <a href="/users/{{ recipe.author._id }}" class="recipe-detail__author">
                             {{#if recipe.author.profile_picture}}
                             <img
                                 src="{{ recipe.author.profile_picture }}"
@@ -28,7 +28,7 @@
                                 >By {{ recipe.author.first_name }}
                                 {{ recipe.author.last_name }}</span
                             >
-                        </div>
+                        </a>
                         <div class="recipe-detail__stats">
                             <span
                                 class="recipe-detail__date"

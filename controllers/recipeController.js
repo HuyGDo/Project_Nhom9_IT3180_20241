@@ -227,92 +227,89 @@ module.exports.addComment = async (req, res) => {
     }
 };
 // [POST] /recipes/:id/vote
-module.exports.handleVote = (req, res) => {
-    const { id } = req.params;
-    const { voteType } = req.body;
-    const userId = req.user._id;
+module.exports.handleVote = async (req, res) => {
+    try {
+        const { id } = req.params;
+        const { voteType } = req.body;
+        const userId = req.user._id;
 
-    Recipe.findById(id)
-        .lean()
-        .then((recipe) => {
-            if (!recipe) {
-                throw { status: 404, message: "Recipe not found" };
-            }
-
-            if (recipe.author?.toString() === userId.toString()) {
-                throw { status: 400, message: "Cannot vote on your own recipe" };
-            }
-
-            // Find existing vote
-            const existingVote = recipe.userVotes.find(
-                (vote) => vote.user.toString() === userId.toString(),
-            );
-
-            let updateOperation;
-            if (existingVote) {
-                if (existingVote.voteType === voteType) {
-                    // Case 1: Click same button - Remove vote
-                    updateOperation = {
-                        $pull: { userVotes: { user: userId } },
-                        $inc: { [`votes.${voteType}votes`]: -1 },
-                    };
-                } else {
-                    // Case 2: Switch vote
-                    return Recipe.findOneAndUpdate(
-                        { _id: id },
-                        { $pull: { userVotes: { user: userId } } },
-                        { new: true },
-                    ).then((updatedRecipe) => {
-                        return Recipe.findOneAndUpdate(
-                            { _id: id },
-                            {
-                                $push: { userVotes: { user: userId, voteType } },
-                                $inc: {
-                                    [`votes.${existingVote.voteType}votes`]: -1,
-                                    [`votes.${voteType}votes`]: 1,
-                                },
-                            },
-                            { new: true },
-                        ).lean();
-                    });
-                }
-            } else {
-                // Case 3: New vote
-                updateOperation = {
-                    $push: { userVotes: { user: userId, voteType } },
-                    $inc: { [`votes.${voteType}votes`]: 1 },
-                };
-            }
-
-            // Update recipe
-            return Recipe.findOneAndUpdate(
-                { _id: id },
-                {
-                    ...updateOperation,
-                    $set: { "votes.score": recipe.votes.upvotes - recipe.votes.downvotes },
-                },
-                { new: true },
-            ).lean();
-        })
-        .then((updatedRecipe) => {
-            res.json({
-                success: true,
-                upvotes: updatedRecipe.votes.upvotes,
-                downvotes: updatedRecipe.votes.downvotes,
-                score: updatedRecipe.votes.score,
-                userVoted: {
-                    up: voteType === "up",
-                    down: voteType === "down",
-                },
-            });
-        })
-        .catch((error) => {
-            console.error("Vote handling error:", error);
-            res.status(error.status || 500).json({
+        // Validate vote type
+        if (!["up", "down"].includes(voteType)) {
+            return res.status(400).json({
                 success: false,
-                message: error.message || "Error processing vote",
+                message: "Invalid vote type",
             });
+        }
+
+        const recipe = await Recipe.findById(id);
+        if (!recipe) {
+            return res.status(404).json({
+                success: false,
+                message: "Recipe not found",
+            });
+        }
+
+        // Find existing vote
+        const existingVoteIndex = recipe.userVotes.findIndex(
+            (vote) => vote.user.toString() === userId.toString(),
+        );
+
+        // Handle vote logic
+        if (existingVoteIndex > -1) {
+            const existingVote = recipe.userVotes[existingVoteIndex];
+            if (existingVote.voteType === voteType) {
+                // Remove vote if clicking same button
+                recipe.userVotes.splice(existingVoteIndex, 1);
+                recipe.votes[`${voteType}votes`]--;
+            } else {
+                // Change vote type
+                recipe.votes[`${existingVote.voteType}votes`]--;
+                recipe.votes[`${voteType}votes`]++;
+                existingVote.voteType = voteType;
+            }
+        } else {
+            // Add new vote
+            recipe.userVotes.push({ user: userId, voteType });
+            recipe.votes[`${voteType}votes`]++;
+        }
+
+        // Update score
+        recipe.votes.score = recipe.votes.upvotes - recipe.votes.downvotes;
+
+        await recipe.save();
+
+        // Create notification for recipe author if it's an upvote from another user
+        if (voteType === "up" && userId.toString() !== recipe.author.toString()) {
+            await notificationService.createNotification({
+                type: "vote",
+                recipient: recipe.author,
+                sender: userId,
+                recipe: recipe._id,
+                message: "voted for your recipe",
+            });
+        }
+
+        res.json({
+            success: true,
+            message: "Vote recorded successfully",
+            votes: recipe.votes,
+            userVoted: {
+                up: recipe.userVotes.some(
+                    (vote) => vote.user.toString() === userId.toString() && vote.voteType === "up",
+                ),
+                down: recipe.userVotes.some(
+                    (vote) =>
+                        vote.user.toString() === userId.toString() && vote.voteType === "down",
+                ),
+            },
         });
+    } catch (error) {
+        console.error("Vote handling error:", error);
+        res.status(error.status || 500).json({
+            success: false,
+            message: error.message || "Error processing vote",
+        });
+    }
 };
 
 // [GET] /recipes/test-recommendations/:id
