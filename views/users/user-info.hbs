@@ -1,0 +1,22 @@
+<div class="user-info">
+    {{#if successMessage}}
+    <div class="alert alert--success" id="successAlert">
+        {{ successMessage }}
+    </div>
+    {{/if}}
+
+    <!-- Rest of the user info content -->
+</div>
+
+<script>
+    // Auto hide success message
+    const successAlert = document.getElementById("successAlert");
+    if (successAlert) {
+        setTimeout(() => {
+            successAlert.style.opacity = "0";
+            setTimeout(() => {
+                successAlert.style.display = "none";
+            }, 300); // Wait for fade out animation
+        }, 3000);
+    }
+</script>

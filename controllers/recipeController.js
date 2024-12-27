@@ -3,25 +3,29 @@ const fs = require("fs");
 const path = require("path");
 const notificationService = require("../services/notificationService");
 // const recommendationService = require('../services/recommendationService');
+const { uploadRecipeImage } = require("../services/uploadService");
 
 // [GET] /recipes/
-module.exports.showRecipes = (req, res) => {
-    Recipe.find()
-        .lean()
-        .then((recipes) => {
-            res.render("recipes/recipe-browse", {
-                layout: "default",
-                title: "Browse Recipes",
-                recipes,
-            });
-        })
-        .catch((err) => {
-            console.error(err); // Log the error for debugging
-            res.render("default/404", {
-                layout: "default",
-                title: "Page not found",
-            });
+module.exports.showRecipes = async (req, res) => {
+    try {
+        const recipes = await Recipe.find()
+            .populate("author", "username first_name last_name profile_picture")
+            .lean();
+
+        console.log("Recipes with populated authors:", recipes);
+
+        res.render("recipes/recipe-browse", {
+            layout: "default",
+            title: "Browse Recipes",
+            recipes,
         });
+    } catch (err) {
+        console.error(err);
+        res.render("default/404", {
+            layout: "default",
+            title: "Page not found",
+        });
+    }
 };
 
 // [GET] /recipes/:slug
@@ -31,7 +35,7 @@ module.exports.showRecipeDetail = async (req, res) => {
             .populate("author", "username first_name last_name profile_picture")
             .lean();
 
-        console.log("Recipe data:", recipe);
+        console.log("Recipe detail with author:", JSON.stringify(recipe, null, 2));
 
         let recommendedRecipes = [];
 
@@ -91,11 +95,11 @@ module.exports.storeRecipe = async (req, res) => {
             ? req.body.ingredients
             : [req.body.ingredients];
 
-        // Format instructions array và đánh số lại từ 1
+        // Format instructions array
         const instructions = Array.isArray(req.body.instructions)
             ? req.body.instructions
-                  .filter((instruction) => instruction && instruction.description) // Lọc bỏ các phần tử null/undefined
-                  .map((instruction, index) => ({
+                  .filter((instruction) => instruction && instruction.description)
+                  .map((instruction) => ({
                       description: instruction.description,
                   }))
             : [{ description: req.body.instructions.description }];
@@ -112,11 +116,17 @@ module.exports.storeRecipe = async (req, res) => {
         };
 
         if (req.file) {
-            formData.image = `/uploads/${req.file.filename}`;
+            formData.image = `/uploads/recipes/${req.file.filename}`;
         }
 
+        // Create and save recipe
         const recipe = new Recipe(formData);
         await recipe.save();
+
+        // Populate author data after saving
+        await recipe.populate("author", "username first_name last_name profile_picture");
+
+        console.log("Recipe with populated author:", recipe);
 
         res.redirect("/recipes/" + recipe.slug);
     } catch (error) {
@@ -147,7 +157,7 @@ module.exports.editRecipe = (req, res, next) => {
 // [PUT] /recipes/:id
 module.exports.updateRecipe = (req, res, next) => {
     Recipe.updateOne({ _id: req.params.id }, req.body)
-        .then(() => res.redirect("/me/stored/recipes"))
+        .then(() => res.redirect("users/me/stored/recipes"))
         .catch(next);
 };
 
@@ -312,5 +322,62 @@ module.exports.testRecommendations = async (req, res) => {
         res.json({ recommendations });
     } catch (err) {
         res.status(500).json({ error: err.message });
+    }
+};
+
+// [POST] /recipes/store
+module.exports.store = async (req, res) => {
+    try {
+        await new Promise((resolve, reject) => {
+            uploadRecipeImage(req, res, (err) => {
+                if (err) reject(err);
+                else resolve();
+            });
+        });
+
+        const recipeData = { ...req.body };
+
+        // If image was uploaded
+        if (req.file) {
+            recipeData.image = `/uploads/recipes/${req.file.filename}`;
+        }
+
+        // Add author
+        recipeData.author = req.user._id;
+
+        // Create recipe
+        const recipe = new Recipe(recipeData);
+        await recipe.save();
+
+        // Populate author data before redirecting
+        await recipe.populate("author", "username first_name last_name profile_picture");
+        console.log("New recipe with author data:", JSON.stringify(recipe, null, 2));
+
+        res.redirect(`/recipes/${recipe.slug}`);
+    } catch (error) {
+        console.error("Recipe creation error:", error);
+        res.render("recipes/create", {
+            layout: "default",
+            title: "Create Recipe",
+            errors: error.errors,
+            values: req.body,
+        });
+    }
+};
+
+module.exports.showStoredRecipes = async (req, res) => {
+    try {
+        const recipes = await Recipe.find({ author: req.user._id })
+            .populate("author", "username first_name last_name profile_picture")
+            .lean();
+
+        res.render("me/stored-recipes", {
+            layout: "default",
+            title: "My Recipes",
+            recipes,
+        });
+    } catch (error) {
+        console.error(error);
+        res.status(500).send("Server Error");
     }
 };

@@ -1,4 +1,5 @@
 <div class="recipe-card">
+    {{log this}}
     <div class="recipe-card__img-wrap">
         <a href="/recipes/{{ this.slug }}">
             {{#if this.image}}
@@ -26,7 +27,7 @@
                     alt="{{ this.author.username }}"
                     class="recipe-card__author-img"
                 />
-                <span>{{ this.author.username }}</span>
+                <span>{{ this.author.first_name }} {{ this.author.last_name }}</span>
             </div>
             <div class="recipe-card__stats">
                 <span class="recipe-card__stat">

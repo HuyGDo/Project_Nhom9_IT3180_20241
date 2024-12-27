@@ -16,7 +16,7 @@
                     <h1 class="profile__name">{{ user.first_name }} {{ user.last_name }}</h1>
                     <p class="profile__username">@{{ user.username }}</p>
                     <div class="profile__actions">
-                        <a href="/me/edit-profile" class="btn btn--primary">Edit Profile</a>
+                        <a href="/users/me/edit-profile" class="btn btn--primary">Edit Profile</a>
                         <a href="/recipes/create" class="btn btn--outline">Create Recipe</a>
                     </div>
                 </div>
@@ -42,52 +42,7 @@
             <div class="profile__content">
                 <div class="profile__main">
                     <h2 class="profile__section-title">My Recipes</h2>
-                    <div class="profile__recipes">
-                        {{#if myRecipes.length}}
-                        {{#each myRecipes}}
-                        <div class="recipe-card">
-                            <div class="recipe-card__img-wrap">
-                                {{#if this.image}}
-                                <img
-                                    src="{{ this.image }}"
-                                    alt="{{ this.title }}"
-                                    class="recipe-card__img"
-                                />
-                                {{else}}
-                                <img
-                                    src="/assets/img/recipe-placeholder.jpg"
-                                    alt="{{ this.title }}"
-                                    class="recipe-card__img"
-                                />
-                                {{/if}}
-                            </div>
-                            <div class="recipe-card__content">
-                                <h3 class="recipe-card__title">{{ this.title }}</h3>
-                                <p class="recipe-card__description">{{ this.description }}</p>
-                                <div class="recipe-card__stats">
-                                    <span class="recipe-card__votes"
-                                        >{{ this.votes.upvotes }} upvotes</span
-                                    >
-                                </div>
-                                <div class="recipe-card__actions">
-                                    <a
-                                        href="/recipes/{{ this.slug }}"
-                                        class="btn btn--primary recipe-card__btn"
-                                        >View</a
-                                    >
-                                    <a
-                                        href="/recipes/{{ this.slug }}/edit"
-                                        class="btn btn--outline recipe-card__btn"
-                                        >Edit</a
-                                    >
-                                </div>
-                            </div>
-                        </div>
-                        {{/each}}
-                        {{else}}
-                        <p class="profile__empty">You haven't created any recipes yet</p>
-                        {{/if}}
-                    </div>
+                    <div class="profile__recipes"></div>
                 </div>
                 <div class="profile__sidebar">
                     <div class="profile__section">

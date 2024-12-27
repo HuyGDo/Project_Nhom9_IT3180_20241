@@ -61,59 +61,71 @@ module.exports.showEditProfile = (req, res) => {
 // [POST] /me/edit
 module.exports.updateProfile = async (req, res) => {
     const userId = res.locals.user ? res.locals.user._id : null;
-    const formData = req.body;
-    console.log("updateProfile - User ID:", userId);
-    console.log("updateProfile - Form Data:", formData);
-
-    if (!userId) {
-        console.log("updateProfile - No User ID Found");
-        return res.status(401).redirect("/sign-in");
-    }
 
     try {
-        const user = await User.findById(userId).lean();
-
-        if (!user) {
-            console.log("updateProfile - User Not Found");
-            return res.status(404).render("default/404", {
-                layout: "default",
-                title: "User not found",
-            });
+        if (!userId) {
+            return res.status(401).redirect("/sign-in");
         }
 
-        // Update fields
-        user.first_name = formData.first_name || user.first_name;
-        user.last_name = formData.last_name || user.last_name;
-        user.email = formData.email || user.email;
-        user.username = formData.username || user.username;
+        const updates = { ...req.body };
 
-        // If password is provided, update it
-        if (formData.password) {
-            user.password = formData.password;
+        // If new file uploaded, update profile picture
+        if (req.file) {
+            updates.profile_picture = `/uploads/avatars/${req.file.filename}`;
+            console.log("file:", req.file);
+            console.log("New profile picture path:", updates.profile_picture);
         }
 
-        // If profile_picture is provided, update it
-        if (formData.profile_picture) {
-            user.profile_picture = formData.profile_picture;
+        // Handle password update
+        if (updates.password && updates.password.trim() !== "") {
+            const user = await User.findById(userId);
+            user.password = updates.password;
+            await user.save();
+            delete updates.password;
+        } else {
+            delete updates.password;
         }
 
-        await user.save();
-        console.log("updateProfile - User Saved Successfully");
+        // Update user
+        const updatedUser = await User.findByIdAndUpdate(
+            userId,
+            { $set: updates },
+            { new: true, runValidators: true },
+        );
+
+        if (!updatedUser) {
+            throw new Error("User not found");
+        }
 
         // Reissue JWT token
-        const token = createToken(user._id);
+        const token = createToken(updatedUser._id);
         res.cookie("jwt", token, { httpOnly: true, maxAge: maxAge * 1000 });
-        console.log("updateProfile - JWT Token Issued:", token);
 
-        res.redirect("/me");
-    } catch (err) {
-        console.log("updateProfile - Error:", err);
-        const errors = errorHandler(err);
+        req.flash("success", "Profile updated successfully");
+        res.redirect("/users/me");
+    } catch (error) {
+        console.error("Profile update error:", error);
         res.render("me/edit-profile", {
             layout: "default",
             title: "Edit Profile",
-            errors,
-            user: formData,
+            user: { ...req.body, _id: userId },
+            errors: errorHandler(error),
         });
+    }
+};
+
+// [GET] /me
+module.exports.showUserInfo = async (req, res) => {
+    try {
+        const user = await User.findById(req.user._id).lean();
+        res.render("users/user-info", {
+            layout: "default",
+            title: "My Profile",
+            user,
+            successMessage: req.flash("success")[0], // Get flash message
+        });
+    } catch (error) {
+        console.error(error);
+        res.status(500).send("Server Error");
     }
 };

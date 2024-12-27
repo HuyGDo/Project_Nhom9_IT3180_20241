@@ -6,14 +6,15 @@ const Recipe = require("../models/Recipe");
 // Controller function for rendering the home page
 module.exports.show = async (req, res) => {
     try {
-        // Get recipe data from the database
-        const data = await Recipe.find().lean();
+        const recipes = await Recipe.find()
+            .populate("author", "username first_name last_name profile_picture")
+            .lean();
 
         // Render the home page with the recipe data
         res.render("default/home", {
             layout: "default",
             title: "Browse recipes",
-            recipes: data,
+            recipes,
         });
     } catch (error) {
         console.error("Error fetching recipes:", error);
@@ -24,22 +25,22 @@ module.exports.show = async (req, res) => {
 // Thêm hàm search mới
 module.exports.search = async (req, res) => {
     try {
-        const keyword = req.query.q || '';
+        const keyword = req.query.q || "";
         const page = parseInt(req.query.page) || 1;
         const limit = 12; // số recipe mỗi trang
-        
+
         // Tạo query tìm kiếm
         const searchQuery = {
             $or: [
-                { title: { $regex: keyword, $options: 'i' } }, // Tìm trong tiêu đề
-                { description: { $regex: keyword, $options: 'i' } }, // Tìm trong mô tả
-                { 'ingredients.name': { $regex: keyword, $options: 'i' } } // Tìm trong nguyên liệu
-            ]
+                { title: { $regex: keyword, $options: "i" } }, // Tìm trong tiêu đề
+                { description: { $regex: keyword, $options: "i" } }, // Tìm trong mô tả
+                { "ingredients.name": { $regex: keyword, $options: "i" } }, // Tìm trong nguyên liệu
+            ],
         };
 
         // Đếm tổng số kết quả
         const total = await Recipe.countDocuments(searchQuery);
-        
+
         // Lấy recipes cho trang hiện tại
         const recipes = await Recipe.find(searchQuery)
             .skip((page - 1) * limit)
@@ -48,7 +49,7 @@ module.exports.search = async (req, res) => {
 
         // Tính toán phân trang
         const totalPages = Math.ceil(total / limit);
-        
+
         res.render("default/search", {
             layout: "default",
             title: `Search Results for "${keyword}"`,
@@ -61,8 +62,8 @@ module.exports.search = async (req, res) => {
                 hasNextPage: page < totalPages,
                 hasPrevPage: page > 1,
                 nextPage: page + 1,
-                prevPage: page - 1
-            }
+                prevPage: page - 1,
+            },
         });
     } catch (error) {
         console.error("Search error:", error);

@@ -34,6 +34,7 @@ const userSchema = new mongoose.Schema({
     },
     profile_picture: {
         type: String,
+        default: "/assets/img/avatar.jpg",
     },
     //subscription
     following: [
@@ -50,7 +51,7 @@ const userSchema = new mongoose.Schema({
     ],
     author: {
         type: mongoose.Schema.Types.ObjectId,
-        ref: 'User',
+        ref: "User",
     },
 });
 

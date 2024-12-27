@@ -26,8 +26,8 @@ const reviewSchema = new mongoose.Schema({
 const recipeSchema = new mongoose.Schema(
     {
         author: {
-            type: mongoose.Schema.Types.ObjectId, // Reference to the user who created the recipe
-            ref: "User", // Assuming there is a User model
+            type: mongoose.Schema.Types.ObjectId,
+            ref: "User",
             required: true,
         },
         title: {

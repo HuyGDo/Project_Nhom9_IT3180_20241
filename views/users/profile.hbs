@@ -5,7 +5,6 @@
         <div class="profile__container">
             {{!-- Header Section --}}
             <div class="profile__header">
-                {{!-- Avatar & Basic Info --}}
                 <div class="profile__avatar">
                     <img
                         src="{{#if profileUser.profile_picture}}{{
@@ -20,7 +19,13 @@
                     </h1>
                     <p class="profile__username">@{{ profileUser.username }}</p>
 
-                    {{!-- Follow Button --}}
+                    {{!-- Show different buttons based on if it's the current user's profile --}}
+                    {{#if isOwnProfile}}
+                    <div class="profile__actions">
+                        <a href="/users/me/edit-profile" class="btn btn--primary">Edit Profile</a>
+                        <a href="/recipes/create" class="btn btn--outline">Create Recipe</a>
+                    </div>
+                    {{else}}
                     {{#if user}}
                     {{#if isSubscribed}}
                     <button
@@ -45,6 +50,7 @@
                         Follow
                     </button>
                     {{/if}}
+                    {{/if}}
                 </div>
             </div>
 
@@ -59,7 +65,7 @@
                     <span class="profile__stat-label">Following</span>
                 </div>
                 <div class="profile__stat-item">
-                    <span class="profile__stat-value">0</span>
+                    <span class="profile__stat-value">{{ recipes.length }}</span>
                     <span class="profile__stat-label">Recipes</span>
                 </div>
             </div>
@@ -67,44 +73,81 @@
             {{!-- Content Section --}}
             <div class="profile__content">
                 <div class="profile__main">
-                    <h2 class="profile__section-title">Recent Recipes</h2>
+                    <h2 class="profile__section-title">
+                        {{#if isOwnProfile}}My Recipes{{else}}Recent Recipes{{/if}}
+                    </h2>
                     <div class="profile__recipes">
                         {{#if recipes.length}}
                         {{#each recipes}}
                         <div class="recipe-card">
                             <div class="recipe-card__img-wrap">
-                                {{#if this.image}}
-                                <img
-                                    src="{{ this.image }}"
-                                    alt="{{ this.title }}"
-                                    class="recipe-card__img"
-                                />
-                                {{else}}
-                                <img
-                                    src="/assets/img/recipe-placeholder.jpg"
-                                    alt="{{ this.title }}"
-                                    class="recipe-card__img"
-                                />
-                                {{/if}}
+                                <a href="/recipes/{{ this.slug }}">
+                                    {{#if this.image}}
+                                    <img
+                                        src="{{ this.image }}"
+                                        class="recipe-card__thumb"
+                                        alt="{{ this.title }}"
+                                    />
+                                    {{else}}
+                                    <img
+                                        src="/assets/img/recipe-placeholder.jpg"
+                                        class="recipe-card__thumb"
+                                        alt="{{ this.title }}"
+                                    />
+                                    {{/if}}
+                                </a>
                             </div>
                             <div class="recipe-card__content">
-                                <h3 class="recipe-card__title">{{ this.title }}</h3>
-                                <p class="recipe-card__description">{{ this.description }}</p>
-                                <div class="recipe-card__stats">
-                                    <span class="recipe-card__votes"
-                                        >{{ this.votes.upvotes }} upvotes</span
-                                    >
+                                <h3 class="recipe-card__title">
+                                    <a href="/recipes/{{ this.slug }}">{{ this.title }}</a>
+                                </h3>
+
+                                <div class="recipe-card__meta">
+                                    <div class="recipe-card__stats">
+                                        <span class="recipe-card__stat">
+                                            <i class="fas fa-thumbs-up"></i>
+                                            {{ this.votes.upvotes }}
+                                        </span>
+                                        <span class="recipe-card__stat">
+                                            <i class="fas fa-eye"></i>
+                                            {{ this.views }}
+                                        </span>
+                                        <span class="recipe-card__stat">
+                                            <i class="fas fa-clock"></i>
+                                            {{formatDate this.createdAt}}
+                                        </span>
+                                    </div>
                                 </div>
-                                <a
-                                    href="/recipes/{{ this.slug }}"
-                                    class="btn btn--primary recipe-card__btn"
-                                    >View Recipe</a
-                                >
+
+                                <p class="recipe-card__desc">{{ this.description }}</p>
+
+                                <div class="recipe-card__actions">
+                                    <a
+                                        href="/recipes/{{ this.slug }}"
+                                        class="btn btn--primary recipe-card__btn"
+                                    >
+                                        View
+                                    </a>
+                                    {{#if ../isOwnProfile}}
+                                    <a
+                                        href="/recipes/{{ this.slug }}/edit"
+                                        class="btn btn--outline recipe-card__btn"
+                                    >
+                                        Edit
+                                    </a>
+                                    {{/if}}
+                                </div>
                             </div>
                         </div>
                         {{/each}}
                         {{else}}
-                        <p class="profile__empty">No recipes yet</p>
+                        <p class="profile__empty">
+                            {{#if isOwnProfile}}
+                            You haven't created any recipes yet
+                            {{else}}
+                            No recipes yet
+                            {{/if}}
+                        </p>
                         {{/if}}
                     </div>
                 </div>

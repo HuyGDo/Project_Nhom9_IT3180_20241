@@ -2,7 +2,76 @@
 const User = require("../models/User");
 const Recipe = require("../models/Recipe");
 const mongoose = require("mongoose");
+const notificationService = require("../services/notificationService");
 
+// [GET] /me
+module.exports.showUserInfo = async (req, res) => {
+    try {
+        // Load user with followers
+        const user = await User.findById(res.locals.user._id).populate("followers").lean();
+        const followerCount = user.followers.length;
+
+        // Load recipes authored by this user
+        const myRecipes = await Recipe.find({ author: user._id }).lean();
+
+        res.render("me/user-info", {
+            layout: "default",
+            title: "My Profile",
+            user,
+            followerCount,
+            myRecipes,
+        });
+    } catch (error) {
+        console.error("Error fetching user info:", error);
+        res.status(500).send("Error fetching user info");
+    }
+};
+
+// [GET] /me/stored/recipes
+module.exports.showStoredRecipes = (req, res, next) => {
+    Recipe.find()
+        .lean()
+        .then((recipes) => {
+            res.render("me/stored-recipes", {
+                layout: "default",
+                title: "My Recipes",
+                recipes,
+            });
+        })
+        .catch(next);
+};
+
+// [GET] /me/following
+module.exports.getFollowing = async (req, res) => {
+    try {
+        const user = await User.findById(req.user._id).populate("following");
+        res.render("me/following", {
+            layout: "default",
+            title: "Following",
+            following: user.following,
+        });
+    } catch (error) {
+        console.error("Error getting following list:", error);
+        res.status(500).json({ error: "Failed to get following list" });
+    }
+};
+
+// [GET] /me/followers
+module.exports.getFollowers = async (req, res) => {
+    try {
+        const user = await User.findById(req.user._id).populate("followers");
+        res.render("me/followers", {
+            layout: "default",
+            title: "Followers",
+            followers: user.followers,
+        });
+    } catch (error) {
+        console.error("Error getting followers list:", error);
+        res.status(500).json({ error: "Failed to get followers list" });
+    }
+};
+
+// [GET] /users/:id
 module.exports.viewProfile = async (req, res) => {
     try {
         const userId = req.params.id;
@@ -23,16 +92,19 @@ module.exports.viewProfile = async (req, res) => {
             .limit(4)
             .lean();
 
-        const currentUser = await User.findById(req.user?._id || res.locals.user?._id).lean();
-        console.log("Current User:", currentUser);
+        const currentUserId = req.user?._id || res.locals.user?._id;
+        console.log("Current User:", currentUserId);
 
         let isSubscribed = false;
-        if (currentUser?.following && profileUser) {
-            isSubscribed = currentUser.following.some(
+        if (currentUserId?.following && profileUser) {
+            isSubscribed = currentUserId.following.some(
                 (followId) => followId.toString() === profileUser._id.toString(),
             );
         }
         console.log("Is Subscribed:", isSubscribed);
+
+        // Check if this is the current user's profile
+        const isOwnProfile = currentUserId && currentUserId.toString() === userId.toString();
 
         res.render("users/profile", {
             layout: "default",
@@ -40,6 +112,7 @@ module.exports.viewProfile = async (req, res) => {
             profileUser,
             isSubscribed,
             recipes,
+            isOwnProfile,
         });
     } catch (error) {
         console.error("Error loading profile:", error);
@@ -47,6 +120,7 @@ module.exports.viewProfile = async (req, res) => {
     }
 };
 
+// [POST] /users/:id/follow
 module.exports.followUser = async (req, res) => {
     try {
         const targetUserId = req.params.id;
@@ -76,6 +150,15 @@ module.exports.followUser = async (req, res) => {
 
         await currentUser.follow(targetUserId);
 
+        // Create follow notification
+        await notificationService.createNotification({
+            type: "follow",
+            payload: {
+                followedUserId: targetUserId,
+                follower: currentUser,
+            },
+        });
+
         return res.json({
             success: true,
             isFollowing: true,
@@ -90,6 +173,7 @@ module.exports.followUser = async (req, res) => {
     }
 };
 
+// [POST] /users/:id/unfollow
 module.exports.unfollowUser = async (req, res) => {
     try {
         const targetUserId = req.params.id;
@@ -129,6 +213,7 @@ module.exports.unfollowUser = async (req, res) => {
     }
 };
 
+// [GET] /users
 module.exports.listUsers = async (req, res) => {
     try {
         // Get current user ID
