@@ -51,7 +51,7 @@ module.exports.showEditProfile = (req, res) => {
     const user = res.locals.user;
     console.log("showEditProfile - User:", user);
     res.render("me/edit-profile", {
-        layout: "default-logined",
+        layout: "default",
         title: "Edit Profile",
         successMessage: "Your profile has been updated successfully!",
         user,
@@ -76,7 +76,7 @@ module.exports.updateProfile = async (req, res) => {
         if (!user) {
             console.log("updateProfile - User Not Found");
             return res.status(404).render("default/404", {
-                layout: "default-logined",
+                layout: "default",
                 title: "User not found",
             });
         }
@@ -110,7 +110,7 @@ module.exports.updateProfile = async (req, res) => {
         console.log("updateProfile - Error:", err);
         const errors = errorHandler(err);
         res.render("me/edit-profile", {
-            layout: "default-logined",
+            layout: "default",
             title: "Edit Profile",
             errors,
             user: formData,

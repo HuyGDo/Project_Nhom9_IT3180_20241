@@ -14,7 +14,7 @@ module.exports.showUserInfo = async (req, res) => {
         const myRecipes = await Recipe.find({ author: user._id }).lean();
 
         res.render("me/user-info", {
-            layout: "default-logined",
+            layout: "default",
             title: "My Profile",
             user,
             followerCount,
@@ -32,7 +32,7 @@ module.exports.showStoredRecipes = (req, res, next) => {
         .lean()
         .then((recipes) => {
             res.render("me/stored-recipes", {
-                layout: "default-logined",
+                layout: "default",
                 title: "My Recipes",
                 recipes,
             });
@@ -108,7 +108,7 @@ module.exports.getFollowing = async (req, res) => {
     try {
         const user = await User.findById(req.user._id).populate("following");
         res.render("me/following", {
-            layout: "default-logined",
+            layout: "default",
             title: "Following",
             following: user.following,
         });
@@ -123,7 +123,7 @@ module.exports.getFollowers = async (req, res) => {
     try {
         const user = await User.findById(req.user._id).populate("followers");
         res.render("me/followers", {
-            layout: "default-logined",
+            layout: "default",
             title: "Followers",
             followers: user.followers,
         });

@@ -7,7 +7,7 @@ module.exports = {
         try {
             const notifications = await notificationService.getUserNotifications(req.user._id);
             res.render("notifications/index", {
-                layout: "default-logined",
+                layout: "default",
                 title: "Notifications",
                 notifications,
             });
@@ -33,7 +33,7 @@ module.exports = {
         try {
             const user = await User.findById(req.user._id).select("notification_preferences");
             res.render("notifications/preferences", {
-                layout: "default-logined",
+                layout: "default",
                 title: "Notification Preferences",
                 preferences: user.notification_preferences,
             });

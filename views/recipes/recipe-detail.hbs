@@ -103,11 +103,11 @@
 
                 {{!-- Instructions Section --}}
                 <div class="recipe-detail__instructions">
-                    <h2 class="recipe-detail__section-title">Instructions</h2>
+                    <h3 class="recipe-detail__subtitle">Instructions</h3>
                     <div class="recipe-detail__steps">
                         {{#each recipe.instructions}}
                         <div class="recipe-detail__step">
-                            <div class="step-number">{{ this.stepNumber }}</div>
+                            <span class="step-number">{{add @index 1}}</span>
                             <p class="step-description">{{ this.description }}</p>
                         </div>
                         {{/each}}

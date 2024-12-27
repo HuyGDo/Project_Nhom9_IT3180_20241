@@ -32,25 +32,46 @@ const recipeSchema = new mongoose.Schema(
         },
         title: {
             type: String,
+            required: [true, "Recipe title is required"],
         },
         description: {
             type: String,
+            required: [true, "Recipe description is required"],
+        },
+        prepTime: {
+            type: Number,
+            required: [true, "Preparation time is required"],
+            min: [0, "Preparation time cannot be negative"],
+        },
+        cookTime: {
+            type: Number,
+            required: [true, "Cooking time is required"],
+            min: [0, "Cooking time cannot be negative"],
+        },
+        servings: {
+            type: Number,
+            required: [true, "Number of servings is required"],
+            min: [1, "Number of servings must be at least 1"],
         },
         ingredients: [
             {
                 _id: false,
                 name: {
                     type: String,
+                    required: true,
                 },
-                quantity: String,
+                quantity: {
+                    type: String,
+                    required: true,
+                },
             },
         ],
         instructions: [
             {
                 _id: false,
-                stepNumber: Number,
                 description: {
                     type: String,
+                    required: true,
                 },
             },
         ],

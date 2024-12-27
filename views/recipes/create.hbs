@@ -2,10 +2,41 @@
     <div class="create-recipe__container">
         <h1 class="create-recipe__heading">Create New Recipe</h1>
 
-        <form action="/recipes/store" method="POST" class="create-recipe__form">
+        <form
+            action="/recipes/store"
+            method="POST"
+            class="create-recipe__form"
+            enctype="multipart/form-data"
+        >
             {{!-- Basic Info --}}
             <div class="form-group">
                 <h2 class="section-title">Basic Information</h2>
+                <div class="form-group">
+                    <label for="recipe-image">Recipe Image</label>
+                    <div class="image-upload">
+                        <div class="image-upload__preview">
+                            <img
+                                src="/assets/img/recipe-placeholder.jpg"
+                                alt="Recipe preview"
+                                id="imagePreview"
+                            />
+                        </div>
+                        <div class="image-upload__input">
+                            <input
+                                type="file"
+                                id="recipe-image"
+                                name="recipe-image"
+                                accept="image/*"
+                                class="image-upload__file"
+                                onchange="previewImage(this)"
+                            />
+                            <label for="recipe-image" class="image-upload__label">
+                                <i class="fas fa-cloud-upload-alt"></i>
+                                <span>Choose an image</span>
+                            </label>
+                        </div>
+                    </div>
+                </div>
                 <div class="form-group">
                     <label for="title">Recipe Title</label>
                     <input
@@ -97,10 +128,11 @@
                 <h2 class="section-title">Cooking Instructions</h2>
                 <div class="instructions-list" id="instructionsList">
                     <div class="instruction-item">
+                        <span class="instruction-number">1</span>
                         <input
                             type="text"
                             name="instructions[0][description]"
-                            placeholder="Step 1: Enter cooking instruction"
+                            placeholder="Enter cooking instruction"
                             required
                         />
                         <button type="button" class="remove-btn">&times;</button>
@@ -151,22 +183,56 @@
         const newInstruction = document.createElement("div");
         newInstruction.className = "instruction-item";
         newInstruction.innerHTML = `
+            <span class="instruction-number">${instructionCount + 1}</span>
             <input 
                 type="text" 
                 name="instructions[${instructionCount}][description]" 
-                placeholder="Step ${instructionCount + 1}: Enter cooking instruction"
+                placeholder="Enter cooking instruction"
                 required
             >
             <button type="button" class="remove-btn">&times;</button>
         `;
         instructionsList.appendChild(newInstruction);
         instructionCount++;
+        updateInstructionNumbers();
     });
+
+    function updateInstructionNumbers() {
+        const instructions = document.querySelectorAll(".instruction-item");
+        instructions.forEach((item, index) => {
+            const numberSpan = item.querySelector(".instruction-number");
+            if (numberSpan) {
+                numberSpan.textContent = index + 1;
+            }
+
+            const input = item.querySelector("input");
+            if (input) {
+                input.name = `instructions[${index}][description]`;
+            }
+        });
+    }
 
     // Remove items
     document.addEventListener("click", (e) => {
         if (e.target.classList.contains("remove-btn")) {
             e.target.parentElement.remove();
+            instructionCount--;
+            updateInstructionNumbers();
         }
     });
+
+    function previewImage(input) {
+        const preview = document.getElementById("imagePreview");
+        const file = input.files[0];
+
+        if (file) {
+            const reader = new FileReader();
+
+            reader.onload = function (e) {
+                preview.src = e.target.result;
+            };
+
+            reader.readAsDataURL(file);
+        }
+    }
 </script>

@@ -189,6 +189,10 @@
         &__content {
             grid-template-columns: 1fr;
         }
+
+        &__recipes {
+            grid-template-columns: 1fr;
+        }
     }
 
     @media (max-width: 768px) {

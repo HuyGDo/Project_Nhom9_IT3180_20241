@@ -1,10 +1,14 @@
 <div class="recipe-card">
     <div class="recipe-card__img-wrap">
-        <a href="/recipes/{{ this.slug }}" class="">
+        <a href="/recipes/{{ this.slug }}">
             {{#if this.image}}
-                <img src="{{ this.image }}" class="recipe-card__thumb" alt="{{ this.title }}" />
+            <img src="{{ this.image }}" class="recipe-card__thumb" alt="{{ this.title }}" />
             {{else}}
-                <img src="/assets/img/recipe-placeholder.jpg" class="recipe-card__thumb" alt="{{ this.title }}" />
+            <img
+                src="/assets/img/recipe-placeholder.jpg"
+                class="recipe-card__thumb"
+                alt="{{ this.title }}"
+            />
             {{/if}}
         </a>
     </div>
@@ -12,6 +16,34 @@
         <h3 class="recipe-card__title">
             <a href="/recipes/{{ this.slug }}">{{ this.title }}</a>
         </h3>
+
+        <div class="recipe-card__meta">
+            <div class="recipe-card__author">
+                <img
+                    src="{{#if this.author.profile_picture}}{{
+                        this.author.profile_picture
+                    }}{{else}}/assets/img/avatar.jpg{{/if}}"
+                    alt="{{ this.author.username }}"
+                    class="recipe-card__author-img"
+                />
+                <span>{{ this.author.username }}</span>
+            </div>
+            <div class="recipe-card__stats">
+                <span class="recipe-card__stat">
+                    <i class="fas fa-thumbs-up"></i>
+                    {{ this.votes.upvotes }}
+                </span>
+                <span class="recipe-card__stat">
+                    <i class="fas fa-eye"></i>
+                    {{ this.views }}
+                </span>
+                <span class="recipe-card__stat">
+                    <i class="fas fa-clock"></i>
+                    {{formatDate this.createdAt}}
+                </span>
+            </div>
+        </div>
+
         <p class="recipe-card__desc">{{ this.description }}</p>
         <a href="/recipes/{{ this.slug }}" class="btn btn--primary recipe-card__btn">
             See details

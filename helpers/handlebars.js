@@ -17,4 +17,7 @@ module.exports = {
         ];
         return `${months[d.getMonth()]} ${d.getDate()}, ${d.getFullYear()}`;
     },
+    add: function (a, b) {
+        return a + b;
+    },
 };

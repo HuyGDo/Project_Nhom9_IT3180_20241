@@ -18,7 +18,7 @@ module.exports.showRecipes = (req, res) => {
         .catch((err) => {
             console.error(err); // Log the error for debugging
             res.render("default/404", {
-                layout: "default-logined",
+                layout: "default",
                 title: "Page not found",
             });
         });
@@ -79,76 +79,54 @@ module.exports.showRecipeDetail = async (req, res) => {
 // [GET] /recipes/create
 module.exports.createRecipe = (req, res) => {
     res.render("recipes/create", {
-        layout: "default-logined",
+        layout: "default",
         title: "Create Recipe",
     });
 };
 
 module.exports.storeRecipe = async (req, res) => {
     try {
-        // Create uploads directory if it doesn't exist
-        const uploadsDir = path.join(__dirname, "../uploads");
-        if (!fs.existsSync(uploadsDir)) {
-            fs.mkdirSync(uploadsDir, { recursive: true });
+        // Format ingredients array
+        const ingredients = Array.isArray(req.body.ingredients)
+            ? req.body.ingredients
+            : [req.body.ingredients];
+
+        // Format instructions array và đánh số lại từ 1
+        const instructions = Array.isArray(req.body.instructions)
+            ? req.body.instructions
+                  .filter((instruction) => instruction && instruction.description) // Lọc bỏ các phần tử null/undefined
+                  .map((instruction, index) => ({
+                      description: instruction.description,
+                  }))
+            : [{ description: req.body.instructions.description }];
+
+        const formData = {
+            author: req.user._id,
+            title: req.body.title,
+            description: req.body.description,
+            prepTime: parseInt(req.body.prepTime),
+            cookTime: parseInt(req.body.cookTime),
+            servings: parseInt(req.body.servings),
+            ingredients: ingredients,
+            instructions: instructions,
+        };
+
+        if (req.file) {
+            formData.image = `/uploads/${req.file.filename}`;
         }
 
-        // Extract data from form
-        const {
-            title,
-            description,
-            "ingredient-name": ingredientNames,
-            "ingredient-quantity": ingredientQuantities,
-            "step-number": stepNumbers,
-            "instruction-desc": instructionDescriptions,
-        } = req.body;
-
-        // Format ingredients array
-        const ingredients = Array.isArray(ingredientNames)
-            ? ingredientNames.map((name, index) => ({
-                  name: name.trim(),
-                  quantity: ingredientQuantities[index].trim(),
-              }))
-            : [{ name: ingredientNames.trim(), quantity: ingredientQuantities.trim() }];
-
-        // Format instructions array
-        const instructions = Array.isArray(stepNumbers)
-            ? stepNumbers.map((stepNumber, index) => ({
-                  stepNumber: parseInt(stepNumber, 10),
-                  description: instructionDescriptions[index].trim(),
-              }))
-            : [
-                  {
-                      stepNumber: parseInt(stepNumbers, 10),
-                      description: instructionDescriptions.trim(),
-                  },
-              ];
-
-        // Create new Recipe object
-        const recipe = new Recipe({
-            title,
-            description,
-            ingredients,
-            instructions,
-            author: req.user._id,
-            image: req.file ? `/uploads/${req.file.filename}` : null,
-        });
-
+        const recipe = new Recipe(formData);
         await recipe.save();
 
-        // Create notification for new recipe
-        await notificationService.createNotification({
-            type: "new_content",
-            payload: {
-                author: req.user, // The author of the recipe
-                contentId: recipe._id,
-                contentType: "Recipe",
-            },
-        });
-
-        res.redirect("/"); // Redirect to the main page or recipe list after saving
+        res.redirect("/recipes/" + recipe.slug);
     } catch (error) {
         console.error("Error saving recipe:", error);
-        res.status(500).send("Failed to create recipe");
+        res.status(500).render("recipes/create", {
+            layout: "default",
+            title: "Create Recipe",
+            error: "Failed to create recipe",
+            formData: req.body,
+        });
     }
 };
 
@@ -158,7 +136,7 @@ module.exports.editRecipe = (req, res, next) => {
         .lean()
         .then((recipe) => {
             res.render("recipes/edit", {
-                layout: "default-logined",
+                layout: "default",
                 title: "Edit Recipe",
                 recipe,
             });
