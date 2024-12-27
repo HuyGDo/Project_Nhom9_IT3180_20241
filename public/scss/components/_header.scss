@@ -1,11 +1,18 @@
+// Variables
+$header-height: 80px;
+$search-height: 44px;
+$transition-time: 0.3s;
+
+// Main Header
 .header {
     background: var(--header-bg-color);
     box-shadow: 0 1px 4px rgba(0, 0, 0, 0.05);
-    height: 80px;
+    height: $header-height;
     position: sticky;
     top: 0;
     z-index: 1000;
 
+    // Layout
     &__wrapper {
         height: 100%;
         display: flex;
@@ -15,6 +22,7 @@
         padding: 0 24px;
     }
 
+    // Left Section
     &__left {
         display: flex;
         align-items: center;
@@ -22,158 +30,192 @@
         height: 100%;
     }
 
+    // Navigation
     &__nav {
         display: flex;
         align-items: center;
         gap: 16px;
         height: 100%;
-    }
 
-    &__nav-link {
-        display: flex;
-        align-items: center;
-        gap: 10px;
-        height: 100%;
-        padding: 0 24px;
-        color: var(--text-color);
-        font-size: 1.6rem;
-        font-weight: 500;
-        transition: all 0.2s;
-        position: relative;
-
-        i {
-            font-size: 1.8rem;
-            color: inherit;
-        }
-
-        &:hover {
-            color: #ffb601;
-
-            &::after {
-                width: calc(100% - 48px);
-                opacity: 0.1;
-            }
-        }
-
-        &.active {
-            color: #ffb601;
-
-            &::after {
-                content: "";
-                position: absolute;
-                bottom: 0;
-                left: 24px;
-                width: calc(100% - 48px);
-                height: 3px;
-                background: #ffb601;
-                border-radius: 3px 3px 0 0;
-            }
-        }
-
-        &::after {
-            content: "";
-            position: absolute;
-            bottom: 0;
-            left: 24px;
-            width: 0;
+        &-link {
             height: 100%;
-            background: #ffb601;
-            opacity: 0;
-            transition: all 0.2s;
-            z-index: -1;
+            padding: 0 12px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            color: var(--text-color);
+            font-size: 1.5rem;
+            font-weight: 500;
+            transition: color $transition-time;
+
+            i {
+                font-size: 1.8rem;
+            }
+
+            &:hover,
+            &.active {
+                color: white;
+            }
         }
     }
 
+    // Search Section
+    &__search {
+        flex: 1;
+        max-width: 600px;
+        margin: 0 20px;
+
+        &-form {
+            width: 100%;
+        }
+
+        &-wrapper {
+            position: relative;
+            width: 100%;
+            height: $search-height;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            transition: all $transition-time ease;
+
+            &:focus-within {
+                background: white;
+                box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+
+                .header__search-input::placeholder {
+                    color: #666;
+                }
+
+                .header__search-btn {
+                    color: #1a162e;
+                }
+            }
+        }
+
+        &-input {
+            flex: 1;
+            height: 100%;
+            padding: 0 16px;
+            background: transparent;
+            border: none;
+            outline: none;
+            font-size: 1.5rem;
+            color: #1a162e;
+
+            &::placeholder {
+                color: rgba(255, 255, 255, 0.8);
+                transition: color $transition-time ease;
+            }
+        }
+
+        &-btn {
+            width: $search-height;
+            height: $search-height;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: transparent;
+            border: none;
+            color: rgba(255, 255, 255, 0.8);
+            font-size: 1.6rem;
+            cursor: pointer;
+            transition: all $transition-time ease;
+
+            &:hover {
+                color: #1a162e;
+            }
+        }
+    }
+
+    // Right Section
     &__right {
         display: flex;
         align-items: center;
         gap: 24px;
-        height: 100%;
     }
 
-    &__search {
-        height: 100%;
-        display: flex;
-        align-items: center;
-    }
+    // User Section
+    &__user {
+        &-link {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 6px 16px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 24px;
+            transition: all $transition-time;
+            border: 1px solid transparent;
 
-    &__search-btn {
-        display: flex;
-        align-items: center;
-        gap: 8px;
-        height: 48px;
-        padding: 0 24px;
-        border: none;
-        background: rgba(0, 0, 0, 0.05);
-        border-radius: 24px;
-        color: var(--text-color);
-        font-size: 1.5rem;
-        font-weight: 500;
-        cursor: pointer;
-        transition: all 0.2s;
+            &:hover {
+                background: white;
+                border-color: #eee;
+                transform: translateY(-1px);
+                box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
 
-        i {
-            font-size: 1.7rem;
-        }
+                .header__user-name {
+                    color: #1a162e;
+                }
 
-        &:hover {
-            background: rgba(255, 182, 1, 0.1);
-            color: #ffb601;
+                i {
+                    color: #1a162e;
+                }
+            }
 
             i {
-                color: #ffb601;
+                font-size: 1.2rem;
+                color: rgba(255, 255, 255, 0.8);
+                transition: color $transition-time;
             }
+        }
+
+        &-avatar {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            object-fit: cover;
+        }
+
+        &-name {
+            font-size: 1.5rem;
+            font-weight: 500;
+            color: rgba(255, 255, 255, 0.9);
+            transition: color $transition-time;
         }
     }
 
-    &__user {
-        height: 100%;
-        display: flex;
-        align-items: center;
-    }
-
-    &__user-link {
-        display: flex;
-        align-items: center;
-        gap: 10px;
-        height: 48px;
-        padding: 0 16px;
-        border-radius: 24px;
-        background: rgba(0, 0, 0, 0.05);
-        transition: all 0.2s;
-
-        &:hover {
-            background: rgba(255, 182, 1, 0.1);
-
-            .header__user-name {
-                color: #ffb601;
-            }
-        }
-    }
-
-    &__user-avatar {
-        width: 32px;
-        height: 32px;
-        border-radius: 50%;
-        object-fit: cover;
-    }
-
-    &__user-name {
-        font-size: 1.5rem;
-        font-weight: 500;
-        color: var(--text-color);
-        transition: color 0.2s;
-    }
-
+    // Auth Buttons
     &__auth {
         display: flex;
         align-items: center;
         gap: 12px;
+
+        .btn--sm {
+            height: 48px;
+            padding: 0 24px;
+            font-size: 1.5rem;
+        }
     }
 
-    .btn--sm {
-        height: 48px;
-        padding: 0 24px;
-        font-size: 1.5rem;
+    // Responsive
+    @media (max-width: 768px) {
+        &__search {
+            order: 1;
+            max-width: 100%;
+            margin: 10px 0;
+        }
+
+        &__wrapper {
+            flex-wrap: wrap;
+        }
+
+        &__nav {
+            display: none;
+        }
+
+        &__auth {
+            width: 100%;
+            justify-content: center;
+        }
     }
 }
