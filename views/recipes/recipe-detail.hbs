@@ -177,16 +177,16 @@
                     const data = await response.json();
 
                     if (data.success) {
+                        // Update vote counts
                         voteContainer.querySelector(".upvote-count").textContent = data.upvotes;
                         voteContainer.querySelector(".downvote-count").textContent = data.downvotes;
 
-                        voteButtons.forEach((btn) => btn.classList.remove("voted"));
-                        if (data.userVoted.up) {
-                            voteContainer.querySelector(".upvote-btn").classList.add("voted");
-                        }
-                        if (data.userVoted.down) {
-                            voteContainer.querySelector(".downvote-btn").classList.add("voted");
-                        }
+                        // Update button states
+                        const upvoteBtn = voteContainer.querySelector(".upvote-btn");
+                        const downvoteBtn = voteContainer.querySelector(".downvote-btn");
+
+                        upvoteBtn.classList.toggle("voted", data.userVoted.up);
+                        downvoteBtn.classList.toggle("voted", data.userVoted.down);
                     } else {
                         alert(data.message || "Error voting");
                     }

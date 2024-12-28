@@ -33,19 +33,21 @@ module.exports.getFollowing = async (req, res) => {
         const user = await User.findById(req.user._id)
             .populate({
                 path: "following",
-                select: "first_name last_name username profile_picture followers recipes",
-                populate: {
-                    path: "followers recipes",
-                    select: "_id",
-                },
+                select: "first_name last_name username profile_picture followers",
             })
             .lean();
 
-        // Since these are users we're following, isFollowing is always true
-        const following = user.following.map((followedUser) => ({
-            ...followedUser,
-            isFollowing: true,
-        }));
+        // Get recipes count for each followed user
+        const following = await Promise.all(
+            user.following.map(async (followedUser) => {
+                const recipeCount = await Recipe.countDocuments({ author: followedUser._id });
+                return {
+                    ...followedUser,
+                    isFollowing: true,
+                    recipes: { length: recipeCount },
+                };
+            }),
+        );
 
         res.render("users/me/following", {
             layout: "default",
@@ -64,19 +66,21 @@ module.exports.getFollowers = async (req, res) => {
         const user = await User.findById(req.user._id)
             .populate({
                 path: "followers",
-                select: "first_name last_name username profile_picture followers recipes",
-                populate: {
-                    path: "followers recipes",
-                    select: "_id",
-                },
+                select: "first_name last_name username profile_picture followers",
             })
             .lean();
 
-        // Add isFollowing flag for each follower
-        const followers = user.followers.map((follower) => ({
-            ...follower,
-            isFollowing: req.user.following.includes(follower._id),
-        }));
+        // Get recipes count for each follower
+        const followers = await Promise.all(
+            user.followers.map(async (follower) => {
+                const recipeCount = await Recipe.countDocuments({ author: follower._id });
+                return {
+                    ...follower,
+                    isFollowing: req.user.following.includes(follower._id),
+                    recipes: { length: recipeCount },
+                };
+            }),
+        );
 
         res.render("users/me/followers", {
             layout: "default",

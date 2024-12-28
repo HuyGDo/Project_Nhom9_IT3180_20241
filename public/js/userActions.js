@@ -31,16 +31,24 @@ function handleFollowAction(action, userId, event) {
                 // Get the button that was clicked
                 const button = document.querySelector(`button[onclick*="${userId}"]`);
                 if (button) {
-                    // Update button text and onclick handler based on new following status
-                    if (data.isFollowing) {
+                    if (action === "follow") {
+                        // Change to unfollow
                         button.setAttribute(
                             "onclick",
-                            `handleFollowAction('unfollow', '${userId}')`,
+                            `handleFollowAction('unfollow', '${userId}', event)`,
                         );
                         button.textContent = "Unfollow";
+                        button.classList.remove("btn--primary");
+                        button.classList.add("btn--outline");
                     } else {
-                        button.setAttribute("onclick", `handleFollowAction('follow', '${userId}')`);
+                        // Change to follow
+                        button.setAttribute(
+                            "onclick",
+                            `handleFollowAction('follow', '${userId}', event)`,
+                        );
                         button.textContent = "Follow";
+                        button.classList.remove("btn--outline");
+                        button.classList.add("btn--primary");
                     }
                 }
             } else {

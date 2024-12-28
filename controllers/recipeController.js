@@ -35,12 +35,24 @@ module.exports.showRecipeDetail = async (req, res) => {
             .populate("author", "username first_name last_name profile_picture")
             .lean();
 
-        console.log("Recipe detail with author:", JSON.stringify(recipe, null, 2));
+        if (!recipe) {
+            return res.render("default/404");
+        }
 
+        // Add userVoted info if user is logged in
+        if (req.user) {
+            const userVote = recipe.userVotes.find(
+                (vote) => vote.user.toString() === req.user._id.toString(),
+            );
+            recipe.userVoted = {
+                up: userVote?.voteType === "up",
+                down: userVote?.voteType === "down",
+            };
+        }
+
+        // Get recommendations
         let recommendedRecipes = [];
-
         try {
-            // Thử lấy recommendations
             const recommendations = await recommendationService.getRecommendations(recipe._id);
             if (recommendations && recommendations.length > 0) {
                 recommendedRecipes = await Recipe.find({
@@ -49,7 +61,6 @@ module.exports.showRecipeDetail = async (req, res) => {
                     .select("title image votes slug")
                     .lean();
             } else {
-                // Fallback: Lấy ngẫu nhiên 5 công thức khác
                 recommendedRecipes = await Recipe.find({
                     _id: { $ne: recipe._id },
                 })
@@ -59,7 +70,6 @@ module.exports.showRecipeDetail = async (req, res) => {
             }
         } catch (error) {
             console.log("Error getting recommendations:", error.message);
-            // Fallback: Lấy ngẫu nhiên 5 công thức khác
             recommendedRecipes = await Recipe.find({
                 _id: { $ne: recipe._id },
             })
@@ -350,7 +360,8 @@ module.exports.handleVote = async (req, res) => {
         res.json({
             success: true,
             message: "Vote recorded successfully",
-            votes: recipe.votes,
+            upvotes: recipe.votes.upvotes,
+            downvotes: recipe.votes.downvotes,
             userVoted: {
                 up: recipe.userVotes.some(
                     (vote) => vote.user.toString() === userId.toString() && vote.voteType === "up",
