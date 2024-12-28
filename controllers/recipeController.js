@@ -391,46 +391,6 @@ module.exports.testRecommendations = async (req, res) => {
     }
 };
 
-// [POST] /recipes/store
-module.exports.store = async (req, res) => {
-    try {
-        await new Promise((resolve, reject) => {
-            uploadRecipeImage(req, res, (err) => {
-                if (err) reject(err);
-                else resolve();
-            });
-        });
-
-        const recipeData = { ...req.body };
-
-        // If image was uploaded
-        if (req.file) {
-            recipeData.image = `/uploads/recipes/${req.file.filename}`;
-        }
-
-        // Add author
-        recipeData.author = req.user._id;
-
-        // Create recipe
-        const recipe = new Recipe(recipeData);
-        await recipe.save();
-
-        // Populate author data before redirecting
-        await recipe.populate("author", "username first_name last_name profile_picture");
-        console.log("New recipe with author data:", JSON.stringify(recipe, null, 2));
-
-        res.redirect(`/recipes/${recipe.slug}`);
-    } catch (error) {
-        console.error("Recipe creation error:", error);
-        res.render("recipes/create", {
-            layout: "default",
-            title: "Create Recipe",
-            errors: error.errors,
-            values: req.body,
-        });
-    }
-};
-
 module.exports.showStoredRecipes = async (req, res) => {
     try {
         const recipes = await Recipe.find({ author: req.user._id })

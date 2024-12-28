@@ -75,6 +75,10 @@ app.use("/uploads", express.static(path.join(__dirname, "uploads")));
 
 app.use("/uploads", express.static("public/uploads"));
 
+const blogRouters = require("./routes/blogRouters");
+
+app.use("/blogs", blogRouters);
+
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => {
     console.log(`Server is running on: http://localhost:${PORT}`);

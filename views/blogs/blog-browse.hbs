@@ -1,0 +1,42 @@
+<main class="blog-browse">
+    <div class="container">
+        {{!-- Header --}}
+        <div class="blog-browse__header">
+            <div>
+                <h1 class="blog-browse__title">Blog Posts</h1>
+                <p class="blog-browse__subtitle">Discover cooking tips, food culture and more</p>
+            </div>
+            <a href="/blogs/create" class="btn btn--primary blog-browse__create-btn">
+                <i class="fas fa-plus"></i>
+                Write Blog
+            </a>
+        </div>
+
+        <div class="row">
+            {{!-- Filter column --}}
+            <div class="col-lg-3">
+                {{> filter-panel isRecipe=false}}
+            </div>
+
+            {{!-- Blog Grid --}}
+            <div class="col-lg-9">
+                {{#if blogs.length}}
+                <div class="row row-cols-2 gy-4">
+                    {{#each blogs}}
+                    <div class="col">
+                        {{> blog-card}}
+                    </div>
+                    {{/each}}
+                </div>
+                {{else}}
+                <div class="blog-browse__empty">
+                    <img src="/assets/img/no-blogs.svg" alt="No blogs" />
+                    <h2>No Blog Posts Yet</h2>
+                    <p>Be the first one to share your cooking journey!</p>
+                    <a href="/blogs/create" class="btn btn--primary">Write a Blog</a>
+                </div>
+                {{/if}}
+            </div>
+        </div>
+    </div>
+</main>

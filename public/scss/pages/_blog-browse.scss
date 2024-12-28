@@ -1,0 +1,117 @@
+.blog-browse {
+    padding: 40px 0;
+    background-color: #fafafa;
+    min-height: calc(100vh - 80px);
+
+    &__header {
+        margin-bottom: 30px;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    }
+
+    &__title {
+        font-size: 2.8rem;
+        font-weight: 700;
+        color: #1a162e;
+    }
+
+    &__subtitle {
+        font-size: 1.6rem;
+        color: #666;
+        margin-top: 8px;
+    }
+
+    &__create-btn {
+        height: 48px;
+        padding: 0 24px;
+        font-size: 1.6rem;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+
+        i {
+            font-size: 1.8rem;
+        }
+    }
+
+    &__filter {
+        background: white;
+        border-radius: 16px;
+        padding: 24px;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+        position: sticky;
+        top: 100px;
+
+        &-heading {
+            font-size: 2rem;
+            font-weight: 600;
+            color: #1a162e;
+            margin-bottom: 20px;
+            padding-bottom: 16px;
+            border-bottom: 1px solid #eee;
+
+            &:not(:first-child) {
+                margin-top: 30px;
+            }
+        }
+
+        &-list {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        &-item {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-size: 1.5rem;
+            color: #666;
+            cursor: pointer;
+            transition: color 0.3s;
+
+            &:hover {
+                color: #ffb601;
+            }
+
+            input {
+                width: 18px;
+                height: 18px;
+                accent-color: #ffb601;
+            }
+        }
+    }
+
+    &__empty {
+        text-align: center;
+        padding: 60px 20px;
+        background: white;
+        border-radius: 16px;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+
+        img {
+            width: 200px;
+            height: 200px;
+            margin-bottom: 24px;
+            opacity: 0.8;
+        }
+
+        h2 {
+            font-size: 2.4rem;
+            font-weight: 600;
+            color: #1a162e;
+            margin-bottom: 12px;
+        }
+
+        p {
+            font-size: 1.6rem;
+            color: #666;
+            margin-bottom: 24px;
+        }
+
+        .btn {
+            min-width: 180px;
+        }
+    }
+}

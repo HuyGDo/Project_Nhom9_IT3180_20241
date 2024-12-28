@@ -96,49 +96,42 @@ module.exports.getFollowers = async (req, res) => {
 // [GET] /users/:id
 module.exports.viewProfile = async (req, res) => {
     try {
-        const userId = req.params.id;
-        console.log("Requested User ID:", userId);
-
-        if (!userId || !mongoose.Types.ObjectId.isValid(userId)) {
-            return res.status(400).send("Invalid user ID");
-        }
-
-        const profileUser = await User.findOne({ _id: userId }).lean();
-
-        if (!profileUser) {
-            return res.status(404).send("User not found");
-        }
-
-        const recipes = await Recipe.find({ author: userId })
-            .sort({ createdAt: -1 })
-            .limit(4)
+        const profileUser = await User.findById(req.params.id)
+            .populate({
+                path: "recipes",
+                select: "title image description votes views createdAt slug",
+                options: {
+                    sort: { createdAt: -1 },
+                    limit: 4,
+                },
+            })
             .lean();
 
-        const currentUserId = req.user?._id || res.locals.user?._id;
-        console.log("Current User:", currentUserId);
-
-        let isSubscribed = false;
-        if (currentUserId?.following && profileUser) {
-            isSubscribed = currentUserId.following.some(
-                (followId) => followId.toString() === profileUser._id.toString(),
-            );
+        if (!profileUser) {
+            return res.status(404).render("default/404");
         }
-        console.log("Is Subscribed:", isSubscribed);
 
-        // Check if this is the current user's profile
-        const isOwnProfile = currentUserId && currentUserId.toString() === userId.toString();
+        // Check if the logged-in user is following this profile
+        const isFollowing = req.user
+            ? req.user.following.some((id) => id.toString() === profileUser._id.toString())
+            : false;
+
+        // Check if this is the user's own profile
+        const isOwnProfile = req.user
+            ? req.user._id.toString() === profileUser._id.toString()
+            : false;
 
         res.render("users/profile", {
             layout: "default",
-            title: "View Profile",
+            title: `${profileUser.first_name}'s Profile`,
             profileUser,
-            isSubscribed,
-            recipes,
             isOwnProfile,
+            isFollowing,
+            isAuthenticated: !!req.user,
         });
     } catch (error) {
-        console.error("Error loading profile:", error);
-        res.status(500).send(`Error loading profile: ${error.message}`);
+        console.error("Error viewing profile:", error);
+        res.status(500).send("Server Error");
     }
 };
 

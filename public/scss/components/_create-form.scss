@@ -1,0 +1,397 @@
+// Base styles for create forms
+.create-form {
+    padding: 60px 0;
+    background-color: #fafafa;
+    min-height: calc(100vh - 80px);
+
+    &__container {
+        max-width: 1000px;
+        margin: 0 auto;
+        padding: 0 20px;
+    }
+
+    &__heading {
+        font-size: 3.6rem;
+        font-weight: 800;
+        color: #1a162e;
+        margin-bottom: 50px;
+        text-align: center;
+        position: relative;
+        padding-bottom: 25px;
+
+        &::after {
+            content: "";
+            position: absolute;
+            bottom: 0;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 80px;
+            height: 4px;
+            background: linear-gradient(to right, #ffb601, #ff9000);
+            border-radius: 2px;
+        }
+    }
+
+    &__form {
+        background: white;
+        border-radius: 24px;
+        padding: 60px;
+        box-shadow: 0 10px 40px rgba(0, 0, 0, 0.08);
+
+        .section-title {
+            font-size: 2.4rem;
+            font-weight: 700;
+            color: #1a162e;
+            margin-bottom: 35px;
+            padding-bottom: 20px;
+            border-bottom: 2px solid #eee;
+            position: relative;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+
+            i {
+                color: #ffb601;
+                font-size: 2.4rem;
+            }
+
+            &::before {
+                content: "";
+                position: absolute;
+                left: 0;
+                bottom: -2px;
+                width: 60px;
+                height: 2px;
+                background: #ffb601;
+            }
+        }
+
+        .form-group {
+            margin-bottom: 35px;
+
+            label {
+                display: block;
+                font-size: 1.6rem;
+                font-weight: 600;
+                color: #1a162e;
+                margin-bottom: 12px;
+            }
+
+            input[type="text"],
+            input[type="number"],
+            textarea:not(.content-editor),
+            select {
+                width: 100%;
+                padding: 16px 20px;
+                border: 2px solid #eee;
+                border-radius: 16px;
+                font-size: 1.6rem;
+                transition: all 0.3s ease;
+                color: #1a162e;
+                background: #fff;
+
+                &:focus {
+                    border-color: #ffb601;
+                    outline: none;
+                    box-shadow: 0 0 0 4px rgba(255, 182, 1, 0.1);
+                }
+
+                &::placeholder {
+                    color: #999;
+                    font-size: 1.5rem;
+                }
+            }
+
+            select {
+                appearance: none;
+                background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23666' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3e%3cpolyline points='6 9 12 15 18 9'%3e%3c/polyline%3e%3c/svg%3e");
+                background-repeat: no-repeat;
+                background-position: right 20px center;
+                background-size: 18px;
+                padding-right: 50px;
+                cursor: pointer;
+
+                &:hover {
+                    border-color: #ffb601;
+                }
+            }
+
+            textarea:not(.content-editor) {
+                height: 150px;
+                resize: vertical;
+                line-height: 1.6;
+            }
+        }
+
+        &__actions {
+            display: flex;
+            justify-content: center;
+            gap: 20px;
+            margin-top: 60px;
+            padding-top: 40px;
+            border-top: 2px solid #eee;
+        }
+
+        &__submit,
+        &__cancel {
+            min-width: 200px;
+            height: 56px;
+            font-size: 1.7rem;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 12px;
+            border-radius: 16px;
+            transition: all 0.3s ease;
+
+            i {
+                font-size: 2rem;
+            }
+
+            &:hover {
+                transform: translateY(-2px);
+            }
+        }
+
+        &__submit {
+            &.btn--primary {
+                background: linear-gradient(to right, #ffb601, #ff9000);
+                color: white;
+                border: none;
+                box-shadow: 0 4px 15px rgba(255, 182, 1, 0.3);
+                cursor: pointer;
+
+                &:hover {
+                    box-shadow: 0 6px 20px rgba(255, 182, 1, 0.4);
+                }
+            }
+        }
+
+        &__cancel {
+            &.btn--outline {
+                border: 2px solid #eee;
+                color: #666;
+                background: white;
+                text-decoration: none;
+
+                &:hover {
+                    border-color: #ffb601;
+                    color: #ffb601;
+                    background: #fff9e6;
+                }
+            }
+        }
+    }
+}
+
+// Image upload styles
+.image-upload {
+    &__preview {
+        width: 100%;
+        height: 350px;
+        border-radius: 20px;
+        overflow: hidden;
+        margin-bottom: 24px;
+        border: 3px solid #eee;
+        background: #f8f9fa;
+        position: relative;
+
+        img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            transition: transform 0.3s ease;
+
+            &:hover {
+                transform: scale(1.03);
+            }
+        }
+
+        &::after {
+            content: "Preview";
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            padding: 8px 16px;
+            background: rgba(0, 0, 0, 0.6);
+            color: white;
+            border-radius: 100px;
+            font-size: 1.3rem;
+            font-weight: 500;
+        }
+    }
+
+    &__input {
+        position: relative;
+        text-align: center;
+    }
+
+    &__file {
+        display: none;
+    }
+
+    &__label {
+        display: inline-flex;
+        align-items: center;
+        gap: 12px;
+        padding: 16px 28px;
+        background: #fff9e6;
+        border: 2px dashed #ffb601;
+        border-radius: 16px;
+        color: #1a162e;
+        font-size: 1.6rem;
+        font-weight: 500;
+        cursor: pointer;
+        transition: all 0.3s ease;
+
+        i {
+            font-size: 2.2rem;
+            color: #ffb601;
+        }
+
+        &:hover {
+            background: #ffb601;
+            border-style: solid;
+            color: white;
+            transform: translateY(-2px);
+
+            i {
+                color: white;
+            }
+        }
+    }
+}
+
+@media (max-width: 768px) {
+    .create-form {
+        padding: 40px 0;
+
+        &__container {
+            padding: 0 16px;
+        }
+
+        &__heading {
+            font-size: 3rem;
+            margin-bottom: 40px;
+        }
+
+        &__form {
+            padding: 40px 24px;
+            border-radius: 20px;
+
+            .section-title {
+                font-size: 2.2rem;
+            }
+        }
+
+        &__actions {
+            flex-direction: column;
+            margin-top: 40px;
+        }
+
+        &__submit,
+        &__cancel {
+            width: 100%;
+            height: 52px;
+        }
+    }
+
+    .image-upload {
+        &__preview {
+            height: 250px;
+        }
+    }
+}
+
+// Add these styles for the add buttons
+.btn--add {
+    width: 100%;
+    padding: 16px;
+    background: #fff9e6;
+    border: 2px dashed #ffb601;
+    border-radius: 16px;
+    color: #1a162e;
+    font-size: 1.6rem;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    margin-top: 20px;
+
+    i {
+        font-size: 1.8rem;
+        color: #ffb601;
+    }
+
+    &::before {
+        content: "+";
+        font-size: 2.2rem;
+        font-weight: 400;
+        color: #ffb601;
+    }
+
+    &:hover {
+        background: #ffb601;
+        border-style: solid;
+        color: white;
+
+        &::before,
+        i {
+            color: white;
+        }
+    }
+}
+
+// Add styles for remove buttons
+.remove-btn {
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    border: 2px solid #eee;
+    background: white;
+    color: #666;
+    font-size: 1.8rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    flex-shrink: 0;
+
+    &:hover {
+        border-color: #dc3545;
+        background: #dc3545;
+        color: white;
+    }
+}
+
+// Update styles for ingredient and instruction items
+.ingredient-item,
+.instruction-item {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 12px;
+
+    input {
+        flex: 1;
+    }
+
+    .instruction-number {
+        width: 32px;
+        height: 32px;
+        background: #ffb601;
+        color: white;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1.4rem;
+        font-weight: 600;
+        flex-shrink: 0;
+    }
+}

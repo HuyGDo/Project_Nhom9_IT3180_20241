@@ -26,8 +26,8 @@
                         <a href="/recipes/create" class="btn btn--outline">Create Recipe</a>
                     </div>
                     {{else}}
-                    {{#if user}}
-                    {{#if isSubscribed}}
+                    {{#if isAuthenticated}}
+                    {{#if isFollowing}}
                     <button
                         onclick="handleFollowAction('unfollow', '{{ profileUser._id }}')"
                         class="btn btn--outline profile__follow-btn"
@@ -43,12 +43,7 @@
                     </button>
                     {{/if}}
                     {{else}}
-                    <button
-                        onclick="window.location.href='/sign-in'"
-                        class="btn btn--primary profile__follow-btn"
-                    >
-                        Follow
-                    </button>
+                    <a href="/sign-in" class="btn btn--primary profile__follow-btn">Follow</a>
                     {{/if}}
                     {{/if}}
                 </div>

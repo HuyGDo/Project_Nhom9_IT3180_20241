@@ -1,6 +1,7 @@
 // routes/siteRouters.js
 const defaultRouter = require("./defaultRouters");
 const recipesRouter = require("./recipeRouters");
+const blogRouter = require("./blogRouters");
 const authRouter = require("./authRouters");
 const { checkUser } = require("../middleware/authMiddleware");
 const adminRouter = require("./adminRouters");
@@ -12,5 +13,6 @@ module.exports = (app) => {
     app.use("/", authRouter);
     app.use("/users", userRouter);
     app.use("/recipes", recipesRouter);
+    app.use("/blogs", blogRouter);
     app.use("/admin", adminRouter);
 };

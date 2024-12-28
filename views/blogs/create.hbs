@@ -1,0 +1,192 @@
+<main class="create-form">
+    <div class="create-form__container">
+        <h1 class="create-form__heading">Create New Blog Post</h1>
+
+        <form
+            action="/blogs/store"
+            method="POST"
+            class="create-form__form"
+            enctype="multipart/form-data"
+        >
+            {{!-- Basic Info --}}
+            <div class="form-group">
+                <h2 class="section-title">
+                    <i class="fas fa-info-circle"></i>
+                    Basic Information
+                </h2>
+                <div class="form-group">
+                    <label for="blog-image">Cover Image</label>
+                    <div class="image-upload">
+                        <div class="image-upload__preview">
+                            <img
+                                src="/assets/img/blog-placeholder.jpg"
+                                alt="Blog preview"
+                                id="imagePreview"
+                            />
+                        </div>
+                        <div class="image-upload__input">
+                            <input
+                                type="file"
+                                id="blog-image"
+                                name="blog-image"
+                                accept="image/*"
+                                class="image-upload__file"
+                                onchange="previewImage(this)"
+                            />
+                            <label for="blog-image" class="image-upload__label">
+                                <i class="fas fa-cloud-upload-alt"></i>
+                                <span>Choose an image</span>
+                            </label>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label for="title">Blog Title</label>
+                    <input
+                        type="text"
+                        id="title"
+                        name="title"
+                        placeholder="Enter your blog title"
+                        required
+                    />
+                </div>
+
+                <div class="form-group">
+                    <label for="description">Short Description</label>
+                    <textarea
+                        id="description"
+                        name="description"
+                        placeholder="Write a brief description of your blog post..."
+                        required
+                    ></textarea>
+                </div>
+            </div>
+
+            {{!-- Content --}}
+            <div class="form-group">
+                <h2 class="section-title">
+                    <i class="fas fa-pen-fancy"></i>
+                    Blog Content
+                </h2>
+                <div class="form-group">
+                    <label for="content">Content</label>
+                    <textarea
+                        id="content"
+                        name="content"
+                        class="content-editor"
+                        placeholder="Write your blog post here..."
+                        required
+                    ></textarea>
+                </div>
+            </div>
+
+            {{!-- Categories & Tags --}}
+            <div class="form-group">
+                <h2 class="section-title">
+                    <i class="fas fa-tags"></i>
+                    Categories & Tags
+                </h2>
+                <div class="form-group">
+                    <label for="category">Category</label>
+                    <select id="category" name="category" required>
+                        <option value="">Select a category</option>
+                        <option value="cooking-tips">Cooking Tips</option>
+                        <option value="food-culture">Food Culture</option>
+                        <option value="health">Health & Nutrition</option>
+                        <option value="reviews">Recipe Reviews</option>
+                        <option value="other">Other</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label for="tags">Tags</label>
+                    <input
+                        type="text"
+                        id="tags"
+                        name="tags"
+                        placeholder="Enter tags separated by commas (e.g., healthy, quick, vegetarian)"
+                    />
+                </div>
+            </div>
+
+            {{!-- Publishing Options --}}
+            <div class="form-group">
+                <h2 class="section-title">
+                    <i class="fas fa-cog"></i>
+                    Publishing Options
+                </h2>
+                <div class="form-group">
+                    <label for="status">Status</label>
+                    <select id="status" name="status" required>
+                        <option value="published">Publish Now</option>
+                        <option value="draft">Save as Draft</option>
+                    </select>
+                </div>
+            </div>
+
+            {{!-- Form Actions --}}
+            <div class="create-form__actions">
+                <button type="submit" class="btn btn--primary create-form__submit">
+                    <i class="fas fa-paper-plane"></i>
+                    Publish Blog
+                </button>
+                <a href="/blogs" class="btn btn--outline create-form__cancel">
+                    <i class="fas fa-times"></i>
+                    Cancel
+                </a>
+            </div>
+        </form>
+    </div>
+</main>
+
+<script>
+    function previewImage(input) {
+        const preview = document.getElementById("imagePreview");
+        const file = input.files[0];
+
+        if (file) {
+            const reader = new FileReader();
+            reader.onload = function (e) {
+                preview.src = e.target.result;
+            };
+            reader.readAsDataURL(file);
+        }
+    }
+</script>
+
+{{!-- Include TinyMCE for rich text editing --}}
+<script src="https://cdn.tiny.cloud/1/YOUR_API_KEY/tinymce/6/tinymce.min.js"></script>
+<script>
+    tinymce.init({
+        selector: ".content-editor",
+        height: 500,
+        menubar: false,
+        plugins: [
+            "advlist",
+            "autolink",
+            "lists",
+            "link",
+            "image",
+            "charmap",
+            "preview",
+            "anchor",
+            "searchreplace",
+            "visualblocks",
+            "code",
+            "fullscreen",
+            "insertdatetime",
+            "media",
+            "table",
+            "help",
+            "wordcount",
+        ],
+        toolbar:
+            "undo redo | blocks | " +
+            "bold italic backcolor | alignleft aligncenter " +
+            "alignright alignjustify | bullist numlist outdent indent | " +
+            "removeformat | help",
+        content_style:
+            "body { font-family: -apple-system, BlinkMacSystemFont, San Francisco, Segoe UI, Roboto, Helvetica Neue, sans-serif; font-size: 14px; }",
+    });
+</script>

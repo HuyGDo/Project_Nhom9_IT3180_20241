@@ -3,64 +3,78 @@ const mongoose = require("mongoose");
 const validator = require("validator");
 const bcrypt = require("bcrypt");
 
-const userSchema = new mongoose.Schema({
-    email: {
-        type: String,
-        required: [true, "Please enter your email."],
-        unique: true,
-        validate: [validator.isEmail, "Please enter a valid email."],
-    },
-    username: {
-        type: String,
-        default: null,
-    },
-    password: {
-        type: String,
-        required: [true, "Please enter your password"],
-        minlength: [8, "Minium password length is 8 characters."],
-    },
-    first_name: {
-        type: String,
-        required: [true, "Please enter your first name."],
-    },
-    last_name: {
-        type: String,
-        required: [true, "Please enter your last name."],
-    },
-    role: {
-        type: String,
-        enum: ["user", "admin", "chef"],
-        default: "user",
-    },
-    profile_picture: {
-        type: String,
-        default: "/assets/img/avatar.jpg",
-    },
-    bio: {
-        type: String,
-        default: "",
-    },
-    created_at: {
-        type: Date,
-        default: Date.now,
-    },
-    //subscription
-    following: [
-        {
+const userSchema = new mongoose.Schema(
+    {
+        email: {
+            type: String,
+            required: [true, "Please enter your email."],
+            unique: true,
+            validate: [validator.isEmail, "Please enter a valid email."],
+        },
+        username: {
+            type: String,
+            default: null,
+        },
+        password: {
+            type: String,
+            required: [true, "Please enter your password"],
+            minlength: [8, "Minium password length is 8 characters."],
+        },
+        first_name: {
+            type: String,
+            required: [true, "Please enter your first name."],
+        },
+        last_name: {
+            type: String,
+            required: [true, "Please enter your last name."],
+        },
+        role: {
+            type: String,
+            enum: ["user", "admin", "chef"],
+            default: "user",
+        },
+        profile_picture: {
+            type: String,
+            default: "/assets/img/avatar.jpg",
+        },
+        bio: {
+            type: String,
+            default: "",
+        },
+        created_at: {
+            type: Date,
+            default: Date.now,
+        },
+        //subscription
+        following: [
+            {
+                type: mongoose.Schema.Types.ObjectId,
+                ref: "User",
+            },
+        ],
+        followers: [
+            {
+                type: mongoose.Schema.Types.ObjectId,
+                ref: "User",
+            },
+        ],
+        author: {
             type: mongoose.Schema.Types.ObjectId,
             ref: "User",
         },
-    ],
-    followers: [
-        {
-            type: mongoose.Schema.Types.ObjectId,
-            ref: "User",
-        },
-    ],
-    author: {
-        type: mongoose.Schema.Types.ObjectId,
-        ref: "User",
     },
+    {
+        timestamps: true,
+        toObject: { virtuals: true },
+        toJSON: { virtuals: true },
+    },
+);
+
+// Add virtual field for recipes
+userSchema.virtual("recipes", {
+    ref: "Recipe",
+    localField: "_id",
+    foreignField: "author",
 });
 
 // fire a function after doc saved to db
