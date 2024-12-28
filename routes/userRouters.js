@@ -14,6 +14,7 @@ router.get("/me/following", auth.requireAuth, userController.getFollowing);
 router.get("/me/followers", auth.requireAuth, userController.getFollowers);
 router.get("/me/edit-profile", auth.requireAuth, profileController.showEditProfile);
 router.post("/me/edit-profile", auth.requireAuth, uploadAvatar, profileController.updateProfile);
+router.post("/me/delete-account", auth.requireAuth, profileController.deleteAccount);
 
 // User routes
 router.get("/", userController.listUsers);

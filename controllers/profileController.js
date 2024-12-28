@@ -1,6 +1,7 @@
 // controllers/profileController.js
 const User = require("../models/User");
 const jwt = require("jsonwebtoken");
+const Recipe = require("../models/Recipe");
 
 // Reuse the errorHandler from authController or create a separate utility
 const errorHandler = (err) => {
@@ -111,6 +112,34 @@ module.exports.updateProfile = async (req, res) => {
             user: { ...req.body, _id: userId },
             errors: errorHandler(error),
         });
+    }
+};
+
+// [POST] /me/delete-account
+module.exports.deleteAccount = async (req, res) => {
+    try {
+        const userId = res.locals.user ? res.locals.user._id : null;
+
+        if (!userId) {
+            return res.status(401).redirect("/sign-in");
+        }
+
+        // Delete all recipes created by this user
+        await Recipe.deleteMany({ author: userId });
+
+        // Delete the user
+        await User.findByIdAndDelete(userId);
+
+        // Clear the JWT cookie
+        res.cookie("jwt", "", { maxAge: 1 });
+
+        // Redirect to home page with message
+        req.flash("success", "Your account has been deleted successfully");
+        res.redirect("/");
+    } catch (error) {
+        console.error("Delete account error:", error);
+        req.flash("error", "Error deleting account. Please try again.");
+        res.redirect("/users/me");
     }
 };
 

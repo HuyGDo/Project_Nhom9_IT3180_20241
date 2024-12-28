@@ -18,24 +18,32 @@
                     <div class="profile__actions">
                         <a href="/users/me/edit-profile" class="btn btn--primary">Edit Profile</a>
                         <a href="/recipes/create" class="btn btn--outline">Create Recipe</a>
+                        <button
+                            class="btn btn--danger"
+                            data-bs-toggle="modal"
+                            data-bs-target="#deleteAccountModal"
+                        >
+                            Delete Account
+                        </button>
+                        <a href="/log-out" class="btn btn--outline">Logout</a>
                     </div>
                 </div>
             </div>
 
             {{!-- Stats Section --}}
             <div class="profile__stats">
-                <div class="profile__stat-item">
+                <a href="/users/me/followers" class="profile__stat-item">
                     <span class="profile__stat-value">{{ user.followers.length }}</span>
                     <span class="profile__stat-label">Followers</span>
-                </div>
-                <div class="profile__stat-item">
+                </a>
+                <a href="/users/me/following" class="profile__stat-item">
                     <span class="profile__stat-value">{{ user.following.length }}</span>
                     <span class="profile__stat-label">Following</span>
-                </div>
-                <div class="profile__stat-item">
+                </a>
+                <a href="/users/me/stored/recipes" class="profile__stat-item">
                     <span class="profile__stat-value">{{ myRecipes.length }}</span>
                     <span class="profile__stat-label">Recipes</span>
-                </div>
+                </a>
             </div>
 
             {{!-- Content Section --}}
@@ -65,11 +73,50 @@
                                 <span class="profile__info-label">Member Since</span>
                                 <span
                                     class="profile__info-value"
-                                    >{{formatDate user.createdAt}}</span
+                                    >{{formatDate user.created_at}}</span
                                 >
+                            </div>
+                            <div class="profile__info-item">
+                                <span class="profile__info-label">Bio</span>
+                                <span class="profile__info-value">{{ user.bio }}</span>
                             </div>
                         </div>
                     </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    {{!-- Delete Account Modal --}}
+    <div class="modal fade" id="deleteAccountModal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Delete Account</h5>
+                    <button
+                        type="button"
+                        class="btn-close"
+                        data-bs-dismiss="modal"
+                        aria-label="Close"
+                    ></button>
+                </div>
+                <div class="modal-body">
+                    <p>
+                        Are you sure you want to delete your account? This action cannot be undone.
+                    </p>
+                    <ul class="text-danger">
+                        <li>All your recipes will be deleted</li>
+                        <li>Your profile information will be permanently removed</li>
+                        <li>You will be logged out immediately</li>
+                    </ul>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn--outline" data-bs-dismiss="modal">
+                        Cancel
+                    </button>
+                    <form action="/users/me/delete-account" method="POST" style="display: inline">
+                        <button type="submit" class="btn btn--danger">Delete Account</button>
+                    </form>
                 </div>
             </div>
         </div>

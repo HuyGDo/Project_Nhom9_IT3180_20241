@@ -15,16 +15,21 @@
         color: #1a162e;
     }
 
+    &__subtitle {
+        font-size: 1.6rem;
+        color: #666;
+        margin-top: 8px;
+    }
+
     &__filters {
         display: flex;
         gap: 10px;
     }
 
     &__filter-btn {
-        padding: 6px 16px;
-        border-radius: 100px;
+        padding: 8px 16px;
+        border-radius: 8px;
         font-size: 1.4rem;
-        font-weight: 500;
         color: #666;
         background: white;
         border: 1px solid #eee;
@@ -44,18 +49,16 @@
     &__grid {
         display: grid;
         grid-template-columns: repeat(2, 1fr);
-        gap: 16px;
-        max-width: 900px;
-        margin: 0 auto;
+        gap: 20px;
     }
 
     &__card {
         background: white;
         border-radius: 12px;
-        padding: 16px;
+        padding: 20px;
         display: flex;
         align-items: center;
-        gap: 16px;
+        gap: 20px;
         transition: all 0.3s ease;
         border: 1px solid #eee;
 
@@ -66,86 +69,100 @@
     }
 
     &__avatar {
-        width: 45px;
-        height: 45px;
+        width: 60px;
+        height: 60px;
         border-radius: 50%;
         object-fit: cover;
         border: 2px solid #ffb601;
     }
 
     &__info {
-        flex-grow: 1;
+        flex: 1;
         min-width: 0;
     }
 
     &__name {
-        font-size: 1.6rem;
+        font-size: 1.8rem;
         font-weight: 600;
         color: #1a162e;
         margin-bottom: 4px;
-        white-space: nowrap;
-        overflow: hidden;
-        text-overflow: ellipsis;
     }
 
     &__username {
+        font-size: 1.4rem;
+        color: #666;
+        margin-bottom: 8px;
+    }
+
+    &__stats {
         font-size: 1.3rem;
         color: #666;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+
+        span {
+            &:nth-child(2) {
+                color: #ddd;
+            }
+        }
     }
 
     &__follow-btn {
-        min-width: 90px;
-        height: 32px;
-        padding: 0 16px;
-        font-size: 1.3rem;
-        position: relative;
-        z-index: 2;
+        min-width: 100px;
+        height: 36px;
+        font-size: 1.4rem;
     }
 
-    &__card-link {
-        text-decoration: none;
-        color: inherit;
-        display: block;
+    &__empty {
+        text-align: center;
+        padding: 60px 20px;
+        background: white;
+        border-radius: 16px;
+        margin-top: 20px;
 
-        &:hover {
-            text-decoration: none;
+        img {
+            width: 200px;
+            height: 200px;
+            margin-bottom: 24px;
+            opacity: 0.8;
+        }
+
+        h2 {
+            font-size: 2.4rem;
+            font-weight: 600;
+            color: #1a162e;
+            margin-bottom: 12px;
+        }
+
+        p {
+            font-size: 1.6rem;
+            color: #666;
+            max-width: 400px;
+            margin: 0 auto;
         }
     }
 
-    &__action {
-        position: relative;
-        z-index: 1;
-    }
-
-    @media (max-width: 768px) {
+    @media (max-width: 992px) {
         &__grid {
             grid-template-columns: 1fr;
-            max-width: 450px;
         }
 
         &__card {
-            padding: 12px;
-            gap: 12px;
+            padding: 16px;
+        }
+    }
+
+    @media (max-width: 768px) {
+        &__header {
+            flex-direction: column;
+            align-items: flex-start;
+            gap: 16px;
         }
 
-        &__avatar {
-            width: 40px;
-            height: 40px;
-        }
-
-        &__name {
-            font-size: 1.5rem;
-        }
-
-        &__username {
-            font-size: 1.2rem;
-        }
-
-        &__follow-btn {
-            min-width: 80px;
-            height: 30px;
-            padding: 0 12px;
-            font-size: 1.2rem;
+        &__filters {
+            width: 100%;
+            justify-content: center;
         }
     }
 }

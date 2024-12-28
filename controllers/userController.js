@@ -30,30 +30,62 @@ module.exports.showUserInfo = async (req, res) => {
 // [GET] /me/following
 module.exports.getFollowing = async (req, res) => {
     try {
-        const user = await User.findById(req.user._id).populate("following");
+        const user = await User.findById(req.user._id)
+            .populate({
+                path: "following",
+                select: "first_name last_name username profile_picture followers recipes",
+                populate: {
+                    path: "followers recipes",
+                    select: "_id",
+                },
+            })
+            .lean();
+
+        // Since these are users we're following, isFollowing is always true
+        const following = user.following.map((followedUser) => ({
+            ...followedUser,
+            isFollowing: true,
+        }));
+
         res.render("users/me/following", {
             layout: "default",
             title: "Following",
-            following: user.following,
+            following,
         });
     } catch (error) {
-        console.error("Error getting following list:", error);
-        res.status(500).json({ error: "Failed to get following list" });
+        console.error("Error fetching following:", error);
+        res.status(500).send("Server Error");
     }
 };
 
 // [GET] /me/followers
 module.exports.getFollowers = async (req, res) => {
     try {
-        const user = await User.findById(req.user._id).populate("followers");
+        const user = await User.findById(req.user._id)
+            .populate({
+                path: "followers",
+                select: "first_name last_name username profile_picture followers recipes",
+                populate: {
+                    path: "followers recipes",
+                    select: "_id",
+                },
+            })
+            .lean();
+
+        // Add isFollowing flag for each follower
+        const followers = user.followers.map((follower) => ({
+            ...follower,
+            isFollowing: req.user.following.includes(follower._id),
+        }));
+
         res.render("users/me/followers", {
             layout: "default",
-            title: "Followers",
-            followers: user.followers,
+            title: "My Followers",
+            followers,
         });
     } catch (error) {
-        console.error("Error getting followers list:", error);
-        res.status(500).json({ error: "Failed to get followers list" });
+        console.error("Error fetching followers:", error);
+        res.status(500).send("Server Error");
     }
 };
 

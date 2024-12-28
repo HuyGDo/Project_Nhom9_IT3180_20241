@@ -36,6 +36,14 @@ const userSchema = new mongoose.Schema({
         type: String,
         default: "/assets/img/avatar.jpg",
     },
+    bio: {
+        type: String,
+        default: "",
+    },
+    created_at: {
+        type: Date,
+        default: Date.now,
+    },
     //subscription
     following: [
         {
