@@ -1,0 +1,6 @@
+flask
+pymongo
+pandas
+numpy
+scikit-learn
+gensim 
