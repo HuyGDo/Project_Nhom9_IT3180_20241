@@ -95,6 +95,10 @@ const recipeSchema = new mongoose.Schema(
             downvotes: { type: Number, default: 0 },
             score: { type: Number, default: 0 },
         },
+        views: {
+            type: Number,
+            default: 0,
+        },
         userVotes: [
             {
                 user: { type: mongoose.Schema.Types.ObjectId, ref: "User" },
