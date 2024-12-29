@@ -25,42 +25,20 @@ module.exports = {
     },
 
     async createContentNotification(data) {
-        const { type, payload } = data;
+        const { type, recipient, sender, message } = data;
+        const contentId = data.blog || data.recipe; // Support both blog and recipe notifications
+        const contentType = data.blog ? "blog" : "recipe";
 
-        if (type === "new_content") {
-            // For new content, create a single notification
-            const notification = {
-                recipient_id: payload.author._id, // Make sure we have the author's ID
-                message: `You created a new ${payload.contentType}`,
-                notification_type: "new_post",
-                content_id: payload.contentId,
-                content_type: payload.contentType,
-            };
+        const notification = new Notification({
+            type,
+            recipient,
+            sender,
+            [contentType]: contentId, // Dynamically set blog or recipe field
+            message,
+            read: false,
+        });
 
-            const newNotification = await Notification.create(notification);
-            console.log("New content notification created:", newNotification);
-
-            // Also create notifications for followers
-            const followerNotifications = await this.createFollowerNotifications(
-                payload.author,
-                payload.contentId,
-                payload.contentType,
-            );
-
-            return [...followerNotifications, newNotification];
-        }
-
-        // Handle interaction notifications (likes, comments)
-        if (["like", "comment"].includes(type)) {
-            const notification = {
-                recipient_id: payload.contentAuthorId,
-                message: `${payload.interactingUser.username} ${type}d your ${payload.contentType}`,
-                notification_type: type,
-                content_id: payload.contentId,
-                content_type: payload.contentType,
-            };
-            return await Notification.create(notification);
-        }
+        return notification.save();
     },
 
     async createFollowerNotifications(author, contentId, contentType) {

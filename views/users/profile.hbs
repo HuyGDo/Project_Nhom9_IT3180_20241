@@ -10,7 +10,7 @@
                         src="{{#if profileUser.profile_picture}}{{
                             profileUser.profile_picture
                         }}{{else}}/assets/img/avatar.jpg{{/if}}"
-                        alt="{{ profileUser.first_name }}'s avatar"
+                        alt="Profile Picture"
                     />
                 </div>
                 <div class="profile__info">
@@ -18,143 +18,152 @@
                         {{ profileUser.first_name }} {{ profileUser.last_name }}
                     </h1>
                     <p class="profile__username">@{{ profileUser.username }}</p>
-
-                    {{!-- Show different buttons based on if it's the current user's profile --}}
-                    {{#if isOwnProfile}}
                     <div class="profile__actions">
+                        {{#if isOwnProfile}}
                         <a href="/users/me/edit-profile" class="btn btn--primary">Edit Profile</a>
-                        <a href="/recipes/create" class="btn btn--outline">Create Recipe</a>
+                        <button
+                            class="btn btn--danger"
+                            data-bs-toggle="modal"
+                            data-bs-target="#deleteAccountModal"
+                        >
+                            Delete Account
+                        </button>
+                        <a href="/log-out" class="btn btn--outline">Logout</a>
+                        {{else}}
+                        {{#if isAuthenticated}}
+                        <button
+                            onclick="handleFollowAction('{{#if isFollowing}}unfollow{{else}}follow{{/if}}', '{{
+                                profileUser._id
+                            }}')"
+                            class="btn {{#if isFollowing}}btn--outline{{else}}btn--primary{{/if}}"
+                        >
+                            {{#if isFollowing}}Unfollow{{else}}Follow{{/if}}
+                        </button>
+                        {{else}}
+                        <a href="/sign-in" class="btn btn--primary">Follow</a>
+                        {{/if}}
+                        {{/if}}
                     </div>
-                    {{else}}
-                    {{#if isAuthenticated}}
-                    {{#if isFollowing}}
-                    <button
-                        onclick="handleFollowAction('unfollow', '{{ profileUser._id }}')"
-                        class="btn btn--outline profile__follow-btn"
-                    >
-                        Unfollow
-                    </button>
-                    {{else}}
-                    <button
-                        onclick="handleFollowAction('follow', '{{ profileUser._id }}')"
-                        class="btn btn--primary profile__follow-btn"
-                    >
-                        Follow
-                    </button>
-                    {{/if}}
-                    {{else}}
-                    <a href="/sign-in" class="btn btn--primary profile__follow-btn">Follow</a>
-                    {{/if}}
-                    {{/if}}
                 </div>
             </div>
 
             {{!-- Stats Section --}}
             <div class="profile__stats">
-                <div class="profile__stat-item">
+                <a
+                    href="/users/{{#if isOwnProfile}}me{{else}}{{
+                        profileUser._id
+                    }}{{/if}}/followers"
+                    class="profile__stat-item"
+                >
                     <span class="profile__stat-value">{{ profileUser.followers.length }}</span>
                     <span class="profile__stat-label">Followers</span>
-                </div>
-                <div class="profile__stat-item">
+                </a>
+                <a
+                    href="/users/{{#if isOwnProfile}}me{{else}}{{
+                        profileUser._id
+                    }}{{/if}}/following"
+                    class="profile__stat-item"
+                >
                     <span class="profile__stat-value">{{ profileUser.following.length }}</span>
                     <span class="profile__stat-label">Following</span>
-                </div>
-                <div class="profile__stat-item">
-                    <span class="profile__stat-value">{{ recipes.length }}</span>
+                </a>
+                <a
+                    href="/users/{{#if isOwnProfile}}me/stored{{else}}{{
+                        profileUser._id
+                    }}{{/if}}/recipes"
+                    class="profile__stat-item"
+                >
+                    <span class="profile__stat-value">{{ profileUser.recipes.length }}</span>
                     <span class="profile__stat-label">Recipes</span>
-                </div>
+                </a>
             </div>
 
             {{!-- Content Section --}}
             <div class="profile__content">
                 <div class="profile__main">
                     <h2 class="profile__section-title">
-                        {{#if isOwnProfile}}My Recipes{{else}}Recent Recipes{{/if}}
+                        {{#if isOwnProfile}}My{{else}}{{ profileUser.first_name }}'s{{/if}} Recipes
                     </h2>
                     <div class="profile__recipes">
-                        {{#if recipes.length}}
-                        {{#each recipes}}
-                        <div class="recipe-card">
-                            <div class="recipe-card__img-wrap">
-                                <a href="/recipes/{{ this.slug }}">
-                                    {{#if this.image}}
-                                    <img
-                                        src="{{ this.image }}"
-                                        class="recipe-card__thumb"
-                                        alt="{{ this.title }}"
-                                    />
-                                    {{else}}
-                                    <img
-                                        src="/assets/img/recipe-placeholder.jpg"
-                                        class="recipe-card__thumb"
-                                        alt="{{ this.title }}"
-                                    />
-                                    {{/if}}
-                                </a>
-                            </div>
-                            <div class="recipe-card__content">
-                                <h3 class="recipe-card__title">
-                                    <a href="/recipes/{{ this.slug }}">{{ this.title }}</a>
-                                </h3>
-
-                                <div class="recipe-card__meta">
-                                    <div class="recipe-card__stats">
-                                        <span class="recipe-card__stat">
-                                            <i class="fas fa-thumbs-up"></i>
-                                            {{ this.votes.upvotes }}
-                                        </span>
-                                        <span class="recipe-card__stat">
-                                            <i class="fas fa-eye"></i>
-                                            {{ this.views }}
-                                        </span>
-                                        <span class="recipe-card__stat">
-                                            <i class="fas fa-clock"></i>
-                                            {{formatDate this.createdAt}}
-                                        </span>
-                                    </div>
-                                </div>
-
-                                <p class="recipe-card__desc">{{ this.description }}</p>
-
-                                <div class="recipe-card__actions">
-                                    <a
-                                        href="/recipes/{{ this.slug }}"
-                                        class="btn btn--primary recipe-card__btn"
-                                    >
-                                        View
-                                    </a>
-                                    {{#if ../isOwnProfile}}
-                                    <a
-                                        href="/recipes/{{ this.slug }}/edit"
-                                        class="btn btn--outline recipe-card__btn"
-                                    >
-                                        Edit
-                                    </a>
-                                    {{/if}}
-                                </div>
-                            </div>
+                        {{#each (limit profileUser.recipes 2)}}
+                        <div class="col">
+                            {{> recipe-card}}
                         </div>
                         {{/each}}
-                        {{else}}
-                        <p class="profile__empty">
-                            {{#if isOwnProfile}}
-                            You haven't created any recipes yet
-                            {{else}}
-                            No recipes yet
-                            {{/if}}
-                        </p>
-                        {{/if}}
                     </div>
+                    <a
+                        href="/users/{{#if isOwnProfile}}me/stored{{else}}{{
+                            profileUser._id
+                        }}{{/if}}/recipes"
+                        class="btn btn--outline"
+                    >
+                        See all recipes
+                    </a>
                 </div>
                 <div class="profile__sidebar">
-                    <h2 class="profile__section-title">About</h2>
-                    <p class="profile__bio">
-                        {{#if profileUser.bio}}{{ profileUser.bio }}{{else}}No bio yet{{/if}}
-                    </p>
+                    <div class="profile__section">
+                        <h2 class="profile__section-title">Account Info</h2>
+                        <div class="profile__info-list">
+                            <div class="profile__info-item">
+                                <span class="profile__info-label">Email</span>
+                                <span class="profile__info-value">{{ profileUser.email }}</span>
+                            </div>
+                            <div class="profile__info-item">
+                                <span class="profile__info-label">Member Since</span>
+                                <span
+                                    class="profile__info-value"
+                                    >{{formatDate profileUser.createdAt}}</span
+                                >
+                            </div>
+                            <div class="profile__info-item">
+                                <span class="profile__info-label">Bio</span>
+                                <span class="profile__info-value">{{ profileUser.bio }}</span>
+                            </div>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
     </div>
+
+    {{!-- Delete Account Modal (Only shown for own profile) --}}
+    {{#if isOwnProfile}}
+    <div class="modal fade" id="deleteAccountModal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Delete Account</h5>
+                    <button
+                        type="button"
+                        class="btn-close"
+                        data-bs-dismiss="modal"
+                        aria-label="Close"
+                    ></button>
+                </div>
+                <div class="modal-body">
+                    <p>
+                        Are you sure you want to delete your account? This action cannot be undone.
+                    </p>
+                    <ul class="text-danger">
+                        <li>All your recipes will be deleted</li>
+                        <li>Your profile information will be permanently removed</li>
+                        <li>You will be logged out immediately</li>
+                    </ul>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn--outline" data-bs-dismiss="modal">
+                        Cancel
+                    </button>
+                    <form action="/users/me/delete-account" method="POST" style="display: inline">
+                        <button type="submit" class="btn btn--danger">Delete Account</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+    {{/if}}
 </main>
 
+{{#if isAuthenticated}}
 <script src="/js/userActions.js"></script>
+{{/if}}

@@ -174,6 +174,7 @@ module.exports.addComment = async (req, res) => {
             return res.status(404).json({ message: "Blog not found" });
         }
 
+        // Add the comment
         blog.comments.push({
             user_id: req.user._id,
             content: req.body.content,
@@ -181,7 +182,7 @@ module.exports.addComment = async (req, res) => {
 
         await blog.save();
 
-        // Create notification
+        // Create notification for blog author if commenter is not the author
         if (req.user._id.toString() !== blog.author.toString()) {
             await notificationService.createNotification({
                 type: "comment",
@@ -192,9 +193,13 @@ module.exports.addComment = async (req, res) => {
             });
         }
 
-        res.redirect(`/blogs/${blog.slug}#comments`);
+        // Redirect using the slug
+        return res.redirect(`/blogs/${blog.slug}#comments`);
     } catch (error) {
-        console.error(error);
-        res.status(500).send("Server Error");
+        console.error("Comment error:", error);
+        // Redirect back to the blog page with an error message
+        const blog = await Blog.findById(req.params.id).select("slug").lean();
+        req.flash("error", "Error adding comment");
+        return res.redirect(`/blogs/${blog.slug}`);
     }
 };

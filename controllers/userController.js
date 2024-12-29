@@ -4,26 +4,60 @@ const Recipe = require("../models/Recipe");
 const mongoose = require("mongoose");
 const notificationService = require("../services/notificationService");
 
+// [GET] /users/:id
+module.exports.viewProfile = async (req, res) => {
+    try {
+        const profileUser = await User.findById(req.params.id)
+            .populate({
+                path: "recipes",
+                select: "title image description votes views createdAt slug",
+                options: { sort: { createdAt: -1 } },
+            })
+            .lean();
+
+        if (!profileUser) {
+            return res.status(404).render("default/404");
+        }
+
+        const isOwnProfile = req.user && req.user._id.toString() === profileUser._id.toString();
+        const isFollowing = req.user ? req.user.following.includes(profileUser._id) : false;
+
+        res.render("users/profile", {
+            layout: "default",
+            title: `${profileUser.first_name}'s Profile`,
+            profileUser,
+            isOwnProfile,
+            isFollowing,
+            isAuthenticated: !!req.user,
+        });
+    } catch (error) {
+        console.error("Error viewing profile:", error);
+        res.status(500).send("Server Error");
+    }
+};
+
 // [GET] /me
 module.exports.showUserInfo = async (req, res) => {
     try {
-        // Load user with followers
-        const user = await User.findById(res.locals.user._id).populate("followers").lean();
-        const followerCount = user.followers.length;
+        const profileUser = await User.findById(req.user._id)
+            .populate({
+                path: "recipes",
+                select: "title image description votes views createdAt slug",
+                options: { sort: { createdAt: -1 } },
+            })
+            .lean();
 
-        // Load recipes authored by this user
-        const myRecipes = await Recipe.find({ author: user._id }).lean();
-
-        res.render("users/me/user-info", {
+        res.render("users/profile", {
             layout: "default",
             title: "My Profile",
-            user,
-            followerCount,
-            myRecipes,
+            profileUser,
+            isOwnProfile: true,
+            isAuthenticated: true,
+            successMessage: req.flash("success")[0],
         });
     } catch (error) {
-        console.error("Error fetching user info:", error);
-        res.status(500).send("Error fetching user info");
+        console.error(error);
+        res.status(500).send("Server Error");
     }
 };
 
@@ -89,48 +123,6 @@ module.exports.getFollowers = async (req, res) => {
         });
     } catch (error) {
         console.error("Error fetching followers:", error);
-        res.status(500).send("Server Error");
-    }
-};
-
-// [GET] /users/:id
-module.exports.viewProfile = async (req, res) => {
-    try {
-        const profileUser = await User.findById(req.params.id)
-            .populate({
-                path: "recipes",
-                select: "title image description votes views createdAt slug",
-                options: {
-                    sort: { createdAt: -1 },
-                    limit: 4,
-                },
-            })
-            .lean();
-
-        if (!profileUser) {
-            return res.status(404).render("default/404");
-        }
-
-        // Check if the logged-in user is following this profile
-        const isFollowing = req.user
-            ? req.user.following.some((id) => id.toString() === profileUser._id.toString())
-            : false;
-
-        // Check if this is the user's own profile
-        const isOwnProfile = req.user
-            ? req.user._id.toString() === profileUser._id.toString()
-            : false;
-
-        res.render("users/profile", {
-            layout: "default",
-            title: `${profileUser.first_name}'s Profile`,
-            profileUser,
-            isOwnProfile,
-            isFollowing,
-            isAuthenticated: !!req.user,
-        });
-    } catch (error) {
-        console.error("Error viewing profile:", error);
         res.status(500).send("Server Error");
     }
 };
