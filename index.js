@@ -79,7 +79,26 @@ const blogRouters = require("./routes/blogRouters");
 
 app.use("/blogs", blogRouters);
 
+const RecommendationService = require('./services/recommendationService');
+
+// Khởi tạo recommendation service
+async function initializeServices() {
+    try {
+        const isServiceRunning = await RecommendationService.checkService();
+        if (isServiceRunning) {
+            await RecommendationService.initialize();
+            console.log('Recommendation service initialized successfully');
+        } else {
+            console.log('Recommendation service is not available');
+        }
+    } catch (error) {
+        console.error('Failed to initialize recommendation service:', error.message);
+        // Tiếp tục chạy server ngay cả khi recommendation service không hoạt động
+    }
+}
+
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => {
     console.log(`Server is running on: http://localhost:${PORT}`);
+    initializeServices();
 });

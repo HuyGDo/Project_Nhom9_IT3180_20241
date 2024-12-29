@@ -4,6 +4,7 @@ const path = require("path");
 const notificationService = require("../services/notificationService");
 // const recommendationService = require('../services/recommendationService');
 const { uploadRecipeImage } = require("../services/uploadService");
+const RecommendationService = require('../services/recommendationService');
 
 // [GET] /recipes/
 module.exports.showRecipes = async (req, res) => {
@@ -36,8 +37,11 @@ module.exports.showRecipeDetail = async (req, res) => {
             .lean();
 
         if (!recipe) {
+            console.log('Recipe not found');
             return res.render("default/404");
         }
+
+        console.log('Found recipe:', recipe._id);
 
         // Add userVoted info if user is logged in
         if (req.user) {
@@ -53,36 +57,46 @@ module.exports.showRecipeDetail = async (req, res) => {
         // Get recommendations
         let recommendedRecipes = [];
         try {
-            const recommendations = await recommendationService.getRecommendations(recipe._id);
+            console.log('Getting recommendations for recipe:', recipe._id);
+            const recommendations = await RecommendationService.getRecommendations(recipe._id.toString());
+            console.log('Received recommendations:', recommendations);
+
             if (recommendations && recommendations.length > 0) {
                 recommendedRecipes = await Recipe.find({
-                    _id: { $in: recommendations },
+                    _id: { $in: recommendations.map(r => r.id) }
                 })
-                    .select("title image votes slug")
-                    .lean();
-            } else {
+                .select("title image description slug")
+                .lean();
+                console.log('Found recommended recipes:', recommendedRecipes);
+            }
+
+            if (recommendedRecipes.length === 0) {
+                // Fallback: Lấy recipes ngẫu nhiên nếu không có recommendations
                 recommendedRecipes = await Recipe.find({
-                    _id: { $ne: recipe._id },
+                    _id: { $ne: recipe._id }
                 })
-                    .select("title image votes slug")
-                    .limit(5)
-                    .lean();
+                .select("title image description slug")
+                .limit(4)
+                .lean();
+                console.log('Using fallback recommendations');
             }
         } catch (error) {
-            console.log("Error getting recommendations:", error.message);
+            console.error("Error getting recommendations:", error);
+            // Fallback khi có lỗi
             recommendedRecipes = await Recipe.find({
-                _id: { $ne: recipe._id },
+                _id: { $ne: recipe._id }
             })
-                .select("title image votes slug")
-                .limit(5)
-                .lean();
+            .select("title image description slug")
+            .limit(4)
+            .lean();
+            console.log('Using fallback recommendations due to error');
         }
 
         res.render("recipes/recipe-detail", {
             layout: "default",
             title: recipe.title,
             recipe,
-            recommendations: recommendedRecipes,
+            recommendations: recommendedRecipes
         });
     } catch (err) {
         console.error("Error in showRecipeDetail:", err);
