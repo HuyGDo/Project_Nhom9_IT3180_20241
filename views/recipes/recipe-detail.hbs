@@ -116,18 +116,15 @@
 
                 {{#if recommendations.length}}
                 <div class="recommendations-section">
-                    <h3>You may also like:</h3>
-                    <div class="recommendations-container">
+                    <h3>Similar Recipes:</h3>
+                    <div class="recommendations-list">
                         {{#each recommendations}}
-                        <div class="recommendation-card">
+                        <div class="recommendation-item">
                             <a href="/recipes/{{this.slug}}">
+                                <h4>{{this.title}}</h4>
                                 {{#if this.image}}
                                 <img src="{{this.image}}" alt="{{this.title}}">
-                                {{else}}
-                                <img src="/assets/img/recipe-placeholder.jpg" alt="{{this.title}}">
                                 {{/if}}
-                                <h4>{{this.title}}</h4>
-                                <p>{{this.description}}</p>
                             </a>
                         </div>
                         {{/each}}

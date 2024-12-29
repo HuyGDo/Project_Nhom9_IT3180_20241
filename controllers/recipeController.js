@@ -66,33 +66,64 @@ module.exports.showRecipeDetail = async (req, res) => {
             console.log('Received recommendations:', recommendations);
 
             if (recommendations && recommendations.length > 0) {
-                recommendedRecipes = await Recipe.find({
+                // Lấy thông tin chi tiết của các recipes được recommend
+                const recipesFromDb = await Recipe.find({
                     _id: { $in: recommendations.map(r => r.id) }
                 })
-                .select("title image description slug")
+                .select("title image description slug _id")
                 .lean();
-                console.log('Found recommended recipes:', recommendedRecipes);
+
+                // Tạo map để lưu similarity scores
+                const scoreMap = new Map(
+                    recommendations.map(r => [r.id, r.score || 0])
+                );
+
+                // Map recipes và thêm similarity score
+                recommendedRecipes = recipesFromDb.map(recipe => ({
+                    ...recipe,
+                    similarityScore: scoreMap.get(recipe._id.toString()) || 0
+                }));
+
+                // Sắp xếp theo similarity score từ cao xuống thấp
+                recommendedRecipes.sort((a, b) => b.similarityScore - a.similarityScore);
+
+                console.log('Sorted recommendations:', 
+                    recommendedRecipes.map(r => `${r.title} (score: ${r.similarityScore})`));
             }
 
             if (recommendedRecipes.length === 0) {
                 // Fallback: Lấy recipes ngẫu nhiên nếu không có recommendations
-                recommendedRecipes = await Recipe.find({
-                    _id: { $ne: recipe._id }
-                })
-                .select("title image description slug")
-                .limit(4)
-                .lean();
+                recommendedRecipes = await Recipe.aggregate([
+                    { $match: { _id: { $ne: recipe._id } } },
+                    { $sample: { size: 4 } },
+                    { 
+                        $project: { 
+                            title: 1, 
+                            image: 1, 
+                            description: 1, 
+                            slug: 1,
+                            similarityScore: { $literal: 0 } // Thêm score 0 cho random recipes
+                        } 
+                    }
+                ]);
                 console.log('Using fallback recommendations');
             }
         } catch (error) {
             console.error("Error getting recommendations:", error);
             // Fallback khi có lỗi
-            recommendedRecipes = await Recipe.find({
-                _id: { $ne: recipe._id }
-            })
-            .select("title image description slug")
-            .limit(4)
-            .lean();
+            recommendedRecipes = await Recipe.aggregate([
+                { $match: { _id: { $ne: recipe._id } } },
+                { $sample: { size: 4 } },
+                { 
+                    $project: { 
+                        title: 1, 
+                        image: 1, 
+                        description: 1, 
+                        slug: 1,
+                        similarityScore: { $literal: 0 }
+                    } 
+                }
+            ]);
             console.log('Using fallback recommendations due to error');
         }
 
