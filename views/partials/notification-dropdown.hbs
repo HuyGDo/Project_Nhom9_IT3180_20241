@@ -1,0 +1,32 @@
+<div class="notification-dropdown">
+    <div class="notification-dropdown__header">
+        <h3 class="notification-dropdown__title">Notifications</h3>
+        {{#if notifications.length}}
+            <button class="notification-dropdown__mark-all" id="markAllAsRead">Mark all as read</button>
+        {{/if}}
+    </div>
+    
+    <div class="notification-dropdown__list">
+        {{#if notifications.length}}
+            {{#each notifications}}
+                <a href="{{generateNotificationLink this}}" 
+                   class="notification-dropdown__item {{#unless is_read}}notification-dropdown__item--unread{{/unless}}"
+                   data-notification-id="{{this._id}}">
+                    <img src="{{#if content_id.profile_picture}}{{content_id.profile_picture}}{{else}}/assets/img/avatar.jpg{{/if}}" 
+                         alt="Notification image" 
+                         class="notification-dropdown__avatar">
+                    <div class="notification-dropdown__content">
+                        <p class="notification-dropdown__message">{{this.message}}</p>
+                        <span class="notification-dropdown__time">{{formatDate this.created_at}}</span>
+                    </div>
+                </a>
+            {{/each}}
+        {{else}}
+            <div class="notification-dropdown__empty">
+                <img src="/assets/img/no-notifications.svg" alt="No notifications">
+                <h3>No notifications yet</h3>
+                <p>We'll notify you when something interesting happens</p>
+            </div>
+        {{/if}}
+    </div>
+</div> 

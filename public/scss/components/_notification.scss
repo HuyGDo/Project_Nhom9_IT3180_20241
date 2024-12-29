@@ -1,0 +1,111 @@
+.notification-dropdown {
+    padding: 16px;
+    background: white;
+    border-radius: 12px;
+    width: 100%;
+    height: 100%;
+
+    &__header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 16px;
+        padding-bottom: 12px;
+        border-bottom: 1px solid #eee;
+    }
+
+    &__title {
+        font-size: 1.6rem;
+        font-weight: 600;
+        color: #1a162e;
+        margin: 0;
+    }
+
+    &__mark-all {
+        font-size: 1.4rem;
+        color: #666;
+        background: none;
+        border: none;
+        cursor: pointer;
+        padding: 4px 8px;
+        border-radius: 4px;
+
+        &:hover {
+            background: #f5f5f5;
+            color: #1a162e;
+        }
+    }
+
+    &__list {
+        max-height: 400px;
+        overflow-y: auto;
+    }
+
+    &__item {
+        display: flex;
+        align-items: flex-start;
+        gap: 12px;
+        padding: 12px;
+        border-radius: 8px;
+        transition: background-color 0.2s;
+        text-decoration: none;
+        color: inherit;
+
+        &:hover {
+            background-color: #f5f5f5;
+        }
+
+        &--unread {
+            background-color: rgba(255, 182, 1, 0.1);
+
+            &:hover {
+                background-color: rgba(255, 182, 1, 0.15);
+            }
+        }
+    }
+
+    &__avatar {
+        width: 40px;
+        height: 40px;
+        border-radius: 50%;
+        object-fit: cover;
+    }
+
+    &__content {
+        flex: 1;
+        min-width: 0;
+    }
+
+    &__message {
+        font-size: 1.4rem;
+        margin: 0 0 4px;
+        color: #1a162e;
+    }
+
+    &__time {
+        font-size: 1.2rem;
+        color: #666;
+    }
+
+    &__empty {
+        text-align: center;
+        padding: 32px 16px;
+
+        img {
+            width: 120px;
+            margin-bottom: 16px;
+        }
+
+        h3 {
+            font-size: 1.6rem;
+            color: #1a162e;
+            margin: 0 0 8px;
+        }
+
+        p {
+            font-size: 1.4rem;
+            color: #666;
+            margin: 0;
+        }
+    }
+} 

@@ -47,29 +47,39 @@
                 </form>
             </div>
 
-            {{!-- Auth Actions --}}
-            <div class="header__auth">
-                {{#if user}}
-                <div class="header__user">
-                    <a href="/users/me" class="header__user-link">
-                        <img
-                            src="{{#if user.profile_picture}}{{
-                                user.profile_picture
-                            }}{{else}}/assets/img/avatar.jpg{{/if}}"
-                            alt="User avatar"
-                            class="header__user-avatar"
-                        />
-                        <span class="header__user-name">{{ user.first_name }}</span>
-                        <i class="fas fa-chevron-down"></i>
-                    </a>
+            {{#if user}}
+            {{!-- Notifications --}}
+            <div class="header__notifications">
+                <button type="button" class="header__notifications-btn" id="notificationsToggle">
+                    <i class="fas fa-bell"></i>
+                    <span class="header__notifications-badge" id="notificationCount">0</span>
+                </button>
+                <div class="header__notifications-dropdown" id="notificationsDropdown">
+                    {{> notification-dropdown}}
                 </div>
-                {{else}}
-                <div class="header__auth">
-                    <a href="/sign-in" class="btn btn--outline btn--sm">Sign In</a>
-                    <a href="/sign-up" class="btn btn--primary btn--sm">Sign Up</a>
-                </div>
-                {{/if}}
             </div>
+
+            {{!-- User Profile --}}
+            <div class="header__user">
+                <a href="/users/me" class="header__user-link">
+                    <img
+                        src="{{#if user.profile_picture}}{{
+                            user.profile_picture
+                        }}{{else}}/assets/img/avatar.jpg{{/if}}"
+                        alt="User avatar"
+                        class="header__user-avatar"
+                    />
+                    <span class="header__user-name">{{ user.first_name }}</span>
+                    <i class="fas fa-chevron-down"></i>
+                </a>
+            </div>
+            {{else}}
+            {{!-- Auth Buttons --}}
+            <div class="header__auth">
+                <a href="/sign-in" class="btn btn--outline btn--sm">Sign In</a>
+                <a href="/sign-up" class="btn btn--primary btn--sm">Sign Up</a>
+            </div>
+            {{/if}}
         </div>
     </div>
 </div>

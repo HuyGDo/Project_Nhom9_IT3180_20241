@@ -85,15 +85,18 @@ module.exports.storeBlog = async (req, res) => {
         const blog = new Blog(blogData);
         await blog.save();
 
+        // Create notifications for followers
+        await notificationService.createNewContentNotification(
+            req.user,
+            blog._id,
+            "Blog",
+            blog.title,
+        );
+
         res.redirect(`/blogs/${blog.slug}`);
     } catch (error) {
-        console.error(error);
-        res.render("blogs/create", {
-            layout: "default",
-            title: "Create Blog",
-            error: "Failed to create blog",
-            formData: req.body,
-        });
+        console.error("Blog creation error:", error);
+        res.status(500).send("Error creating blog");
     }
 };
 
@@ -135,15 +138,9 @@ module.exports.handleVote = async (req, res) => {
         blog.votes.score = blog.votes.upvotes - blog.votes.downvotes;
         await blog.save();
 
-        // Create notification for upvotes
+        // Create notification for upvotes if voter is not the author
         if (voteType === "up" && userId.toString() !== blog.author.toString()) {
-            await notificationService.createNotification({
-                type: "vote",
-                recipient: blog.author,
-                sender: userId,
-                blog: blog._id,
-                message: "voted for your blog post",
-            });
+            await notificationService.createLikeNotification(req.user, blog, "Blog");
         }
 
         res.json({
@@ -182,22 +179,14 @@ module.exports.addComment = async (req, res) => {
 
         await blog.save();
 
-        // Create notification for blog author if commenter is not the author
+        // Create notification if commenter is not the author
         if (req.user._id.toString() !== blog.author.toString()) {
-            await notificationService.createNotification({
-                type: "comment",
-                recipient: blog.author,
-                sender: req.user._id,
-                blog: blog._id,
-                message: "commented on your blog post",
-            });
+            await notificationService.createCommentNotification(req.user, blog, "Blog");
         }
 
-        // Redirect using the slug
         return res.redirect(`/blogs/${blog.slug}#comments`);
     } catch (error) {
         console.error("Comment error:", error);
-        // Redirect back to the blog page with an error message
         const blog = await Blog.findById(req.params.id).select("slug").lean();
         req.flash("error", "Error adding comment");
         return res.redirect(`/blogs/${blog.slug}`);

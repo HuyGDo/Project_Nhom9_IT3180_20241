@@ -33,6 +33,7 @@ app.engine(
     engine({
         extname: ".hbs",
         defaultLayout: "default",
+        partialsDir: path.join(__dirname, "views/partials"),
         helpers: {
             ...hbsHelpers,
             sum: (a, b) => a + b,
@@ -78,6 +79,10 @@ app.use("/uploads", express.static("public/uploads"));
 const blogRouters = require("./routes/blogRouters");
 
 app.use("/blogs", blogRouters);
+
+const notificationRouters = require("./routes/notificationRouters");
+
+app.use("/notifications", notificationRouters);
 
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => {

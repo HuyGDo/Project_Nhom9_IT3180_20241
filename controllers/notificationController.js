@@ -1,78 +1,50 @@
 const notificationService = require("../services/notificationService");
-const User = require("../models/User");
 
-module.exports = {
-    // Get user's notifications
-    async getUserNotifications(req, res) {
+class NotificationController {
+    // Get notifications for dropdown
+    async getNotifications(req, res) {
         try {
             const notifications = await notificationService.getUserNotifications(req.user._id);
-            res.render("notifications/index", {
-                layout: "default",
-                title: "Notifications",
-                notifications,
-            });
+            console.log("Fetched notifications for user:", req.user._id);
+            console.log("Notifications:", notifications);
+            res.json({ notifications });
         } catch (error) {
-            console.error("Error fetching notifications:", error);
-            res.status(500).json({ error: "Failed to fetch notifications" });
+            console.error("Error in getNotifications:", error);
+            res.status(500).json({ error: "Error fetching notifications" });
         }
-    },
+    }
+
+    // Get unread notification count
+    async getUnreadCount(req, res) {
+        try {
+            const count = await notificationService.getUnreadCount(req.user._id);
+            console.log("Unread count for user:", req.user._id, "Count:", count);
+            res.json({ count });
+        } catch (error) {
+            console.error("Error in getUnreadCount:", error);
+            res.status(500).json({ error: "Error counting notifications" });
+        }
+    }
 
     // Mark notification as read
     async markAsRead(req, res) {
         try {
-            await notificationService.markAsRead(req.params.id, req.user._id);
-            res.status(200).json({ message: "Notification marked as read" });
+            const notification = await notificationService.markAsRead(req.params.id, req.user._id);
+            res.json({ success: true, notification });
         } catch (error) {
-            console.error("Error marking notification as read:", error);
-            res.status(500).json({ error: "Failed to mark notification as read" });
+            res.status(500).json({ error: "Error marking notification as read" });
         }
-    },
+    }
 
-    // Get notification preferences
-    async getPreferences(req, res) {
+    // Mark all notifications as read
+    async markAllAsRead(req, res) {
         try {
-            const user = await User.findById(req.user._id).select("notification_preferences");
-            res.render("notifications/preferences", {
-                layout: "default",
-                title: "Notification Preferences",
-                preferences: user.notification_preferences,
-            });
+            await notificationService.markAllAsRead(req.user._id);
+            res.json({ success: true });
         } catch (error) {
-            console.error("Error fetching preferences:", error);
-            res.status(500).json({ error: "Failed to fetch preferences" });
+            res.status(500).json({ error: "Error marking notifications as read" });
         }
-    },
+    }
+}
 
-    // Update notification preferences
-    async updatePreferences(req, res) {
-        try {
-            const { email_notifications, web_notifications } = req.body;
-
-            await User.findByIdAndUpdate(req.user._id, {
-                notification_preferences: {
-                    email_notifications: Boolean(email_notifications),
-                    web_notifications: Boolean(web_notifications),
-                },
-            });
-
-            req.flash("success_msg", "Notification preferences updated successfully");
-            res.redirect("/notifications/preferences");
-        } catch (error) {
-            console.error("Error updating preferences:", error);
-            req.flash("error_msg", "Failed to update notification preferences");
-            res.redirect("/notifications/preferences");
-        }
-    },
-
-    // Get unread notification count (for navbar badge)
-    async getUnreadCount(req, res) {
-        try {
-            const notifications = await notificationService.getUserNotifications(req.user._id);
-            const unreadCount = notifications.filter((n) => !n.is_read).length;
-            res.json({ count: unreadCount });
-        } catch (error) {
-            console.error("Error fetching unread count:", error);
-            res.status(500).json({ error: "Failed to fetch unread count" });
-        }
-    },
-};
+module.exports = new NotificationController();

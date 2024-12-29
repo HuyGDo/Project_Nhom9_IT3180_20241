@@ -137,20 +137,29 @@ module.exports.storeRecipe = async (req, res) => {
         const recipe = new Recipe(formData);
         await recipe.save();
 
+        console.log("Recipe created:", {
+            id: recipe._id,
+            title: recipe.title,
+            author: req.user._id,
+        });
+
         // Populate author data after saving
         await recipe.populate("author", "username first_name last_name profile_picture");
 
         console.log("Recipe with populated author:", recipe);
 
+        // Create notifications for followers
+        await notificationService.createNewContentNotification(
+            req.user,
+            recipe._id,
+            "Recipe",
+            recipe.title,
+        );
+
         res.redirect("/recipes/" + recipe.slug);
     } catch (error) {
-        console.error("Error saving recipe:", error);
-        res.status(500).render("recipes/create", {
-            layout: "default",
-            title: "Create Recipe",
-            error: "Failed to create recipe",
-            formData: req.body,
-        });
+        console.error("Recipe creation error:", error);
+        res.status(500).send("Error creating recipe");
     }
 };
 
@@ -249,21 +258,15 @@ module.exports.likeRecipe = async (req, res) => {
                 $push: { likes: req.user._id },
             });
 
-            // Create notification directly
-            await notificationService.createNotification({
-                type: "like",
-                payload: {
-                    contentAuthorId: recipe.author,
-                    interactingUser: req.user,
-                    contentId: recipe._id,
-                    contentType: "Recipe",
-                },
-            });
+            // Create notification if the liker is not the author
+            if (req.user._id.toString() !== recipe.author.toString()) {
+                await notificationService.createLikeNotification(req.user, recipe, "Recipe");
+            }
         }
         res.redirect("back");
     } catch (error) {
-        console.error("Error liking recipe:", error);
-        res.status(500).send("Failed to like recipe");
+        console.error("Like error:", error);
+        res.status(500).json({ error: "Failed to like recipe" });
     }
 };
 
@@ -281,16 +284,10 @@ module.exports.addComment = async (req, res) => {
             $push: { reviews: comment },
         });
 
-        // Create notification directly
-        await notificationService.createNotification({
-            type: "comment",
-            payload: {
-                contentAuthorId: recipe.author,
-                interactingUser: req.user,
-                contentId: recipe._id,
-                contentType: "Recipe",
-            },
-        });
+        // Create notification if commenter is not the author
+        if (req.user._id.toString() !== recipe.author.toString()) {
+            await notificationService.createCommentNotification(req.user, recipe, "Recipe");
+        }
 
         res.redirect("back");
     } catch (error) {
