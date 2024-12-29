@@ -31,6 +31,7 @@ module.exports.showRecipes = async (req, res) => {
 // [GET] /recipes/:slug
 module.exports.showRecipeDetail = async (req, res) => {
     try {
+        // First find the recipe
         const recipe = await Recipe.findOne({ slug: req.params.slug })
             .populate("author", "username first_name last_name profile_picture")
             .lean();
@@ -49,6 +50,9 @@ module.exports.showRecipeDetail = async (req, res) => {
                 down: userVote?.voteType === "down",
             };
         }
+
+        // Increment view count in a separate query
+        await Recipe.findByIdAndUpdate(recipe._id, { $inc: { views: 1 } });
 
         // Get recommendations
         let recommendedRecipes = [];
