@@ -58,10 +58,6 @@ const userSchema = new mongoose.Schema(
                 ref: "User",
             },
         ],
-        author: {
-            type: mongoose.Schema.Types.ObjectId,
-            ref: "User",
-        },
     },
     {
         timestamps: true,
@@ -70,11 +66,24 @@ const userSchema = new mongoose.Schema(
     },
 );
 
+// Remove author field from schema since it's causing confusion
+// and keep only the virtual fields
+delete userSchema.obj.author;
+
 // Add virtual field for recipes
 userSchema.virtual("recipes", {
     ref: "Recipe",
     localField: "_id",
     foreignField: "author",
+    justOne: false,
+});
+
+// Add virtual field for blogs
+userSchema.virtual("blogs", {
+    ref: "Blog",
+    localField: "_id",
+    foreignField: "author",
+    justOne: false,
 });
 
 // fire a function after doc saved to db

@@ -13,7 +13,7 @@ module.exports.show = async (req, res) => {
         // Render the home page with the recipe data
         res.render("default/home", {
             layout: "default",
-            title: "Browse recipes",
+            title: "Bussin Cookin",
             recipes,
         });
     } catch (error) {
