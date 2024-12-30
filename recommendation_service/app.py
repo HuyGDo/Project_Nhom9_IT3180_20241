@@ -63,6 +63,7 @@ def initialize_embeddings():
         logger.error(f"Initialization error: {str(e)}")
         return jsonify({"error": str(e)}), 500
 
+
 @app.route('/recommendations/<recipe_id>', methods=['GET'])
 def get_recommendations(recipe_id):
     """Get recommendations for a specific recipe"""
@@ -113,6 +114,7 @@ def get_recommendations(recipe_id):
         logger.error(f"Error getting recommendations: {str(e)}")
         return jsonify([])
 
+#Kiểm tra trạng thái của dịch vụ và cơ sử dữ liệu
 @app.route('/health', methods=['GET'])
 def health_check():
     """Check if service is running"""
