@@ -1,0 +1,188 @@
+.dashboard {
+    // ... existing dashboard styles ...
+
+    // Table styles
+    .table-responsive {
+        background: white;
+        border-radius: 16px;
+        padding: 24px;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+        overflow-x: auto;
+    }
+
+    .table {
+        width: 100%;
+        border-collapse: collapse;
+        margin: 0;
+
+        th,
+        td {
+            padding: 16px;
+            text-align: left;
+            border-bottom: 1px solid #eee;
+            vertical-align: middle;
+        }
+
+        th {
+            font-weight: 600;
+            color: #1a162e;
+            background: #f8f9fa;
+            white-space: nowrap;
+        }
+
+        td {
+            color: #4a5568;
+        }
+
+        tbody tr {
+            transition: background-color 0.2s;
+
+            &:hover {
+                background-color: #f8f9fa;
+            }
+
+            &:last-child td {
+                border-bottom: none;
+            }
+        }
+    }
+
+    // User info cell
+    .user-info {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+    }
+
+    .user-avatar {
+        width: 40px;
+        height: 40px;
+        border-radius: 50%;
+        object-fit: cover;
+        border: 2px solid #eee;
+    }
+
+    .user-name {
+        font-weight: 500;
+        color: #1a162e;
+        margin-bottom: 4px;
+    }
+
+    .user-username {
+        font-size: 1.3rem;
+        color: #666;
+    }
+
+    // Status badge
+    .status-badge {
+        padding: 6px 12px;
+        border-radius: 100px;
+        font-size: 1.3rem;
+        font-weight: 500;
+        display: inline-block;
+
+        &.active {
+            background: #e3fbe3;
+            color: #2b8a3e;
+        }
+
+        &.inactive {
+            background: #fff3bf;
+            color: #e67700;
+        }
+    }
+
+    // Action buttons
+    .action-buttons {
+        display: flex;
+        gap: 8px;
+
+        .btn {
+            width: 32px;
+            height: 32px;
+            padding: 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 8px;
+
+            i {
+                font-size: 1.4rem;
+            }
+        }
+    }
+
+    // Modal styles
+    .modal-content {
+        border-radius: 16px;
+        border: none;
+        box-shadow: 0 10px 40px rgba(0, 0, 0, 0.1);
+    }
+
+    .modal-header {
+        padding: 20px 24px;
+        border-bottom: 1px solid #eee;
+
+        .modal-title {
+            font-size: 1.8rem;
+            font-weight: 600;
+            color: #1a162e;
+        }
+
+        .btn-close {
+            background-size: 12px;
+            opacity: 0.5;
+        }
+    }
+
+    .modal-body {
+        padding: 24px;
+        font-size: 1.5rem;
+        color: #4a5568;
+    }
+
+    .modal-footer {
+        padding: 16px 24px;
+        border-top: 1px solid #eee;
+        gap: 12px;
+
+        .btn {
+            min-width: 100px;
+        }
+    }
+
+    // Responsive
+    @media (max-width: 768px) {
+        .table {
+            th,
+            td {
+                padding: 12px;
+            }
+        }
+
+        .user-info {
+            gap: 8px;
+        }
+
+        .user-avatar {
+            width: 32px;
+            height: 32px;
+        }
+
+        .status-badge {
+            padding: 4px 8px;
+            font-size: 1.2rem;
+        }
+
+        .action-buttons {
+            .btn {
+                width: 28px;
+                height: 28px;
+
+                i {
+                    font-size: 1.2rem;
+                }
+            }
+        }
+    }
+}

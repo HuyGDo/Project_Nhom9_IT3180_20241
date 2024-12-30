@@ -5,86 +5,113 @@
 
     {{!-- Main Content --}}
     <main class="dashboard__main">
-        <div class="admin-users">
-            {{!-- Header --}}
-            <div class="admin-users__header">
-                <h1 class="admin-users__title">Users Management</h1>
-                <div class="admin-users__actions">
-                    <div class="admin-users__search">
-                        <input type="text" placeholder="Search users..." class="admin-users__search-input">
-                        <i class="fas fa-search"></i>
-                    </div>
-                    <button class="btn btn--primary">
-                        <i class="fas fa-plus"></i> Add User
-                    </button>
-                </div>
+        <div class="dashboard__content">
+            <div class="dashboard__header">
+                <h2>User Management</h2>
             </div>
 
-            {{!-- Users Table --}}
-            <div class="admin-users__table-wrapper">
-                <table class="admin-users__table">
-                    <thead>
-                        <tr>
-                            <th>User</th>
-                            <th>Email</th>
-                            <th>Role</th>
-                            <th>Followers</th>
-                            <th>Following</th>
-                            <th>Joined Date</th>
-                            <th>Actions</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        {{#each users}}
-                        <tr>
-                            <td>
-                                <div class="admin-users__user">
-                                    <img src="{{this.profile_picture}}" alt="{{this.username}}" class="admin-users__avatar">
-                                    <div class="admin-users__user-info">
-                                        <span class="admin-users__name">{{this.first_name}} {{this.last_name}}</span>
-                                        <span class="admin-users__username">@{{this.last_name}}</span>
+            <div class="dashboard__section">
+                <div class="table-responsive">
+                    <table class="table">
+                        <thead>
+                            <tr>
+                                <th>User</th>
+                                <th>Email</th>
+                                <th>Role</th>
+                                <th>Status</th>
+                                <th>Joined Date</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {{#each users}}
+                            <tr>
+                                <td>
+                                    <div class="user-info">
+                                        <img
+                                            src="{{#if this.profile_picture}}{{
+                                                this.profile_picture
+                                            }}{{else}}/assets/img/avatar.jpg{{/if}}"
+                                            alt="{{ this.username }}"
+                                            class="user-avatar"
+                                        />
+                                        <div>
+                                            <div class="user-name">
+                                                {{ this.first_name }} {{ this.last_name }}
+                                            </div>
+                                            <div class="user-username">@{{ this.username }}</div>
+                                        </div>
                                     </div>
-                                </div>
-                            </td>
-                            <td>{{this.email}}</td>
-                            <td>
-                                <span class="admin-users__role {{this.role}}">{{this.role}}</span>
-                            </td>
-                            <td>
-                                <span class="admin-users__followers {{this.followers.length}}">{{this.followers.length}}</span>
-                            </td>
-                            <td>
-                                <span class="admin-users__following {{this.following.length}}">{{this.following.length}}</span>
-                            </td>
-                            <td>{{formatDate this.created_at}}</td>
-                            <td>
-                                <div class="admin-users__actions">
-                                    <button class="admin-users__action-btn" title="Edit">
-                                        <i class="fas fa-edit"></i>
-                                    </button>
-                                    <button class="admin-users__action-btn" title="Delete">
-                                        <i class="fas fa-trash-alt"></i>
-                                    </button>
-                                </div>
-                            </td>
-                        </tr>
-                        {{/each}}
-                    </tbody>
-                </table>
-            </div>
-
-            {{!-- Pagination --}}
-            <div class="admin-users__pagination">
-                <button class="admin-users__pagination-btn" {{#unless hasPrevPage}}disabled{{/unless}}>
-                    <i class="fas fa-chevron-left"></i>
-                </button>
-                <span class="admin-users__pagination-info">
-                    Page {{currentPage}} of {{totalPages}}
-                </span>
-                <button class="admin-users__pagination-btn" {{#unless hasNextPage}}disabled{{/unless}}>
-                    <i class="fas fa-chevron-right"></i>
-                </button>
+                                </td>
+                                <td>{{ this.email }}</td>
+                                <td>{{ this.role }}</td>
+                                <td>
+                                    <span
+                                        class="status-badge {{#if this.is_active}}active{{else}}inactive{{/if}}"
+                                    >
+                                        {{#if this.is_active}}Active{{else}}Inactive{{/if}}
+                                    </span>
+                                </td>
+                                <td>{{formatDate this.createdAt}}</td>
+                                <td>
+                                    <div class="action-buttons">
+                                        <button
+                                            class="btn btn--outline btn--sm"
+                                            onclick="editUser('{{ this._id }}')"
+                                        >
+                                            <i class="fas fa-edit"></i>
+                                        </button>
+                                        <button
+                                            class="btn btn--danger btn--sm"
+                                            onclick="deleteUser('{{ this._id }}')"
+                                        >
+                                            <i class="fas fa-trash"></i>
+                                        </button>
+                                    </div>
+                                </td>
+                            </tr>
+                            {{/each}}
+                        </tbody>
+                    </table>
+                </div>
             </div>
         </div>
     </main>
 </div>
+
+{{!-- Delete Modal --}}
+<div class="modal fade" id="deleteModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Delete User</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <p>Are you sure you want to delete this user? This action cannot be undone.</p>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn--outline" data-bs-dismiss="modal">
+                    Cancel
+                </button>
+                <form id="deleteUserForm" method="POST">
+                    <input type="hidden" name="_method" value="DELETE" />
+                    <button type="submit" class="btn btn--danger">Delete</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    function deleteUser(userId) {
+        const deleteModal = new bootstrap.Modal(document.getElementById("deleteModal"));
+        const deleteForm = document.getElementById("deleteUserForm");
+        deleteForm.action = `/admin/users/${userId}?_method=DELETE`;
+        deleteModal.show();
+    }
+
+    function editUser(userId) {
+        window.location.href = `/admin/users/${userId}/edit`;
+    }
+</script>

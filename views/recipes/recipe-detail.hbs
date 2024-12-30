@@ -118,14 +118,14 @@
 
                 {{!-- Instructions --}}
                 <div class="content-detail__section">
-                    <h2 class="content-detail__section-title">Instructions</h2>
+                    <h2 class="content-detail__instructions-title">
+                        <i class="fas fa-list-ol"></i>
+                        Instructions
+                    </h2>
                     <ol class="content-detail__instructions">
                         {{#each recipe.instructions}}
                         <li class="content-detail__instruction">
-                            <span
-                                class="content-detail__instruction-number"
-                                >{{ add @index 1 }}</span
-                            >
+                            <span class="content-detail__instruction-number">{{add @index 1}}</span>
                             <p>{{ this.description }}</p>
                         </li>
                         {{/each}}
@@ -134,15 +134,21 @@
 
                 {{!-- Comments Section --}}
                 <section class="content-detail__comments">
-                    <h2 class="content-detail__section-title">Comments ({{recipe.comments.length}})</h2>
-                    
+                    <h2 class="content-detail__section-title">
+                        Comments ({{ recipe.comments.length }})
+                    </h2>
+
                     {{!-- Comment Form --}}
                     {{#if user}}
-                    <form action="/recipes/{{recipe.slug}}/comment" method="POST" class="content-detail__comment-form">
+                    <form
+                        action="/recipes/{{ recipe.slug }}/comment"
+                        method="POST"
+                        class="content-detail__comment-form"
+                    >
                         <div class="comment-form__group">
-                            <textarea 
-                                name="content" 
-                                class="comment-form__input" 
+                            <textarea
+                                name="content"
+                                class="comment-form__input"
                                 placeholder="Write your comment..."
                                 required
                             ></textarea>
@@ -158,11 +164,13 @@
                     {{!-- Comments List --}}
                     <div class="comments-list">
                         {{#if recipe.comments.length}}
-                            {{#each recipe.comments}}
-                                {{> comment comment=this user=../user}}
-                            {{/each}}
+                        {{#each recipe.comments}}
+                        {{> comment comment=this user=../user}}
+                        {{/each}}
                         {{else}}
-                            <p class="comments-list__empty">No comments yet. Be the first to comment!</p>
+                        <p class="comments-list__empty">
+                            No comments yet. Be the first to comment!
+                        </p>
                         {{/if}}
                     </div>
                 </section>
@@ -173,7 +181,7 @@
                     <h2 class="recommendations-title">Similar Recipes</h2>
                     <div class="recommendations-content">
                         {{#each recommendations}}
-                            {{> recipe-card}}
+                        {{> recipe-card}}
                         {{/each}}
                     </div>
                 </div>

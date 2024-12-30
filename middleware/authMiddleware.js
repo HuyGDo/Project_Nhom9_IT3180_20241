@@ -120,6 +120,14 @@ const middleware = {
         res.locals.currentUser = req.user;
         next();
     },
+
+    requireAdmin: (req, res, next) => {
+        if (req.user && req.user.role === "admin") {
+            next();
+        } else {
+            res.redirect("/");
+        }
+    },
 };
 
 module.exports = middleware;

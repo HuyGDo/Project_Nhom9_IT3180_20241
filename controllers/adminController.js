@@ -30,13 +30,20 @@ module.exports.listUsers = async (req, res) => {
 // Delete User
 module.exports.deleteUser = async (req, res) => {
     try {
-        await User.deleteOne({ _id: req.params.id });
+        const userId = req.params.id;
+
+        // Don't allow admin to delete themselves
+        if (userId === req.user._id.toString()) {
+            req.flash("error", "You cannot delete your own account");
+            return res.redirect("/admin/users");
+        }
+
+        await User.findByIdAndDelete(userId);
+        req.flash("success", "User deleted successfully");
         res.redirect("/admin/users");
-    } catch (err) {
-        console.error(err);
-        res.status(500).render("admin/500", {
-            layout: "default",
-            title: "Server Error",
-        });
+    } catch (error) {
+        console.error("Error deleting user:", error);
+        req.flash("error", "Error deleting user");
+        res.redirect("/admin/users");
     }
 };

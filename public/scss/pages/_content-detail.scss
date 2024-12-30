@@ -391,6 +391,139 @@
             width: 100%;
         }
     }
+
+    &__ingredients {
+        list-style: none;
+        padding: 0;
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+        gap: 16px;
+
+        &-title {
+            font-size: 2.4rem;
+            font-weight: 700;
+            color: #1a162e;
+            margin-bottom: 24px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+
+            i {
+                color: var(--content-color);
+            }
+        }
+    }
+
+    &__ingredient {
+        background: white;
+        padding: 16px 20px;
+        border-radius: 12px;
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+        transition: transform 0.3s ease;
+
+        &:hover {
+            transform: translateY(-2px);
+        }
+
+        &::before {
+            content: "";
+            width: 8px;
+            height: 8px;
+            background: var(--content-color);
+            border-radius: 50%;
+            flex-shrink: 0;
+        }
+
+        &-quantity {
+            font-weight: 600;
+            color: var(--content-color);
+            margin-right: 8px;
+        }
+    }
+
+    &__instructions {
+        counter-reset: instruction;
+        list-style: none;
+        padding: 0;
+        display: flex;
+        flex-direction: column;
+        gap: 20px;
+
+        &-title {
+            font-size: 2.4rem;
+            font-weight: 700;
+            color: #1a162e;
+            margin-bottom: 24px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+
+            i {
+                color: var(--content-color);
+            }
+        }
+    }
+
+    &__instruction {
+        background: white;
+        padding: 24px;
+        border-radius: 16px;
+        display: flex;
+        gap: 20px;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+        transition: transform 0.3s ease;
+
+        &:hover {
+            transform: translateY(-2px);
+        }
+
+        &-number {
+            width: 36px;
+            height: 36px;
+            background: var(--content-color);
+            color: white;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 600;
+            font-size: 1.6rem;
+            flex-shrink: 0;
+        }
+
+        p {
+            font-size: 1.6rem;
+            line-height: 1.6;
+            color: #4a5568;
+            margin: 0;
+            flex: 1;
+        }
+    }
+
+    // Responsive styles
+    @media (max-width: 768px) {
+        &__ingredients {
+            grid-template-columns: 1fr;
+        }
+
+        &__ingredient,
+        &__instruction {
+            padding: 16px;
+        }
+
+        &__instruction {
+            gap: 16px;
+
+            &-number {
+                width: 32px;
+                height: 32px;
+                font-size: 1.4rem;
+            }
+        }
+    }
 }
 
 // Override cho blog
