@@ -7,6 +7,7 @@ const blogRouter = require("./blogRouters");
 const authRouter = require("./authRouters");
 const { checkUser } = require("../middleware/authMiddleware");
 const adminRouter = require("./adminRouters");
+const notificationRouters = require("./notificationRouters");
 const userRouter = require("./userRouters");
 
 module.exports = (app) => {
@@ -17,6 +18,5 @@ module.exports = (app) => {
     app.use("/recipes", recipesRouter);
     app.use("/blogs", blogRouter);
     app.use("/admin", adminRouter);
-
-  
+    app.use("/notifications", notificationRouters);
 };
