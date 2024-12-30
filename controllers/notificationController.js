@@ -78,7 +78,8 @@ class NotificationController {
             res.render("notification/index", {
                 title: "Notifications",
                 notifications,
-                user: req.user
+                user: req.user,
+                isNotificationPage: true
             });
         } catch (error) {
             console.error("Error in getNotificationsPage:", error);
