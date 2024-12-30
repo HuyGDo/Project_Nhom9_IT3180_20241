@@ -56,33 +56,55 @@ module.exports.showRecipeDetail = async (req, res) => {
             };
         }
 
+
         // Increment view count
         await Recipe.findByIdAndUpdate(recipe._id, { $inc: { views: 1 } });
+
+        const isFollowing = req.user ? req.user.following.includes(recipe.author._id) : false;
 
         // Get recommendations
         let recommendedRecipes = [];
         try {
             console.log('Getting recommendations for recipe:', recipe._id);
             const recommendations = await RecommendationService.getRecommendations(recipe._id.toString());
-            console.log('Received recommendations:', recommendations);
 
             if (recommendations && recommendations.length > 0) {
-                // Lấy thông tin chi tiết của các recipes được recommend
-                const recipeIds = recommendations.map(r => r.id);
-                console.log('Finding recipes with IDs:', recipeIds);
-                
-                recommendedRecipes = await Recipe.find({
-                    _id: { $in: recipeIds }
+                // Get recipes from database
+                const recipesFromDb = await Recipe.find({
+                    _id: { $in: recommendations.map(r => r.id) }
                 })
-                .select("title image description slug")
+                .select("title image description slug author votes views prepTime cookTime servings difficulty")
+                .populate("author", "username first_name last_name profile_picture")
                 .lean();
 
-                // Sắp xếp lại theo thứ tự của recommendations
-                recommendedRecipes = recipeIds.map(id => 
-                    recommendedRecipes.find(r => r._id.toString() === id)
-                ).filter(Boolean);
+                // Create a map for quick recipe lookup
+                const recipeMap = new Map();
+                recipesFromDb.forEach(recipe => {
+                    recipeMap.set(recipe._id.toString(), recipe);
+                });
 
-                console.log('Found recommended recipes:', recommendedRecipes);
+                // Map recommendations preserving order and scores from recommendation service
+                recommendedRecipes = recommendations
+                    .map(rec => {
+                        const recipe = recipeMap.get(rec.id);
+                        if (recipe) {
+                            return {
+                                ...recipe,
+                                similarity_score: parseFloat(rec.similarity_score)
+                            };
+                        }
+                        return null;
+                    })
+                    .filter(Boolean);
+
+                // Log recommendations với format giống Python service
+                console.log('\nRecommendations:');
+                console.log('Score | Recipe Title');
+                console.log('-'.repeat(70));
+                recommendedRecipes.forEach(r => {
+                    console.log(`${r.similarity_score?.toFixed(3) || '0.000'} | ${r.title}`);
+                });
+                console.log('-'.repeat(70));
             }
 
             if (recommendedRecipes.length === 0) {

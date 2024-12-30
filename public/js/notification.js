@@ -120,8 +120,8 @@ document.addEventListener("DOMContentLoaded", function () {
     // Mark single notification as read
     async function markAsRead(notificationId) {
         try {
-            const response = await fetch(`/notifications/${notificationId}/mark-read`, {
-                method: 'POST',
+            const response = await fetch(`/notifications/${notificationId}/read`, {
+                method: 'PUT',
                 headers: getAuthHeaders(),
             });
             const data = await response.json();
@@ -185,7 +185,7 @@ document.addEventListener("DOMContentLoaded", function () {
     async function markAllAsRead() {
         try {
             const response = await fetch('/notifications/mark-all-read', {
-                method: 'POST',
+                method: 'PUT',
                 headers: getAuthHeaders(),
             });
             const data = await response.json();
@@ -242,19 +242,20 @@ document.addEventListener("DOMContentLoaded", function () {
     }
 
     // Add click handlers for mark as read buttons
-    document.addEventListener('click', async function(e) {
+    notificationsDropdown.addEventListener('click', async function(e) {
         // Handle single notification mark as read
-        if (e.target.classList.contains('mark-as-read')) {
+        if (e.target.classList.contains('mark-as-read') && notificationsDropdown.contains(e.target)) {
             e.preventDefault();
             e.stopPropagation();
+            
             const notificationId = e.target.dataset.notificationId;
             if (notificationId) {
                 await markAsRead(notificationId);
             }
         }
-
+        
         // Handle mark all as read
-        if (e.target.id === 'markAllAsRead' || e.target.closest('#markAllAsRead')) {
+        if (e.target.id === 'markAllAsReadBtn' && notificationsDropdown.contains(e.target)) {
             e.preventDefault();
             e.stopPropagation();
             await markAllAsRead();

@@ -180,19 +180,13 @@
                     </div>
                 </div>
 
+                {{!-- Recommendations Section --}}
                 {{#if recommendations.length}}
                 <div class="recommendations-section">
-                    <h3>Similar Recipes:</h3>
-                    <div class="recommendations-list">
+                    <h2 class="recommendations-title">Similar Recipes</h2>
+                    <div class="recommendations-grid">
                         {{#each recommendations}}
-                        <div class="recommendation-item">
-                            <a href="/recipes/{{this.slug}}">
-                                <h4>{{this.title}}</h4>
-                                {{#if this.image}}
-                                <img src="{{this.image}}" alt="{{this.title}}">
-                                {{/if}}
-                            </a>
-                        </div>
+                            {{> recipe-card this}}
                         {{/each}}
                     </div>
                 </div>

@@ -40,28 +40,24 @@ class RecommendationService {
     static async getRecommendations(recipeId) {
         try {
             if (!this.initialized) {
-                console.log('Service not initialized, attempting to initialize...');
                 await this.initialize();
             }
 
             return await this.retry(async () => {
-                console.log(`Getting recommendations for recipe ${recipeId}...`);
                 const response = await axios.get(`${this.baseUrl}/recommendations/${recipeId}`);
                 
                 if (!response.data) {
-                    console.log('No recommendations received');
                     return [];
                 }
                 
-                console.log('Received recommendations:', response.data);
+                // Log raw data để debug
+                console.log('\nRaw response from recommendation service:');
+                console.log(JSON.stringify(response.data, null, 2));
+                
                 return response.data;
             });
         } catch (error) {
             console.error('Error getting recommendations:', error.message);
-            if (error.response) {
-                console.error('Response data:', error.response.data);
-                console.error('Response status:', error.response.status);
-            }
             return [];
         }
     }
