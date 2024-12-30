@@ -4,7 +4,7 @@ class RecommendationService {
     static baseUrl = 'http://localhost:5001';
     static initialized = false;
     static maxRetries = 3;
-    static retryDelay = 1000; // 1 second
+    static retryDelay = 1000;
 
     static async retry(fn, retries = this.maxRetries) {
         try {
@@ -20,20 +20,15 @@ class RecommendationService {
     }
 
     static async initialize() {
-        if (this.initialized) {
-            return;
-        }
+        if (this.initialized) return;
 
         try {
-            console.log('Initializing recommendation service...');
-            await this.retry(async () => {
-                const response = await axios.post(`${this.baseUrl}/initialize`);
-                console.log('Recommendation service initialized:', response.data);
-                this.initialized = true;
-                return response.data;
-            });
+            const response = await axios.post(`${this.baseUrl}/initialize`);
+            console.log('Recommendation service initialized:', response.data);
+            this.initialized = true;
         } catch (error) {
-            console.error('Failed to initialize recommendation service after retries:', error.message);
+            console.error('Initialization error:', error.message);
+            throw error;
         }
     }
 
@@ -43,21 +38,31 @@ class RecommendationService {
                 await this.initialize();
             }
 
-            return await this.retry(async () => {
-                const response = await axios.get(`${this.baseUrl}/recommendations/${recipeId}`);
-                
-                if (!response.data) {
-                    return [];
+            const response = await axios.get(`${this.baseUrl}/recommendations/${recipeId}`, {
+                timeout: 10000,
+                headers: {
+                    'Accept': 'application/json'
                 }
-                
-                // Log raw data để debug
-                console.log('\nRaw response from recommendation service:');
-                console.log(JSON.stringify(response.data, null, 2));
-                
-                return response.data;
             });
+
+            // Kiểm tra và xử lý response
+            if (!response.data || !Array.isArray(response.data)) {
+                console.log('Invalid response format');
+                return [];
+            }
+
+            // Sắp xếp theo similarity_score và lấy 4 công thức đầu tiên
+            const recommendations = response.data
+                .sort((a, b) => b.similarity_score - a.similarity_score)
+                .slice(0, 4);
+
+            console.log('Top 4 recommendations:', 
+                recommendations.map(r => `${r.title} (score: ${r.similarity_score})`));
+
+            return recommendations;
+
         } catch (error) {
-            console.error('Error getting recommendations:', error.message);
+            console.error('Recommendation service error:', error);
             return [];
         }
     }
@@ -69,8 +74,8 @@ class RecommendationService {
             });
             return response.status === 200;
         } catch (error) {
-            console.log('Recommendation service not available:', error.message);
-            return []; // Trả về mảng rỗng nếu service không hoạt động
+            console.log('Service health check failed:', error.message);
+            return false;
         }
     }
 }

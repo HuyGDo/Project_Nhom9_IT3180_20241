@@ -71,7 +71,7 @@ def find_similar_recipes(recipe_id, processed_recipes, tfidf_matrix, num_similar
         
         if recipe_index is None:
             print(f"Recipe ID {recipe_id} not found")
-            return []
+            return [], []  # Return empty lists for both recipes and scores
             
         source_recipe = processed_recipes[recipe_index]['title']
         print(f"\nSource Recipe: {source_recipe}")
@@ -90,35 +90,28 @@ def find_similar_recipes(recipe_id, processed_recipes, tfidf_matrix, num_similar
                     score
                 ))
         
-        # Sort by similarity score
+        # Sort by similarity score and get top 4
         recipe_scores.sort(key=lambda x: x[2], reverse=True)
+        top_recipes = recipe_scores[:num_similar]
         
-        # Print all scores
-        print("\nAll Recipe Similarity Scores:")
-        print("-"*70)
-        print(f"{'Score':>8} | {'Recipe Title':<50}")
-        print("-"*70)
-        for _, title, score in recipe_scores:
-            print(f"{score:>8.3f} | {title:<50}")
-        
-        # Get recommendations
+        # Separate recipes and scores
         similar_recipes = []
+        similarity_scores = []
+        
         print("\nSelected Recommendations:")
         print("-"*70)
-        for idx, title, score in recipe_scores:
-            if len(similar_recipes) < num_similar:
-                similar_recipes.append(processed_recipes[idx]['_id'])
-                print(f"[SELECTED] {title:<50} (score: {score:.3f})")
-            else:
-                print(f"[SKIPPED] {title:<50} (score: {score:.3f})")
+        for idx, title, score in top_recipes:
+            similar_recipes.append(processed_recipes[idx]['_id'])
+            similarity_scores.append(score)
+            print(f"[SELECTED] {title:<50} (score: {score:.3f})")
                 
         print("\nSummary:")
         print(f"- Source Recipe: {source_recipe}")
         print(f"- Found {len(similar_recipes)} recommendations")
         print("="*50 + "\n")
         
-        return similar_recipes
+        return similar_recipes, similarity_scores  # Make sure to return both lists
         
     except Exception as e:
         print(f"Error in find_similar_recipes: {str(e)}")
-        return []
+        return [], []  # Return empty lists in case of error

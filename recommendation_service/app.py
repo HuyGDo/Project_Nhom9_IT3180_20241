@@ -72,45 +72,41 @@ def get_recommendations(recipe_id):
         
         # Khởi tạo embeddings nếu chưa có
         if not processed_recipes or tfidf_matrix is None:
+            logger.info("Initializing embeddings...")
             recipes = list(recipes_collection.find({}))
             if not recipes:
+                logger.error("No recipes found in database")
                 return jsonify([])
             processed_recipes, tfidf_matrix = create_embeddings(recipes)
             
-        # Lấy similar recipes
-        similar_recipes = find_similar_recipes(recipe_id, processed_recipes, tfidf_matrix)
+        # Lấy similar recipes và scores
+        similar_recipes, similarity_scores = find_similar_recipes(recipe_id, processed_recipes, tfidf_matrix)
         
-        # Lấy chi tiết recipes
+        if not similar_recipes or not similarity_scores:
+            logger.warning("No recommendations found")
+            return jsonify([])
+            
+        # Log để debug
+        logger.info(f"Found {len(similar_recipes)} similar recipes")
+        logger.info(f"Similarity scores: {similarity_scores}")
+        
+        # Lấy chi tiết recipes và thêm similarity scores
         recommendations = []
-        for rec_id in similar_recipes:
+        for rec_id, score in zip(similar_recipes, similarity_scores):
             recipe = recipes_collection.find_one({"_id": rec_id})
             if recipe:
-                recommendations.append({
+                recommendation = {
                     "id": str(recipe["_id"]),
                     "title": recipe["title"],
                     "description": recipe.get("description", ""),
                     "image": recipe.get("image", ""),
-                    "slug": recipe.get("slug", "")
-                })
-                
-        # Nếu không đủ recommendations, lấy thêm random recipes
-        if len(recommendations) < 4:
-            random_recipes = list(recipes_collection.find({
-                "_id": {
-                    "$ne": ObjectId(recipe_id),
-                    "$nin": [ObjectId(r["id"]) for r in recommendations]
+                    "slug": recipe.get("slug", ""),
+                    "similarity_score": float(score)
                 }
-            }).limit(4 - len(recommendations)))
-            
-            for recipe in random_recipes:
-                recommendations.append({
-                    "id": str(recipe["_id"]),
-                    "title": recipe["title"],
-                    "description": recipe.get("description", ""),
-                    "image": recipe.get("image", ""),
-                    "slug": recipe.get("slug", "")
-                })
+                recommendations.append(recommendation)
+                logger.info(f"Added recommendation: {recipe['title']} (score: {score:.3f})")
                 
+        logger.info(f"Returning {len(recommendations)} recommendations")
         return jsonify(recommendations)
         
     except Exception as e:

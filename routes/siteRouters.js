@@ -7,7 +7,6 @@ const blogRouter = require("./blogRouters");
 const authRouter = require("./authRouters");
 const { checkUser } = require("../middleware/authMiddleware");
 const adminRouter = require("./adminRouters");
-const notificationRouters = require("./notificationRouters");
 const userRouter = require("./userRouters");
 const adminMiddleware = require("../middleware/adminMiddleware");
 const RecommendationService = require('../services/recommendationService');
@@ -19,7 +18,6 @@ module.exports = (app) => {
     app.use("/users", userRouter);
     app.use("/recipes", recipesRouter);
     app.use("/blogs", blogRouter);
-    app.use("/notifications", notificationRouters);
     app.use("/admin", adminMiddleware.requireAdmin, adminRouter);
 
     // Thêm route cho recommendations
