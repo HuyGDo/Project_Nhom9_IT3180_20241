@@ -124,53 +124,30 @@ module.exports.getFollowers = async (req, res) => {
 // [POST] /users/:id/follow
 module.exports.followUser = async (req, res) => {
     try {
-        const targetUserId = req.params.id;
+        const userToFollow = await User.findById(req.params.id);
+        const currentUser = await User.findById(req.user._id);
 
-        if (!targetUserId || !mongoose.Types.ObjectId.isValid(targetUserId)) {
-            return res.status(400).json({ message: "Invalid user ID" });
+        if (!userToFollow || !currentUser) {
+            return res.status(404).json({ error: "User not found" });
         }
 
-        const currentUserId = req.user?._id;
-        if (!currentUserId) {
-            return res.status(401).json({ message: "Please login to continue" });
+        // Add to following/followers
+        if (!currentUser.following.includes(userToFollow._id)) {
+            currentUser.following.push(userToFollow._id);
+            userToFollow.followers.push(currentUser._id);
+
+            await Promise.all([
+                currentUser.save(),
+                userToFollow.save(),
+                // Create notification
+                notificationService.createFollowNotification(currentUser, userToFollow),
+            ]);
         }
 
-        if (currentUserId.toString() === targetUserId) {
-            return res.status(400).json({ message: "You cannot follow yourself" });
-        }
-
-        const currentUser = await User.findById(currentUserId);
-        if (!currentUser) {
-            return res.status(404).json({ message: "Current user not found" });
-        }
-
-        const targetUser = await User.findById(targetUserId);
-        if (!targetUser) {
-            return res.status(404).json({ message: "Target user not found" });
-        }
-
-        await currentUser.follow(targetUserId);
-
-        // Create follow notification
-        await notificationService.createNotification({
-            type: "follow",
-            payload: {
-                followedUserId: targetUserId,
-                follower: currentUser,
-            },
-        });
-
-        return res.json({
-            success: true,
-            isFollowing: true,
-            message: "Successfully followed user",
-        });
+        res.json({ success: true });
     } catch (error) {
         console.error("Follow error:", error);
-        return res.status(500).json({
-            success: false,
-            message: "Unable to follow this user",
-        });
+        res.status(500).json({ error: "Failed to follow user" });
     }
 };
 

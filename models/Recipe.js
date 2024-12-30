@@ -115,6 +115,14 @@ const recipeSchema = new mongoose.Schema(
     },
 );
 
+// Add text indexes for search
+recipeSchema.index({
+    title: 'text',
+    description: 'text',
+    'ingredients.name': 'text',
+    'instructions.description': 'text'
+});
+
 // Add virtual to check if user has voted
 recipeSchema.virtual("userVoted").get(function () {
     if (!this._user) return { up: false, down: false };

@@ -18,6 +18,7 @@ router.post(
 
 // Route to update recipe
 router.get("/", recipeController.showRecipes);
+router.get("/search", recipeController.searchRecipes);
 router.get("/:slug", recipeController.showRecipeDetail);
 router.post("/:slug/vote", auth.requireAuth, recipeController.handleVote);
 router.post("/:slug/comment", auth.requireAuth, recipeController.addComment);

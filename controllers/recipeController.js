@@ -4,6 +4,7 @@ const path = require("path");
 const notificationService = require("../services/notificationService");
 // const recommendationService = require('../services/recommendationService');
 const { uploadRecipeImage } = require("../services/uploadService");
+const fuzzball = require('fuzzball');
 
 // [GET] /recipes/
 module.exports.showRecipes = async (req, res) => {
@@ -16,6 +17,8 @@ module.exports.showRecipes = async (req, res) => {
             layout: "default",
             title: "Browse Recipes",
             recipes,
+            searchType: 'recipes',
+            searchPlaceholder: 'recipes'
         });
     } catch (err) {
         console.error(err);
@@ -117,10 +120,24 @@ module.exports.storeRecipe = async (req, res) => {
         const recipe = new Recipe(formData);
         await recipe.save();
 
+        console.log("Recipe created:", {
+            id: recipe._id,
+            title: recipe.title,
+            author: req.user._id,
+        });
+
         // Populate author data after saving
         await recipe.populate("author", "username first_name last_name profile_picture");
 
         console.log("Recipe with populated author:", recipe);
+
+        // Create notifications for followers
+        await notificationService.createNewContentNotification(
+            req.user,
+            recipe._id,
+            "Recipe",
+            recipe.title,
+        );
 
         res.redirect("/recipes/" + recipe.slug);
     } catch (error) {
@@ -226,21 +243,15 @@ module.exports.likeRecipe = async (req, res) => {
                 $push: { likes: req.user._id },
             });
 
-            // Create notification directly
-            await notificationService.createNotification({
-                type: "like",
-                payload: {
-                    contentAuthorId: recipe.author,
-                    interactingUser: req.user,
-                    contentId: recipe._id,
-                    contentType: "Recipe",
-                },
-            });
+            // Create notification if the liker is not the author
+            if (req.user._id.toString() !== recipe.author.toString()) {
+                await notificationService.createLikeNotification(req.user, recipe, "Recipe");
+            }
         }
         res.redirect("back");
     } catch (error) {
-        console.error("Error liking recipe:", error);
-        res.status(500).send("Failed to like recipe");
+        console.error("Like error:", error);
+        res.status(500).json({ error: "Failed to like recipe" });
     }
 };
 
@@ -265,20 +276,12 @@ module.exports.addComment = async (req, res) => {
 
         await recipe.save();
 
-        // Create notification for recipe author if commenter is not the author
+        // Create notification if commenter is not the author
         if (req.user._id.toString() !== recipe.author.toString()) {
-            await notificationService.createNotification({
-                type: "comment",
-                recipient: recipe.author,
-                sender: req.user._id,
-                recipe: recipe._id,
-                message: "commented on your recipe",
-            });
+            await notificationService.createCommentNotification(req.user, recipe, "Recipe");
         }
 
-        // Redirect back to recipe with success message
-        req.flash("success", "Comment added successfully!");
-        return res.redirect(`/recipes/${recipe.slug}#comments`);
+        res.redirect("back");
     } catch (error) {
         console.error("Comment error:", error);
         // Redirect back with error message
@@ -370,5 +373,86 @@ module.exports.showStoredRecipes = async (req, res) => {
     } catch (error) {
         console.error(error);
         res.status(500).send("Server Error");
+    }
+};
+
+// Search recipes
+module.exports.searchRecipes = async (req, res) => {
+    try {
+        console.log('Search query:', req.query);
+        const query = req.query.q;
+        if (!query) {
+            console.log('No query provided, redirecting to /recipes');
+            return res.redirect('/recipes');
+        }
+
+        // 1. Text search
+        const textMatches = await Recipe.find({
+            $text: { $search: query }
+        })
+        .populate("author", "username first_name last_name profile_picture")
+        .select("title description image prepTime cookTime difficulty cuisine category votes userVotes createdAt slug")
+        .limit(10)
+        .lean();
+        console.log('Text search results:', textMatches.length);
+
+        // 2. Fuzzy regex search
+        const regexMatches = await Recipe.find({
+            $or: [
+                { title: { $regex: query, $options: 'i' } },
+                { description: { $regex: query, $options: 'i' } },
+                { "ingredients.name": { $regex: query, $options: 'i' } },
+                { "instructions.description": { $regex: query, $options: 'i' } }
+            ]
+        })
+        .populate("author", "username first_name last_name profile_picture")
+        .select("title description image prepTime cookTime difficulty cuisine category votes userVotes createdAt slug")
+        .limit(10)
+        .lean();
+        console.log('Regex search results:', regexMatches.length);
+
+        // 3. Fuzzy scoring
+        const allRecipes = await Recipe.find()
+            .populate("author", "username first_name last_name profile_picture")
+            .select("title description image prepTime cookTime difficulty cuisine category votes userVotes createdAt slug")
+            .limit(50)
+            .lean();
+
+        const fuzzyMatches = allRecipes
+            .map(recipe => ({
+                ...recipe,
+                score: Math.max(
+                    fuzzball.partial_ratio(query.toLowerCase(), recipe.title.toLowerCase()),
+                    fuzzball.partial_ratio(query.toLowerCase(), recipe.description.toLowerCase())
+                )
+            }))
+            .filter(match => match.score > 70)
+            .sort((a, b) => b.score - a.score)
+            .slice(0, 10);
+
+        // Combine and deduplicate results using _id
+        const seenIds = new Set();
+        const combinedResults = [...textMatches, ...regexMatches, ...fuzzyMatches].filter(recipe => {
+            if (seenIds.has(recipe._id.toString())) {
+                return false;
+            }
+            seenIds.add(recipe._id.toString());
+            return true;
+        });
+
+        console.log('Total combined results:', combinedResults.length);
+
+        // Render the correct view
+        res.render('recipes/recipe-browse', {
+            title: `Search Results for "${query}"`,
+            recipes: combinedResults,
+            query,
+            searchType: 'recipes',
+            searchPlaceholder: 'recipes',
+            isRecipes: true
+        });
+    } catch (error) {
+        console.error('Search error:', error);
+        res.status(500).send('Server Error');
     }
 };

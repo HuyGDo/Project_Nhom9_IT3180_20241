@@ -99,6 +99,9 @@ const blogSchema = new mongoose.Schema(
     },
 );
 
+// Add text indexes for search
+blogSchema.index({ title: 'text', content: 'text', description: 'text' });
+
 // Add virtual to check if user has voted
 blogSchema.virtual("userVoted").get(function () {
     if (!this._user) return { up: false, down: false };

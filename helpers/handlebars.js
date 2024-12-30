@@ -29,4 +29,37 @@ module.exports = {
     eq: function (a, b) {
         return a === b;
     },
+    generateNotificationLink: function (notification) {
+        if (!notification || !notification.content_id) {
+            return "#";
+        }
+
+        // Helper function to get slug safely
+        const getSlug = (content) => {
+            if (typeof content === "string") return content;
+            return content.slug || content._id || "";
+        };
+
+        switch (notification.notification_type) {
+            case "follow":
+                return `/users/${notification.content_id._id || ""}`;
+            case "new_post":
+                if (notification.content_type === "Blog") {
+                    return `/blogs/${getSlug(notification.content_id)}`;
+                } else if (notification.content_type === "Recipe") {
+                    return `/recipes/${getSlug(notification.content_id)}`;
+                }
+                return "#";
+            case "like":
+            case "comment":
+                if (notification.content_type === "Blog") {
+                    return `/blogs/${getSlug(notification.content_id)}`;
+                } else if (notification.content_type === "Recipe") {
+                    return `/recipes/${getSlug(notification.content_id)}`;
+                }
+                return "#";
+            default:
+                return "#";
+        }
+    },
 };
