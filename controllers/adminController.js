@@ -13,7 +13,7 @@ module.exports.showDashboard = (req, res) => {
 module.exports.listUsers = async (req, res) => {
     try {
         const users = await User.find().lean();
-        res.render("admin/users", {
+        res.render("admin/admin-users", {
             layout: "default",
             title: "Users List",
             users,
@@ -34,7 +34,7 @@ module.exports.deleteUser = async (req, res) => {
         res.redirect("/admin/users");
     } catch (err) {
         console.error(err);
-        res.status(500).render("default/500", {
+        res.status(500).render("admin/500", {
             layout: "default",
             title: "Server Error",
         });
