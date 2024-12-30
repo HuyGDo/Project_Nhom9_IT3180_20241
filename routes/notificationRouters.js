@@ -6,8 +6,11 @@ const { requireAuth } = require("../middleware/authMiddleware");
 // Apply auth middleware to all notification routes
 router.use(requireAuth);
 
+// Get notifications page
+router.get("/", notificationController.getNotificationsPage);
+
 // Get notifications for dropdown
-router.get("/", notificationController.getNotifications);
+router.get("/list", notificationController.getNotifications);
 
 // Get unread count
 router.get("/unread-count", notificationController.getUnreadCount);

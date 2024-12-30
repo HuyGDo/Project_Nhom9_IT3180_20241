@@ -76,29 +76,85 @@
                     <span class="profile__stat-value">{{ profileUser.recipes.length }}</span>
                     <span class="profile__stat-label">Recipes</span>
                 </a>
+                <a
+                    href="/users/{{#if isOwnProfile}}me/blogs{{else}}{{
+                        profileUser._id
+                    }}{{/if}}/blogs"
+                    class="profile__stat-item"
+                >
+                    <span class="profile__stat-value">{{ profileUser.blogs.length }}</span>
+                    <span class="profile__stat-label">Blogs</span>
+                </a>
             </div>
 
             {{!-- Content Section --}}
             <div class="profile__content">
                 <div class="profile__main">
-                    <h2 class="profile__section-title">
-                        {{#if isOwnProfile}}My{{else}}{{ profileUser.first_name }}'s{{/if}} Recipes
-                    </h2>
-                    <div class="profile__recipes">
-                        {{#each (limit profileUser.recipes 2)}}
-                        <div class="col">
-                            {{> recipe-card}}
+                    {{!-- Recipes Section --}}
+                    <section class="profile__section">
+                        <h2 class="profile__section-title">
+                            {{#if isOwnProfile}}My{{else}}{{ profileUser.first_name }}'s{{/if}}
+                            Recipes
+                        </h2>
+                        {{#if profileUser.recipes.length}}
+                        <div class="profile__recipes">
+                            {{#each (limit profileUser.recipes 2)}}
+                            {{> recipe-card 
+                                this 
+                                author=../profileUser
+                            }}
+                            {{/each}}
                         </div>
-                        {{/each}}
-                    </div>
-                    <a
-                        href="/users/{{#if isOwnProfile}}me/stored{{else}}{{
-                            profileUser._id
-                        }}{{/if}}/recipes"
-                        class="btn btn--outline"
-                    >
-                        See all recipes
-                    </a>
+                        <a
+                            href="/users/{{#if ../isOwnProfile}}me/stored{{else}}{{
+                                ../profileUser._id
+                            }}{{/if}}/recipes"
+                            class="btn btn--outline profile__see-all"
+                        >
+                            See all recipes
+                        </a>
+                        {{else}}
+                        <div class="profile__empty">
+                            <p>No recipes yet</p>
+                            {{#if isOwnProfile}}
+                            <a href="/recipes/create" class="btn btn--primary">Create Recipe</a>
+                            {{/if}}
+                        </div>
+                        {{/if}}
+                    </section>
+
+                    {{!-- Blogs Section --}}
+                    <section class="profile__section">
+                        <h2 class="profile__section-title">
+                            {{#if isOwnProfile}}My{{else}}{{ profileUser.first_name }}'s{{/if}}
+                            Blogs
+                        </h2>
+                        {{#if profileUser.blogs.length}}
+                        <div class="profile__blogs">
+                            {{#each (limit profileUser.blogs 2)}}
+                            {{> blog-card 
+                                this 
+                                author=../profileUser
+                            }}
+                            {{/each}}
+                        </div>
+                        <a
+                            href="/users/{{#if ../isOwnProfile}}me/stored{{else}}{{
+                                ../profileUser._id
+                            }}{{/if}}/blogs"
+                            class="btn btn--outline profile__see-all"
+                        >
+                            See all blogs
+                        </a>
+                        {{else}}
+                        <div class="profile__empty">
+                            <p>No blog posts yet</p>
+                            {{#if isOwnProfile}}
+                            <a href="/blogs/create" class="btn btn--primary">Write Blog</a>
+                            {{/if}}
+                        </div>
+                        {{/if}}
+                    </section>
                 </div>
                 <div class="profile__sidebar">
                     <div class="profile__section">

@@ -2034,6 +2034,9 @@ html {
   border-radius: 16px;
   overflow: hidden;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+  height: 100%;
+  display: flex;
+  flex-direction: column;
   transition: transform 0.3s ease;
 }
 .blog-card:hover {
@@ -2056,20 +2059,11 @@ html {
   object-fit: cover;
   transition: transform 0.3s ease;
 }
-.blog-card__category {
-  position: absolute;
-  top: 16px;
-  right: 16px;
-  padding: 6px 12px;
-  background: rgba(255, 182, 1, 0.9);
-  color: white;
-  font-size: 1.2rem;
-  font-weight: 500;
-  border-radius: 100px;
-  text-transform: capitalize;
-}
 .blog-card__content {
   padding: 24px;
+  flex: 1;
+  display: flex;
+  flex-direction: column;
 }
 .blog-card__title {
   font-size: 2rem;
@@ -2099,6 +2093,7 @@ html {
   height: 32px;
   border-radius: 50%;
   object-fit: cover;
+  border: 2px solid #ffb601;
 }
 .blog-card__author span {
   font-size: 1.4rem;
@@ -2124,23 +2119,26 @@ html {
   font-size: 1.5rem;
   color: #666;
   line-height: 1.6;
-  margin-bottom: 16px;
+  margin-bottom: 24px;
   display: -webkit-box;
   -webkit-line-clamp: 3;
   -webkit-box-orient: vertical;
   overflow: hidden;
+  flex: 1;
 }
-.blog-card__tags {
+.blog-card__actions {
   display: flex;
-  flex-wrap: wrap;
-  gap: 8px;
+  gap: 12px;
+  margin-top: auto;
 }
-.blog-card__tag {
-  padding: 4px 12px;
-  background: #f5f5f5;
-  color: #666;
-  font-size: 1.2rem;
-  border-radius: 100px;
+.blog-card__btn {
+  flex: 1;
+  height: 40px;
+  font-size: 1.4rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
 }
 
 .header {
@@ -2561,15 +2559,16 @@ html {
   resize: vertical;
   line-height: 1.6;
 }
-.create-form__form__actions {
+.create-form__actions {
   display: flex;
   justify-content: center;
+  align-items: center;
   gap: 20px;
   margin-top: 60px;
   padding-top: 40px;
   border-top: 2px solid #eee;
 }
-.create-form__form__submit, .create-form__form__cancel {
+.create-form__submit, .create-form__cancel {
   min-width: 200px;
   height: 56px;
   font-size: 1.7rem;
@@ -2581,32 +2580,17 @@ html {
   border-radius: 16px;
   transition: all 0.3s ease;
 }
-.create-form__form__submit i, .create-form__form__cancel i {
+.create-form__submit i, .create-form__cancel i {
   font-size: 2rem;
 }
-.create-form__form__submit:hover, .create-form__form__cancel:hover {
+.create-form__submit:hover, .create-form__cancel:hover {
   transform: translateY(-2px);
 }
-.create-form__form__submit.btn--primary {
-  background: linear-gradient(to right, #ffb601, #ff9000);
-  color: white;
-  border: none;
-  box-shadow: 0 4px 15px rgba(255, 182, 1, 0.3);
-  cursor: pointer;
+.create-form__submit {
+  flex-grow: 1;
 }
-.create-form__form__submit.btn--primary:hover {
-  box-shadow: 0 6px 20px rgba(255, 182, 1, 0.4);
-}
-.create-form__form__cancel.btn--outline {
-  border: 2px solid #eee;
-  color: #666;
-  background: white;
-  text-decoration: none;
-}
-.create-form__form__cancel.btn--outline:hover {
-  border-color: #ffb601;
-  color: #ffb601;
-  background: #fff9e6;
+.create-form__cancel {
+  flex-grow: 1;
 }
 
 .image-upload__preview {
@@ -2694,7 +2678,9 @@ html {
     font-size: 2.2rem;
   }
   .create-form__actions {
-    flex-direction: column;
+    display: flex;
+    justify-content: center;
+    align-self: center;
     margin-top: 40px;
   }
   .create-form__submit, .create-form__cancel {
@@ -3682,6 +3668,9 @@ html {
   gap: 20px;
 }
 .profile__main {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
   background: white;
   border-radius: 16px;
   padding: 24px;
@@ -3693,6 +3682,19 @@ html {
   padding: 24px;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
 }
+.profile__section {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  margin-bottom: 40px;
+  padding-bottom: 40px;
+  border-bottom: 1px solid #eee;
+}
+.profile__section:last-child {
+  margin-bottom: 0;
+  padding-bottom: 0;
+  border-bottom: none;
+}
 .profile__section-title {
   font-size: 1.8rem;
   font-weight: 600;
@@ -3701,33 +3703,32 @@ html {
   padding-bottom: 16px;
   border-bottom: 1px solid #eee;
 }
-.profile__recipes {
+.profile__section-link {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.profile__recipes, .profile__blogs {
   display: grid;
   grid-template-columns: repeat(2, 1fr);
   gap: 20px;
-}
-.profile__recipes .recipe-card {
-  height: 100%;
-}
-.profile__recipes .recipe-card__actions {
-  display: flex;
-  gap: 10px;
-  margin-top: auto;
-}
-.profile__recipes .recipe-card__actions .btn {
-  flex: 1;
-  min-width: unset;
-  font-size: 1.4rem;
-  padding: 8px 16px;
+  margin-bottom: 20px;
 }
 .profile__empty {
-  grid-column: 1/-1;
   text-align: center;
   padding: 30px;
-  color: #666;
-  font-size: 1.4rem;
   background: #f8f8f8;
   border-radius: 12px;
+  margin: 20px 0;
+}
+.profile__empty p {
+  color: #666;
+  font-size: 1.6rem;
+  margin-bottom: 15px;
+}
+.profile__see-all {
+  width: 100%;
+  text-align: center;
 }
 .profile__actions {
   display: flex;
@@ -3787,7 +3788,7 @@ html {
   .profile__stats {
     grid-template-columns: 1fr;
   }
-  .profile__recipes {
+  .profile__recipes, .profile__blogs {
     grid-template-columns: 1fr;
   }
   .profile__avatar img {
@@ -4549,6 +4550,198 @@ html {
   font-size: 1.4rem;
   color: #666;
   margin: 0;
+}
+
+.notification-page {
+  padding: 40px 0;
+  background-color: white;
+}
+.notification-page__header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 30px;
+}
+.notification-page__title h1 {
+  font-size: 2.8rem;
+  font-weight: 700;
+  color: #1a162e;
+  margin-bottom: 8px;
+}
+.notification-page__count {
+  font-size: 1.6rem;
+  color: #666;
+}
+.notification-page__content {
+  background-color: transparent;
+}
+.notification-page__empty {
+  text-align: center;
+  padding: 60px 20px;
+  background: white;
+  border-radius: 16px;
+  margin-top: 20px;
+}
+.notification-page__empty img {
+  width: 200px;
+  height: 200px;
+  margin-bottom: 24px;
+  opacity: 0.8;
+}
+.notification-page__empty h3 {
+  font-size: 2.4rem;
+  font-weight: 600;
+  color: #1a162e;
+  margin-bottom: 12px;
+}
+.notification-page__empty p {
+  font-size: 1.6rem;
+  color: #666;
+  max-width: 400px;
+  margin: 0 auto;
+}
+
+.notification-list {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 20px;
+}
+
+.notification-card {
+  background: white;
+  border-radius: 12px;
+  padding: 20px;
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 20px;
+  transition: all 0.3s ease;
+  border: 1px solid #eee;
+  margin: 0;
+}
+.notification-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+}
+.notification-card--unread {
+  background-color: #fff9e6;
+  border-color: #ffe69c;
+}
+.notification-card__left {
+  display: flex;
+  flex: 1;
+  min-width: 0;
+}
+.notification-card__user {
+  display: flex;
+  gap: 20px;
+  flex: 1;
+}
+.notification-card__avatar {
+  width: 60px;
+  height: 60px;
+  border-radius: 50%;
+  object-fit: cover;
+  border: 2px solid #ffb601;
+}
+.notification-card__details {
+  flex: 1;
+  min-width: 0;
+}
+.notification-card__message {
+  margin-bottom: 8px;
+  line-height: 1.4;
+  font-size: 1.4rem;
+  color: #666;
+}
+.notification-card__username {
+  font-size: 1.6rem;
+  font-weight: 600;
+  color: #1a162e;
+}
+.notification-card__content-title {
+  font-weight: 500;
+  color: #ffb601;
+}
+.notification-card__time {
+  font-size: 1.3rem;
+  color: #666;
+  display: block;
+}
+.notification-card__right {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 12px;
+}
+.notification-card__badge {
+  display: inline-block;
+  padding: 4px 12px;
+  border-radius: 20px;
+  font-size: 1.2rem;
+  font-weight: 500;
+  background-color: #ffb601;
+  color: white;
+}
+.notification-card__actions {
+  display: flex;
+  gap: 12px;
+}
+.notification-card__actions .btn {
+  height: 36px;
+  min-width: 100px;
+  font-size: 1.4rem;
+  padding: 0 16px;
+  border-radius: 8px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.3s ease;
+}
+.notification-card__actions .btn-primary {
+  background-color: #ffb601;
+  color: white;
+  border: none;
+}
+.notification-card__actions .btn-primary:hover {
+  background-color: rgb(230.5, 164.2539370079, 0);
+}
+.notification-card__actions .btn-secondary {
+  background-color: white;
+  color: #666;
+  border: 1px solid #eee;
+}
+.notification-card__actions .btn-secondary:hover {
+  background-color: #f5f5f5;
+}
+
+@media (max-width: 768px) {
+  .notification-page__header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 16px;
+  }
+  .notification-card {
+    flex-direction: column;
+  }
+  .notification-card__right {
+    width: 100%;
+    flex-direction: row;
+    justify-content: space-between;
+    align-items: center;
+  }
+}
+:root {
+  --bg-light-blue: #f0f7ff;
+  --bg-light-blue-hover: #e5f1ff;
+  --bg-white: #ffffff;
+  --bg-light: #f8f9fa;
+  --border-color: #e9ecef;
+  --text-muted: #6c757d;
+  --primary: #0d6efd;
+  --primary-dark: #0b5ed7;
+  --gray: #6c757d;
+  --gray-dark: #5a6268;
 }
 
 /*# sourceMappingURL=main.css.map */

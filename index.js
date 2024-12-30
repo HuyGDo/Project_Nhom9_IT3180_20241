@@ -8,6 +8,7 @@ const flash = require("connect-flash");
 const cookieParser = require("cookie-parser");
 const session = require("express-session");
 const hbsHelpers = require("./helpers/handlebars");
+const { formatTimeAgo, generateNotificationLink } = require('./helpers/notificationHelpers');
 // const { setupWeeklyEmailCronJob } = require("./services/cronService");
 const app = express();
 /* Configure Mongoose */
@@ -28,19 +29,19 @@ app.use("/uploads", express.static(path.join(__dirname, "uploads")));
 
 /* View Engine Setup */
 app.set("views", path.join(__dirname, "views"));
-app.engine(
-    "hbs",
-    engine({
-        extname: ".hbs",
-        defaultLayout: "default",
-        partialsDir: path.join(__dirname, "views/partials"),
-        helpers: {
-            ...hbsHelpers,
-            sum: (a, b) => a + b,
-            eq: (a, b) => a === b,
-        },
-    }),
-);
+const hbs = engine({
+    extname: ".hbs",
+    defaultLayout: "default",
+    partialsDir: path.join(__dirname, "views/partials"),
+    helpers: {
+        ...hbsHelpers,
+        sum: (a, b) => a + b,
+        eq: (a, b) => a === b,
+        formatTimeAgo,
+        generateNotificationLink
+    },
+});
+app.engine("hbs", hbs);
 app.set("view engine", "hbs");
 
 /* Cookies Parser Middleware*/

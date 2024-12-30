@@ -94,9 +94,9 @@ module.exports.showRecipeDetail = async (req, res) => {
     }
 };
 
-// [GET] /recipes/create
+// [GET] /recipes/recipe-create
 module.exports.createRecipe = (req, res) => {
-    res.render("recipes/create", {
+    res.render("recipes/recipe-create", {
         layout: "default",
         title: "Create Recipe",
     });
@@ -158,8 +158,13 @@ module.exports.storeRecipe = async (req, res) => {
 
         res.redirect("/recipes/" + recipe.slug);
     } catch (error) {
-        console.error("Recipe creation error:", error);
-        res.status(500).send("Error creating recipe");
+        console.error("Error saving recipe:", error);
+        res.status(500).render("recipes/recipe-create", {
+            layout: "default",
+            title: "Create Recipe",
+            error: "Failed to create recipe",
+            formData: req.body,
+        });
     }
 };
 
@@ -168,7 +173,7 @@ module.exports.editRecipe = (req, res, next) => {
     Recipe.findById(req.params.id)
         .lean()
         .then((recipe) => {
-            res.render("recipes/edit", {
+            res.render("recipes/recipe-edit", {
                 layout: "default",
                 title: "Edit Recipe",
                 recipe,
@@ -302,65 +307,35 @@ module.exports.handleVote = async (req, res) => {
         const { voteType } = req.body;
         const userId = req.user._id;
 
-        // Validate vote type
-        if (!["up", "down"].includes(voteType)) {
-            return res.status(400).json({
-                success: false,
-                message: "Invalid vote type",
-            });
-        }
-
         const recipe = await Recipe.findById(id);
         if (!recipe) {
-            return res.status(404).json({
-                success: false,
-                message: "Recipe not found",
-            });
+            return res.status(404).json({ message: "Recipe not found" });
         }
 
-        // Find existing vote
         const existingVoteIndex = recipe.userVotes.findIndex(
             (vote) => vote.user.toString() === userId.toString(),
         );
 
-        // Handle vote logic
         if (existingVoteIndex > -1) {
             const existingVote = recipe.userVotes[existingVoteIndex];
             if (existingVote.voteType === voteType) {
-                // Remove vote if clicking same button
                 recipe.userVotes.splice(existingVoteIndex, 1);
                 recipe.votes[`${voteType}votes`]--;
             } else {
-                // Change vote type
                 recipe.votes[`${existingVote.voteType}votes`]--;
                 recipe.votes[`${voteType}votes`]++;
                 existingVote.voteType = voteType;
             }
         } else {
-            // Add new vote
             recipe.userVotes.push({ user: userId, voteType });
             recipe.votes[`${voteType}votes`]++;
         }
 
-        // Update score
         recipe.votes.score = recipe.votes.upvotes - recipe.votes.downvotes;
-
         await recipe.save();
-
-        // Create notification for recipe author if it's an upvote from another user
-        if (voteType === "up" && userId.toString() !== recipe.author.toString()) {
-            await notificationService.createNotification({
-                type: "vote",
-                recipient: recipe.author,
-                sender: userId,
-                recipe: recipe._id,
-                message: "voted for your recipe",
-            });
-        }
 
         res.json({
             success: true,
-            message: "Vote recorded successfully",
             upvotes: recipe.votes.upvotes,
             downvotes: recipe.votes.downvotes,
             userVoted: {
@@ -374,11 +349,8 @@ module.exports.handleVote = async (req, res) => {
             },
         });
     } catch (error) {
-        console.error("Vote handling error:", error);
-        res.status(error.status || 500).json({
-            success: false,
-            message: error.message || "Error processing vote",
-        });
+        console.error(error);
+        res.status(500).json({ message: "Server error" });
     }
 };
 
@@ -398,7 +370,7 @@ module.exports.showStoredRecipes = async (req, res) => {
             .populate("author", "username first_name last_name profile_picture")
             .lean();
 
-        res.render("recipes/store", {
+        res.render("recipes/recipe-store", {
             layout: "default",
             title: "My Recipes",
             recipes,

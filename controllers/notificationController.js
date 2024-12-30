@@ -29,20 +29,61 @@ class NotificationController {
     // Mark notification as read
     async markAsRead(req, res) {
         try {
-            const notification = await notificationService.markAsRead(req.params.id, req.user._id);
-            res.json({ success: true, notification });
+            const notificationId = req.params.id;
+            const userId = req.user._id;
+
+            await notificationService.markAsRead(notificationId, userId);
+            
+            // Get updated unread count
+            const unreadCount = await notificationService.getUnreadCount(userId);
+            
+            res.json({ 
+                success: true, 
+                message: "Notification marked as read",
+                unreadCount 
+            });
         } catch (error) {
-            res.status(500).json({ error: "Error marking notification as read" });
+            console.error("Error in markAsRead:", error);
+            res.status(500).json({ 
+                success: false, 
+                message: error.message || "Error marking notification as read" 
+            });
         }
     }
 
     // Mark all notifications as read
     async markAllAsRead(req, res) {
         try {
-            await notificationService.markAllAsRead(req.user._id);
-            res.json({ success: true });
+            const userId = req.user._id;
+            await notificationService.markAllAsRead(userId);
+            
+            res.json({ 
+                success: true, 
+                message: "All notifications marked as read",
+                unreadCount: 0
+            });
         } catch (error) {
-            res.status(500).json({ error: "Error marking notifications as read" });
+            console.error("Error in markAllAsRead:", error);
+            res.status(500).json({ 
+                success: false, 
+                message: error.message || "Error marking all notifications as read" 
+            });
+        }
+    }
+
+    // Get notifications page
+    async getNotificationsPage(req, res) {
+        try {
+            const notifications = await notificationService.getUserNotifications(req.user._id);
+            console.log("Notifications:", notifications);
+            res.render("notification/index", {
+                title: "Notifications",
+                notifications,
+                user: req.user
+            });
+        } catch (error) {
+            console.error("Error in getNotificationsPage:", error);
+            res.status(500).json({ error: "Error fetching notifications page" });
         }
     }
 }

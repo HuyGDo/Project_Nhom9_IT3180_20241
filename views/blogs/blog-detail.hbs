@@ -1,3 +1,7 @@
+<script>
+    window.isAuthenticated = {{#if user}}true{{else}}false{{/if}};
+</script>
+
 <main class="blog-detail">
     <div class="container">
         <div class="row">
@@ -192,12 +196,18 @@
                         body: JSON.stringify({ voteType }),
                     });
 
+                    if (!response.ok) {
+                        throw new Error("Network response was not ok");
+                    }
+
                     const data = await response.json();
 
                     if (data.success) {
+                        // Update vote counts
                         voteContainer.querySelector(".upvote-count").textContent = data.upvotes;
                         voteContainer.querySelector(".downvote-count").textContent = data.downvotes;
 
+                        // Update button states
                         const upvoteBtn = voteContainer.querySelector(".upvote-btn");
                         const downvoteBtn = voteContainer.querySelector(".downvote-btn");
 

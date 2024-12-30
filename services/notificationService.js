@@ -8,19 +8,14 @@ class NotificationService {
             const notifications = await Notification.find({ recipient_id: userId })
                 .sort({ created_at: -1 })
                 .limit(10)
-                .populate([
-                    {
-                        path: "content_id",
-                        refPath: "content_type",
-                        select: "username profile_picture title slug _id",
-                    },
-                    {
-                        path: "content_id",
-                        model: "User",
-                        select: "username profile_picture _id",
-                        match: { content_type: "User" },
-                    },
-                ]);
+                .populate({
+                    path: "content_id",
+                    refPath: "content_type",
+                    select: "title slug _id author",
+                })
+                .lean();
+
+            console.log("Raw notifications:", JSON.stringify(notifications, null, 2));
 
             // Only filter out null content_id notifications (deleted content)
             // but keep read notifications
@@ -28,18 +23,39 @@ class NotificationService {
                 (notification) => notification.content_id !== null,
             );
 
+            // Populate author information for each notification
+            const populatedNotifications = await Promise.all(
+                validNotifications.map(async (notification) => {
+                    if (notification.content_id && notification.content_id.author) {
+                        const User = require("../models/User");
+                        const author = await User.findById(notification.content_id.author)
+                            .select("username profile_picture")
+                            .lean();
+                        
+                        if (author) {
+                            notification.content_id.author = author;
+                        }
+                    }
+                    return notification;
+                })
+            );
+
             // Debug log to see what's being returned
-            validNotifications.forEach((notification) => {
+            populatedNotifications.forEach((notification) => {
                 console.log("Notification content:", {
                     type: notification.notification_type,
                     contentType: notification.content_type,
                     contentId: notification.content_id,
+                    userId: notification.content_id?.author?._id,
+                    username: notification.content_id?.author?.username,
+                    profilePicture: notification.content_id?.author?.profile_picture,
+                    title: notification.content_id?.title,
                     slug: notification.content_id?.slug,
                     isRead: notification.is_read,
                 });
             });
 
-            return validNotifications;
+            return populatedNotifications;
         } catch (error) {
             console.error("Error in getUserNotifications:", error);
             throw new Error("Error fetching notifications");

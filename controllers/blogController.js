@@ -46,10 +46,16 @@ module.exports.showBlogDetail = async (req, res) => {
         // Increment view count
         await Blog.findByIdAndUpdate(blog._id, { $inc: { views: 1 } });
 
+        // Check if the logged-in user is following the blog author
+        const isFollowing = req.user ? req.user.following.includes(blog.author._id) : false;
+
         res.render("blogs/blog-detail", {
             layout: "default",
             title: blog.title,
             blog,
+            isAuthenticated: !!req.user,
+            isFollowing,
+            user: req.user,
         });
     } catch (error) {
         console.error(error);
@@ -59,7 +65,7 @@ module.exports.showBlogDetail = async (req, res) => {
 
 // [GET] /blogs/create
 module.exports.createBlog = (req, res) => {
-    res.render("blogs/create", {
+    res.render("recipes/blog-edit", {
         layout: "default",
         title: "Create Blog",
     });
@@ -95,8 +101,13 @@ module.exports.storeBlog = async (req, res) => {
 
         res.redirect(`/blogs/${blog.slug}`);
     } catch (error) {
-        console.error("Blog creation error:", error);
-        res.status(500).send("Error creating blog");
+        console.error(error);
+        res.render("recipes/blog-edit", {
+            layout: "default",
+            title: "Create Blog",
+            error: "Failed to create blog",
+            formData: req.body,
+        });
     }
 };
 
@@ -108,7 +119,7 @@ module.exports.handleVote = async (req, res) => {
         const userId = req.user._id;
 
         if (!["up", "down"].includes(voteType)) {
-            return res.status(400).json({ message: "Invalid vote type" });
+            return res.status(400).json({ success: false, message: "Invalid vote type" });
         }
 
         const blog = await Blog.findById(id);
@@ -137,11 +148,6 @@ module.exports.handleVote = async (req, res) => {
 
         blog.votes.score = blog.votes.upvotes - blog.votes.downvotes;
         await blog.save();
-
-        // Create notification for upvotes if voter is not the author
-        if (voteType === "up" && userId.toString() !== blog.author.toString()) {
-            await notificationService.createLikeNotification(req.user, blog, "Blog");
-        }
 
         res.json({
             success: true,
@@ -190,5 +196,69 @@ module.exports.addComment = async (req, res) => {
         const blog = await Blog.findById(req.params.id).select("slug").lean();
         req.flash("error", "Error adding comment");
         return res.redirect(`/blogs/${blog.slug}`);
+    }
+};
+
+// [GET] /blogs/:id/edit
+module.exports.editBlog = async (req, res) => {
+    try {
+        const blog = await Blog.findById(req.params.id).lean();
+
+        if (!blog) {
+            return res.render("default/404");
+        }
+
+        // Check if user is the author
+        if (blog.author.toString() !== req.user._id.toString()) {
+            return res.redirect("/blogs");
+        }
+
+        res.render("blogs/blog-edit", {
+            layout: "default",
+            title: "Edit Blog",
+            blog,
+        });
+    } catch (error) {
+        console.error(error);
+        res.status(500).send("Server Error");
+    }
+};
+
+// [PUT] /blogs/:id
+module.exports.updateBlog = async (req, res) => {
+    try {
+        const blogData = {
+            title: req.body.title,
+            content: req.body.content,
+            description: req.body.description,
+            category: req.body.category,
+            tags: req.body.tags?.split(",").map((tag) => tag.trim()),
+            status: req.body.status,
+        };
+
+        if (req.file) {
+            blogData.image = `/uploads/blogs/${req.file.filename}`;
+        }
+
+        const blog = await Blog.findByIdAndUpdate(req.params.id, blogData, {
+            new: true,
+            runValidators: true,
+        });
+
+        if (!blog) {
+            return res.status(404).json({ message: "Blog not found" });
+        }
+
+        res.json({
+            success: true,
+            message: "Blog updated successfully",
+            blog,
+        });
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({
+            message: "Error updating blog",
+            error: error.message,
+        });
     }
 };

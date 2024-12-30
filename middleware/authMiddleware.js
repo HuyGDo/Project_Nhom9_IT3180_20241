@@ -3,10 +3,24 @@ const User = require("../models/User");
 require("dotenv").config();
 const notificationService = require("../services/notificationService");
 
+const getTokenFromRequest = (req) => {
+    // Check cookie first
+    const cookieToken = req.cookies.jwt;
+    if (cookieToken) return cookieToken;
+
+    // Then check Authorization header
+    const authHeader = req.headers.authorization;
+    if (authHeader && authHeader.startsWith("Bearer ")) {
+        return authHeader.split(" ")[1];
+    }
+
+    return null;
+};
+
 // Create a single exports object
 const middleware = {
     checkLoggedIn: async (req, res, next) => {
-        const token = req.cookies.jwt;
+        const token = getTokenFromRequest(req);
 
         if (token) {
             try {
@@ -19,92 +33,91 @@ const middleware = {
                     res.locals.isAuthenticated = true;
 
                     // Get unread notifications count and recent notifications
-                    const unreadCount = await notificationService.getUnreadCount(user._id);
-                    const notifications = await notificationService.getUserNotifications(
-                        user._id,
-                        5,
-                    );
+                    try {
+                        const unreadCount = await notificationService.getUnreadCount(user._id);
+                        const notifications = await notificationService.getUserNotifications(
+                            user._id,
+                            5,
+                        );
 
-                    res.locals.unreadNotifications = unreadCount;
-                    res.locals.notifications = notifications;
+                        res.locals.unreadNotifications = unreadCount;
+                        res.locals.notifications = notifications;
+                    } catch (error) {
+                        console.error("Error fetching notifications:", error);
+                        res.locals.unreadNotifications = 0;
+                        res.locals.notifications = [];
+                    }
                 } else {
                     res.locals.isAuthenticated = false;
+                    res.locals.user = null;
                 }
             } catch (err) {
                 console.log("Token verification failed:", err.message);
                 res.locals.isAuthenticated = false;
+                res.locals.user = null;
                 res.clearCookie("jwt");
             }
         } else {
             res.locals.isAuthenticated = false;
+            res.locals.user = null;
         }
         next();
     },
 
     requireAuth: async (req, res, next) => {
+        const token = getTokenFromRequest(req);
+
+        if (!token) {
+            return res.redirect("/login");
+        }
+
         try {
-            // Check token in cookies first
-            let token = req.cookies.jwt;
+            const decodedToken = await jwt.verify(token, process.env.JWT_SECRET);
+            const user = await User.findById(decodedToken.id);
 
-            // If no cookie token, check Authorization header
-            const authHeader = req.headers.authorization;
-            if (!token && authHeader && authHeader.startsWith("Bearer ")) {
-                token = authHeader.split(" ")[1];
-            }
-
-            if (!token) {
-                console.log("No token found in cookies or auth header");
-                return res.status(401).json({ error: "Authentication required" });
-            }
-
-            // Verify token
-            const decoded = jwt.verify(token, process.env.JWT_SECRET);
-
-            // Get user from token
-            const user = await User.findById(decoded.id);
             if (!user) {
-                console.log("User not found for token");
-                return res.status(401).json({ error: "User not found" });
+                res.clearCookie("jwt");
+                return res.redirect("/login");
             }
 
-            // Attach user to request
             req.user = user;
             next();
-        } catch (error) {
-            console.error("Auth middleware error:", error);
-            res.status(401).json({ error: "Invalid token" });
+        } catch (err) {
+            console.error("Authentication error:", err.message);
+            res.clearCookie("jwt");
+            return res.redirect("/login");
         }
     },
 
     checkUser: async (req, res, next) => {
-        try {
-            let token = req.cookies.jwt;
+        const token = getTokenFromRequest(req);
 
-            // Also check Authorization header
-            const authHeader = req.headers.authorization;
-            if (!token && authHeader && authHeader.startsWith("Bearer ")) {
-                token = authHeader.split(" ")[1];
-            }
+        if (token) {
+            try {
+                const decodedToken = await jwt.verify(token, process.env.JWT_SECRET);
+                const user = await User.findById(decodedToken.id).lean();
 
-            if (token) {
-                const decoded = jwt.verify(token, process.env.JWT_SECRET);
-                const user = await User.findById(decoded.id);
                 if (user) {
                     req.user = user;
                     res.locals.user = user;
+                    res.locals.isAuthenticated = true;
+                } else {
+                    res.locals.user = null;
+                    res.locals.isAuthenticated = false;
                 }
+            } catch (err) {
+                res.locals.user = null;
+                res.locals.isAuthenticated = false;
             }
-            next();
-        } catch (error) {
-            console.error("CheckUser middleware error:", error);
+        } else {
             res.locals.user = null;
-            req.user = null;
-            next();
+            res.locals.isAuthenticated = false;
         }
+        next();
     },
 
     setCurrentUser: (req, res, next) => {
-        req.user = req.session.user;
+        res.locals.currentUser = req.user;
         next();
     },
 };

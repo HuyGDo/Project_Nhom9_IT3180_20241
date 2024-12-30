@@ -1,0 +1,224 @@
+.notification-page {
+    padding: 40px 0;
+    background-color: white;
+
+    &__header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 30px;
+    }
+
+    &__title {
+        h1 {
+            font-size: 2.8rem;
+            font-weight: 700;
+            color: #1a162e;
+            margin-bottom: 8px;
+        }
+    }
+
+    &__count {
+        font-size: 1.6rem;
+        color: #666;
+    }
+
+    &__content {
+        background-color: transparent;
+    }
+
+    &__empty {
+        text-align: center;
+        padding: 60px 20px;
+        background: white;
+        border-radius: 16px;
+        margin-top: 20px;
+
+        img {
+            width: 200px;
+            height: 200px;
+            margin-bottom: 24px;
+            opacity: 0.8;
+        }
+
+        h3 {
+            font-size: 2.4rem;
+            font-weight: 600;
+            color: #1a162e;
+            margin-bottom: 12px;
+        }
+
+        p {
+            font-size: 1.6rem;
+            color: #666;
+            max-width: 400px;
+            margin: 0 auto;
+        }
+    }
+}
+
+.notification-list {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 20px;
+}
+
+.notification-card {
+    background: white;
+    border-radius: 12px;
+    padding: 20px;
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    gap: 20px;
+    transition: all 0.3s ease;
+    border: 1px solid #eee;
+    margin: 0;
+
+    &:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+    }
+
+    &--unread {
+        background-color: #fff9e6;
+        border-color: #ffe69c;
+    }
+
+    &__left {
+        display: flex;
+        flex: 1;
+        min-width: 0;
+    }
+
+    &__user {
+        display: flex;
+        gap: 20px;
+        flex: 1;
+    }
+
+    &__avatar {
+        width: 60px;
+        height: 60px;
+        border-radius: 50%;
+        object-fit: cover;
+        border: 2px solid #ffb601;
+    }
+
+    &__details {
+        flex: 1;
+        min-width: 0;
+    }
+
+    &__message {
+        margin-bottom: 8px;
+        line-height: 1.4;
+        font-size: 1.4rem;
+        color: #666;
+    }
+
+    &__username {
+        font-size: 1.6rem;
+        font-weight: 600;
+        color: #1a162e;
+    }
+
+    &__content-title {
+        font-weight: 500;
+        color: #ffb601;
+    }
+
+    &__time {
+        font-size: 1.3rem;
+        color: #666;
+        display: block;
+    }
+
+    &__right {
+        display: flex;
+        flex-direction: column;
+        align-items: flex-end;
+        gap: 12px;
+    }
+
+    &__badge {
+        display: inline-block;
+        padding: 4px 12px;
+        border-radius: 20px;
+        font-size: 1.2rem;
+        font-weight: 500;
+        background-color: #ffb601;
+        color: white;
+    }
+
+    &__actions {
+        display: flex;
+        gap: 12px;
+        
+        .btn {
+            height: 36px;
+            min-width: 100px;
+            font-size: 1.4rem;
+            padding: 0 16px;
+            border-radius: 8px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.3s ease;
+            
+            &-primary {
+                background-color: #ffb601;
+                color: white;
+                border: none;
+                
+                &:hover {
+                    background-color: darken(#ffb601, 5%);
+                }
+            }
+            
+            &-secondary {
+                background-color: white;
+                color: #666;
+                border: 1px solid #eee;
+                
+                &:hover {
+                    background-color: #f5f5f5;
+                }
+            }
+        }
+    }
+}
+
+@media (max-width: 768px) {
+    .notification-page {
+        &__header {
+            flex-direction: column;
+            align-items: flex-start;
+            gap: 16px;
+        }
+    }
+
+    .notification-card {
+        flex-direction: column;
+        
+        &__right {
+            width: 100%;
+            flex-direction: row;
+            justify-content: space-between;
+            align-items: center;
+        }
+    }
+}
+
+:root {
+    --bg-light-blue: #f0f7ff;
+    --bg-light-blue-hover: #e5f1ff;
+    --bg-white: #ffffff;
+    --bg-light: #f8f9fa;
+    --border-color: #e9ecef;
+    --text-muted: #6c757d;
+    --primary: #0d6efd;
+    --primary-dark: #0b5ed7;
+    --gray: #6c757d;
+    --gray-dark: #5a6268;
+}

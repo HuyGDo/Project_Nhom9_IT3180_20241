@@ -1,9 +1,12 @@
 <div class="notification-dropdown">
     <div class="notification-dropdown__header">
         <h3 class="notification-dropdown__title">Notifications</h3>
-        {{#if notifications.length}}
-            <button class="notification-dropdown__mark-all" id="markAllAsRead">Mark all as read</button>
-        {{/if}}
+        <div class="notification-dropdown__actions">
+            {{#if notifications.length}}
+                <button class="notification-dropdown__mark-all" id="markAllAsRead">Mark all as read</button>
+            {{/if}}
+            <a href="/notifications" class="notification-dropdown__view-all">View All</a>
+        </div>
     </div>
     
     <div class="notification-dropdown__list">

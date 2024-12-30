@@ -7,9 +7,16 @@ const notificationService = require("../services/notificationService");
 // [GET] /users/:id
 module.exports.viewProfile = async (req, res) => {
     try {
+        console.log("Finding user with ID:", req.params.id);
+
         const profileUser = await User.findById(req.params.id)
             .populate({
                 path: "recipes",
+                select: "title image description votes views createdAt slug",
+                options: { sort: { createdAt: -1 } },
+            })
+            .populate({
+                path: "blogs",
                 select: "title image description votes views createdAt slug",
                 options: { sort: { createdAt: -1 } },
             })
@@ -19,12 +26,20 @@ module.exports.viewProfile = async (req, res) => {
             return res.status(404).render("default/404");
         }
 
+        // Debug logs
+        console.log("Profile User Data:", {
+            id: profileUser._id,
+            name: `${profileUser.first_name} ${profileUser.last_name}`,
+            recipesCount: profileUser.recipes?.length || 0,
+            blogsCount: profileUser.blogs?.length || 0,
+        });
+
         const isOwnProfile = req.user && req.user._id.toString() === profileUser._id.toString();
         const isFollowing = req.user ? req.user.following.includes(profileUser._id) : false;
 
         res.render("users/profile", {
             layout: "default",
-            title: `${profileUser.first_name}'s Profile`,
+            title: `${profileUser.first_name} ${profileUser.last_name}'s Profile`,
             profileUser,
             isOwnProfile,
             isFollowing,
@@ -42,6 +57,11 @@ module.exports.showUserInfo = async (req, res) => {
         const profileUser = await User.findById(req.user._id)
             .populate({
                 path: "recipes",
+                select: "title image description votes views createdAt slug",
+                options: { sort: { createdAt: -1 } },
+            })
+            .populate({
+                path: "blogs",
                 select: "title image description votes views createdAt slug",
                 options: { sort: { createdAt: -1 } },
             })
