@@ -16,6 +16,18 @@ const commentSchema = new mongoose.Schema({
         type: Date,
         default: Date.now,
     },
+    updatedAt: {
+        type: Date,
+        default: Date.now,
+    }
+});
+
+// Add pre-save middleware to update the updated_at timestamp
+commentSchema.pre('save', function(next) {
+    if (this.isModified('content')) {
+        this.updatedAt = Date.now();
+    }
+    next();
 });
 
 // Define the recipe schema

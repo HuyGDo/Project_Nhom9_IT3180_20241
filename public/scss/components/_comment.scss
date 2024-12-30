@@ -1,0 +1,218 @@
+.comment {
+    padding: 20px;
+    border-bottom: 1px solid var(--border-color);
+    transition: background-color 0.3s;
+
+    &:hover {
+        background-color: var(--background-secondary);
+    }
+
+    &__header {
+        display: flex;
+        justify-content: space-between;
+        align-items: flex-start;
+        margin-bottom: 12px;
+    }
+
+    &__user {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+    }
+
+    &__avatar {
+        width: 40px;
+        height: 40px;
+        border-radius: 50%;
+        object-fit: cover;
+    }
+
+    &__user-info {
+        display: flex;
+        flex-direction: column;
+    }
+
+    &__username {
+        font-weight: 600;
+        color: var(--text-color);
+        text-decoration: none;
+        font-size: 1.4rem;
+
+        &:hover {
+            color: var(--color-primary);
+        }
+    }
+
+    &__date {
+        font-size: 1.2rem;
+        color: var(--text-muted);
+    }
+
+    &__actions {
+        display: flex;
+        gap: 8px;
+    }
+
+    &__action-btn {
+        background: none;
+        border: none;
+        padding: 4px 8px;
+        cursor: pointer;
+        color: var(--text-muted);
+        font-size: 1.4rem;
+        border-radius: 4px;
+        transition: all 0.2s;
+
+        &:hover {
+            background-color: var(--background-tertiary);
+            
+            &.edit-comment {
+                color: var(--color-primary);
+            }
+
+            &.delete-comment {
+                color: #dc3545;
+            }
+        }
+    }
+
+    &__content {
+        position: relative;
+    }
+
+    &__text {
+        font-size: 1.4rem;
+        line-height: 1.6;
+        color: var(--text-color);
+        margin: 0;
+        white-space: pre-wrap;
+    }
+
+    &__edit-form {
+        margin-top: 12px;
+    }
+
+    &__edit-input {
+        width: 100%;
+        min-height: 80px;
+        padding: 12px;
+        border: 1px solid var(--border-color);
+        border-radius: 8px;
+        font-size: 1.4rem;
+        resize: vertical;
+        margin-bottom: 12px;
+        transition: all 0.3s;
+
+        &:focus {
+            border-color: var(--color-primary);
+            outline: none;
+            box-shadow: 0 0 0 2px rgba(var(--color-primary-rgb), 0.1);
+        }
+    }
+
+    &__edit-actions {
+        display: flex;
+        justify-content: flex-end;
+        gap: 8px;
+    }
+}
+
+// Recipe Detail Comments Section
+.recipe-detail {
+    &__comments {
+        margin-top: 48px;
+        padding-top: 32px;
+        border-top: 1px solid var(--border-color);
+    }
+
+    &__section-title {
+        font-size: 2.4rem;
+        font-weight: 600;
+        margin-bottom: 24px;
+        color: var(--text-color);
+    }
+}
+
+.comment-form {
+    margin-bottom: 32px;
+
+    &__group {
+        margin-bottom: 16px;
+    }
+
+    &__input {
+        width: 100%;
+        min-height: 100px;
+        padding: 16px;
+        border: 1px solid var(--border-color);
+        border-radius: 8px;
+        font-size: 1.4rem;
+        resize: vertical;
+        transition: all 0.3s;
+
+        &:focus {
+            border-color: var(--color-primary);
+            outline: none;
+            box-shadow: 0 0 0 2px rgba(var(--color-primary-rgb), 0.1);
+        }
+    }
+
+    &__login-prompt {
+        background: var(--background-secondary);
+        padding: 24px;
+        border-radius: 8px;
+        text-align: center;
+        margin-bottom: 32px;
+
+        p {
+            font-size: 1.4rem;
+            color: var(--text-muted);
+            margin: 0;
+
+            a {
+                color: var(--color-primary);
+                text-decoration: none;
+                font-weight: 500;
+
+                &:hover {
+                    text-decoration: underline;
+                }
+            }
+        }
+    }
+}
+
+.comments-list {
+    &__empty {
+        text-align: center;
+        padding: 32px;
+        color: var(--text-muted);
+        font-size: 1.4rem;
+        background: var(--background-secondary);
+        border-radius: 8px;
+    }
+}
+
+// Responsive styles
+@media (max-width: 768px) {
+    .comment {
+        padding: 16px;
+
+        &__header {
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        &__actions {
+            align-self: flex-end;
+        }
+
+        &__edit-actions {
+            flex-direction: column;
+            
+            .btn {
+                width: 100%;
+            }
+        }
+    }
+} 

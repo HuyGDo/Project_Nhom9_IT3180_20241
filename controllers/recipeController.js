@@ -33,9 +33,11 @@ module.exports.showRecipes = async (req, res) => {
 module.exports.showRecipeDetail = async (req, res) => {
     try {
         const recipe = await Recipe.findOne({ slug: req.params.slug })
-            .populate("author", "username first_name last_name profile_picture")
-            .populate("comments.user_id", "username first_name last_name profile_picture")
-            .lean();
+            .populate('author')
+            .populate({
+                path: 'comments.user_id',
+                select: 'username first_name last_name profile_picture'
+            }).lean();
 
         if (!recipe) {
             return res.render("default/404");
@@ -255,40 +257,6 @@ module.exports.likeRecipe = async (req, res) => {
     }
 };
 
-// [POST] /recipes/:slug/comment
-module.exports.addComment = async (req, res) => {
-    try {
-        const recipe = await Recipe.findOne({ slug: req.params.slug });
-        if (!recipe) {
-            req.flash("error", "Recipe not found");
-            return res.redirect("/recipes");
-        }
-
-        // Add the comment
-        if (!recipe.comments) {
-            recipe.comments = [];
-        }
-
-        recipe.comments.push({
-            user_id: req.user._id,
-            content: req.body.content,
-        });
-
-        await recipe.save();
-
-        // Create notification if commenter is not the author
-        if (req.user._id.toString() !== recipe.author.toString()) {
-            await notificationService.createCommentNotification(req.user, recipe, "Recipe");
-        }
-
-        res.redirect("back");
-    } catch (error) {
-        console.error("Comment error:", error);
-        // Redirect back with error message
-        req.flash("error", "Error adding comment");
-        return res.redirect(`/recipes/${req.params.slug}`);
-    }
-};
 // [POST] /recipes/:slug/vote
 module.exports.handleVote = async (req, res) => {
     try {

@@ -28,8 +28,11 @@ module.exports.showBlogs = async (req, res) => {
 module.exports.showBlogDetail = async (req, res) => {
     try {
         const blog = await Blog.findOne({ slug: req.params.slug })
-            .populate("author", "username first_name last_name profile_picture")
-            .populate("comments.user_id", "username first_name last_name profile_picture")
+            .populate('author')
+            .populate({
+                path: 'comments.user_id',
+                select: 'username first_name last_name profile_picture'
+            })
             .lean();
 
         if (!blog) {
@@ -39,7 +42,7 @@ module.exports.showBlogDetail = async (req, res) => {
         // Add userVoted info if user is logged in
         if (req.user) {
             const userVote = blog.userVotes.find(
-                (vote) => vote.user.toString() === req.user._id.toString(),
+                (vote) => vote.user.toString() === req.user._id.toString()
             );
             blog.userVoted = {
                 up: userVote?.voteType === "up",
@@ -60,6 +63,10 @@ module.exports.showBlogDetail = async (req, res) => {
             isAuthenticated: !!req.user,
             isFollowing,
             user: req.user,
+            messages: {
+                success: req.flash("success"),
+                error: req.flash("error"),
+            },
         });
     } catch (error) {
         console.error(error);

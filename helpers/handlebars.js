@@ -62,4 +62,8 @@ module.exports = {
                 return "#";
         }
     },
+    isCommentOwner: function(commentUserId, options) {
+        const userId = options.data.root.user?._id;
+        return userId && commentUserId && userId.toString() === commentUserId.toString();
+    }
 };

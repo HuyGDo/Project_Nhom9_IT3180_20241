@@ -99,53 +99,39 @@
                     </div>
 
                     {{!-- Comments Section --}}
-                    <div class="content-detail__comments" id="comments">
-                        <h2 class="content-detail__section-title">
-                            Comments ({{ blog.comments.length }})
-                        </h2>
-
+                    <section class="content-detail__comments">
+                        <h2 class="content-detail__section-title">Comments ({{blog.comments.length}})</h2>
+                        
+                        {{!-- Comment Form --}}
                         {{#if user}}
-                        <form
-                            action="/blogs/{{ blog.slug }}/comment"
-                            method="POST"
-                            class="content-detail__comment-form"
-                        >
-                            <textarea
-                                name="content"
-                                placeholder="Write a comment..."
-                                required
-                            ></textarea>
+                        <form action="/blogs/{{blog.slug}}/comment" method="POST" class="content-detail__comment-form">
+                            <div class="comment-form__group">
+                                <textarea 
+                                    name="content" 
+                                    class="comment-form__input" 
+                                    placeholder="Write your comment..."
+                                    required
+                                ></textarea>
+                            </div>
                             <button type="submit" class="btn btn--primary">Post Comment</button>
                         </form>
                         {{else}}
-                        <div class="content-detail__comment-login">
-                            <p>Please <a href="/sign-in">sign in</a> to leave a comment.</p>
+                        <div class="comment-form__login-prompt">
+                            <p>Please <a href="/auth/signin">sign in</a> to leave a comment.</p>
                         </div>
                         {{/if}}
 
-                        <div class="content-detail__comments-list">
-                            {{#each blog.comments}}
-                            <div class="content-detail__comment">
-                                <div class="content-detail__comment-author">
-                                    <img
-                                        src="{{#if this.user_id.profile_picture}}{{
-                                            this.user_id.profile_picture
-                                        }}{{else}}/assets/img/avatar.jpg{{/if}}"
-                                        alt="{{ this.user_id.username }}"
-                                    />
-                                    <div>
-                                        <h4>
-                                            {{ this.user_id.first_name }}
-                                            {{ this.user_id.last_name }}
-                                        </h4>
-                                        <span>{{ formatDate this.createdAt }}</span>
-                                    </div>
-                                </div>
-                                <p class="content-detail__comment-content">{{ this.content }}</p>
-                            </div>
-                            {{/each}}
+                        {{!-- Comments List --}}
+                        <div class="comments-list">
+                            {{#if blog.comments.length}}
+                                {{#each blog.comments}}
+                                    {{> comment comment=this user=../user}}
+                                {{/each}}
+                            {{else}}
+                                <p class="comments-list__empty">No comments yet. Be the first to comment!</p>
+                            {{/if}}
                         </div>
-                    </div>
+                    </section>
                 </div>
 
                 {{!-- Sidebar --}}
@@ -265,3 +251,5 @@
         }
     }
 </script>
+
+<script src="/js/comment.js"></script>

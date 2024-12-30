@@ -1,0 +1,39 @@
+<div class="comment" data-comment-id="{{comment._id}}">
+    <div class="comment__header">
+        <div class="comment__user">
+            <img src="{{comment.user_id.profile_picture}}" alt="{{comment.user_id.username}}" class="comment__avatar">
+            <div class="comment__user-info">
+                <a href="/users/{{comment.user_id._id}}" class="comment__username">{{comment.user_id.first_name}} {{comment.user_id.last_name }}</a>
+                <span class="comment__date">
+                    {{#if comment.updatedAt}}
+                        Updated {{formatDate comment.updatedAt}}
+                    {{else}}
+                        {{formatDate comment.createdAt}}
+                    {{/if}}
+                </span>
+            </div>
+        </div>
+        {{#if (isCommentOwner comment.user_id._id)}}
+        <div class="comment__actions">
+            <button class="comment__action-btn edit-comment" title="Edit">
+                <i class="fas fa-edit"></i>
+            </button>
+            <button class="comment__action-btn delete-comment" title="Delete">
+                <i class="fas fa-trash-alt"></i>
+            </button>
+        </div>
+        {{/if}}
+    </div>
+    <div class="comment__content">
+        <p class="comment__text">{{comment.content}}</p>
+        {{#if (isCommentOwner comment.user_id._id)}}
+        <form class="comment__edit-form" style="display: none;">
+            <textarea class="comment__edit-input">{{comment.content}}</textarea>
+            <div class="comment__edit-actions">
+                <button type="submit" class="btn btn--primary btn--sm">Save</button>
+                <button type="button" class="btn btn--outline btn--sm cancel-edit">Cancel</button>
+            </div>
+        </form>
+        {{/if}}
+    </div>
+</div> 
