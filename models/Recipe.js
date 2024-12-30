@@ -53,6 +53,11 @@ const recipeSchema = new mongoose.Schema(
             required: [true, "Number of servings is required"],
             min: [1, "Number of servings must be at least 1"],
         },
+        difficulty: {
+            type: String,
+            enum: ["easy", "medium", "hard"],
+            required: true,
+        },
         ingredients: [
             {
                 _id: false,

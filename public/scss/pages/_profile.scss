@@ -1,31 +1,29 @@
 .profile {
-    padding: 60px 0;
+    padding: 40px 0;
     background-color: #fafafa;
 
-    &__container {
-        max-width: 1000px;
-        margin: 0 auto;
-    }
-
     &__header {
-        display: flex;
-        align-items: center;
-        gap: 30px;
-        margin-bottom: 30px;
-        padding: 24px;
         background: white;
-        border-radius: 16px;
-        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+        border-radius: 24px;
+        padding: 40px;
+        margin-bottom: 30px;
+        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+        display: flex;
+        gap: 40px;
     }
 
     &__avatar {
         flex-shrink: 0;
+        width: 200px;
+        height: 200px;
+        border-radius: 50%;
+        overflow: hidden;
+        border: 4px solid #ffb601;
+
         img {
-            width: 90px;
-            height: 90px;
-            border-radius: 50%;
+            width: 100%;
+            height: 100%;
             object-fit: cover;
-            border: 2px solid #ffb601;
         }
     }
 
@@ -34,231 +32,246 @@
     }
 
     &__name {
-        font-size: 2.4rem;
+        font-size: 3.2rem;
         font-weight: 700;
         color: #1a162e;
-        margin-bottom: 6px;
+        margin-bottom: 8px;
     }
 
     &__username {
-        font-size: 1.5rem;
+        font-size: 1.6rem;
         color: #666;
-        margin-bottom: 14px;
+        margin-bottom: 16px;
     }
 
-    &__follow-btn {
-        min-width: 110px;
-        height: 36px;
-        padding: 0 20px;
-        font-size: 1.4rem;
+    &__bio {
+        font-size: 1.6rem;
+        line-height: 1.6;
+        color: #333;
+        margin-bottom: 24px;
     }
 
     &__stats {
-        display: grid;
-        grid-template-columns: repeat(3, 1fr);
-        gap: 20px;
-        margin-bottom: 30px;
-        padding: 0;
-        background: transparent;
-        box-shadow: none;
+        display: flex;
+        gap: 40px;
+        margin-bottom: 24px;
     }
 
     &__stat-item {
-        display: flex;
-        flex-direction: column;
-        align-items: center;
-        gap: 4px;
-        padding: 20px;
-        background: white;
-        border-radius: 16px;
-        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
-        transition: transform 0.2s;
+        text-align: center;
+        text-decoration: none;
+        color: inherit;
 
         &:hover {
-            transform: translateY(-2px);
+            .profile__stat-value {
+                color: #ffb601;
+            }
         }
     }
 
     &__stat-value {
-        font-size: 2.2rem;
+        display: block;
+        font-size: 2.4rem;
         font-weight: 700;
         color: #1a162e;
+        transition: color 0.3s;
     }
 
     &__stat-label {
-        font-size: 1.3rem;
+        font-size: 1.4rem;
         color: #666;
-    }
-
-    &__content {
-        display: grid;
-        grid-template-columns: 7fr 3fr;
-        gap: 20px;
-    }
-
-    &__main {
-        display: flex;
-        flex-direction: column;
-        gap: 20px;
-        background: white;
-        border-radius: 16px;
-        padding: 24px;
-        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
-    }
-
-    &__sidebar {
-        background: white;
-        border-radius: 16px;
-        padding: 24px;
-        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
-    }
-
-    &__section {
-        display: flex;
-        flex-direction: column;
-        gap: 16px;
-        margin-bottom: 40px;
-        padding-bottom: 40px;
-        border-bottom: 1px solid #eee;
-
-        &:last-child {
-            margin-bottom: 0;
-            padding-bottom: 0;
-            border-bottom: none;
-        }
-
-        &-title {
-            font-size: 1.8rem;
-            font-weight: 600;
-            color: #1a162e;
-            margin-bottom: 20px;
-            padding-bottom: 16px;
-            border-bottom: 1px solid #eee;
-        }
-
-        &-link {
-            display: flex;
-            align-items: center;
-            justify-content: center;
-        }
-    }
-
-    &__recipes,
-    &__blogs {
-        display: grid;
-        grid-template-columns: repeat(2, 1fr);
-        gap: 20px;
-        margin-bottom: 20px;
-    }
-
-    &__empty {
-        text-align: center;
-        padding: 30px;
-        background: #f8f8f8;
-        border-radius: 12px;
-        margin: 20px 0;
-
-        p {
-            color: #666;
-            font-size: 1.6rem;
-            margin-bottom: 15px;
-        }
-    }
-
-    &__see-all {
-        width: 100%;
-        text-align: center;
     }
 
     &__actions {
         display: flex;
-        gap: 12px;
-        margin-top: 16px;
+        flex-direction: column;
+        gap: 20px;
+
+        &-main {
+            display: flex;
+            gap: 16px;
+            flex-wrap: wrap;
+        }
+
+        &-secondary {
+            display: flex;
+            gap: 16px;
+            padding-top: 16px;
+            border-top: 1px solid #eee;
+        }
 
         .btn {
-            min-width: 100px;
-            height: 36px;
-            padding: 0 16px;
-            font-size: 1.4rem;
+            height: 48px;
+            padding: 0 24px;
+
+            &--danger {
+                background: #dc3545;
+                color: white;
+                border: none;
+
+                &:hover {
+                    background: darken(#dc3545, 5%);
+                    transform: translateY(-2px);
+                    box-shadow: 0 4px 8px rgba(220, 53, 69, 0.2);
+                }
+            }
+        }
+    }
+
+    &__tabs {
+        display: flex;
+        gap: 16px;
+        margin-bottom: 30px;
+        border-bottom: 2px solid #eee;
+        padding: 0 20px;
+    }
+
+    &__tab {
+        padding: 16px 24px;
+        font-size: 1.6rem;
+        font-weight: 500;
+        color: #666;
+        background: none;
+        border: none;
+        border-bottom: 2px solid transparent;
+        margin-bottom: -2px;
+        cursor: pointer;
+        transition: all 0.3s;
+
+        &:hover {
+            color: #ffb601;
+        }
+
+        &.active {
+            color: #ffb601;
+            border-bottom-color: #ffb601;
+        }
+    }
+
+    &__tab-content {
+        display: none;
+
+        &.active {
+            display: block;
+        }
+    }
+
+    &__grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(400px, 1fr));
+        gap: 24px;
+    }
+
+    &__empty {
+        text-align: center;
+        padding: 60px 20px;
+        background: white;
+        border-radius: 16px;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+
+        img {
+            width: 150px;
+            height: 150px;
+            margin-bottom: 24px;
+            opacity: 0.8;
+        }
+
+        h3 {
+            font-size: 2rem;
+            font-weight: 600;
+            color: #1a162e;
+            margin-bottom: 16px;
+        }
+    }
+
+    &__about {
+        background: white;
+        border-radius: 16px;
+        padding: 30px;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+    }
+
+    &__about-section {
+        h3 {
+            font-size: 2rem;
+            font-weight: 600;
+            color: #1a162e;
+            margin-bottom: 20px;
         }
     }
 
     &__info-list {
-        display: flex;
-        flex-direction: column;
+        display: grid;
         gap: 16px;
     }
 
     &__info-item {
         display: flex;
-        flex-direction: column;
-        gap: 4px;
+        align-items: center;
+        gap: 16px;
+        padding: 16px;
+        background: #f8f9fa;
+        border-radius: 12px;
     }
 
     &__info-label {
-        font-size: 1.2rem;
+        font-size: 1.4rem;
         color: #666;
+        min-width: 120px;
     }
 
     &__info-value {
-        font-size: 1.4rem;
+        font-size: 1.5rem;
         color: #1a162e;
-    }
-
-    .recipe-card {
-        &__actions {
-            display: flex;
-            gap: 10px;
-            margin-top: 16px;
-        }
-
-        &__btn {
-            flex: 0 1 auto;
-            min-width: 80px;
-            height: 32px;
-            padding: 0 12px;
-            font-size: 1.3rem;
-        }
-    }
-
-    @media (max-width: 992px) {
-        &__content {
-            grid-template-columns: 1fr;
-        }
-
-        &__recipes {
-            grid-template-columns: 1fr;
-        }
     }
 
     @media (max-width: 768px) {
         &__header {
             flex-direction: column;
+            align-items: center;
             text-align: center;
-            gap: 16px;
+            padding: 30px 20px;
+        }
+
+        &__avatar {
+            width: 150px;
+            height: 150px;
         }
 
         &__stats {
-            grid-template-columns: 1fr;
+            justify-content: center;
+            flex-wrap: wrap;
+            gap: 20px;
         }
 
-        &__recipes,
-        &__blogs {
-            grid-template-columns: 1fr;
-        }
+        &__actions {
+            width: 100%;
 
-        &__avatar img {
-            width: 80px;
-            height: 80px;
-        }
-
-        .recipe-card {
-            &__btn {
-                min-width: 70px;
-                height: 30px;
-                padding: 0 10px;
-                font-size: 1.2rem;
+            &-main,
+            &-secondary {
+                justify-content: center;
             }
+
+            .btn {
+                flex: 1;
+                min-width: 140px;
+                max-width: 200px;
+            }
+        }
+
+        &__tabs {
+            overflow-x: auto;
+            padding: 0;
+            gap: 0;
+
+            &::-webkit-scrollbar {
+                display: none;
+            }
+        }
+
+        &__tab {
+            padding: 12px 16px;
+            white-space: nowrap;
         }
     }
 }

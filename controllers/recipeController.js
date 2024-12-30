@@ -12,8 +12,6 @@ module.exports.showRecipes = async (req, res) => {
             .populate("author", "username first_name last_name profile_picture")
             .lean();
 
-        console.log("Recipes with populated authors:", recipes);
-
         res.render("recipes/recipe-browse", {
             layout: "default",
             title: "Browse Recipes",
@@ -127,6 +125,7 @@ module.exports.storeRecipe = async (req, res) => {
             servings: parseInt(req.body.servings),
             ingredients: ingredients,
             instructions: instructions,
+            difficulty: req.body.difficulty,
         };
 
         if (req.file) {
@@ -180,6 +179,7 @@ module.exports.updateRecipe = async (req, res) => {
             servings: req.body.servings,
             ingredients: [],
             instructions: [],
+            difficulty: req.body.difficulty,
         };
 
         // Handle ingredients

@@ -56,76 +56,9 @@
 
             {{!-- Recipes grid --}}
             <div class="col-lg-9">
-                <div class="row row-cols-3 gy-4">
+                <div class="row row-cols-2 gy-4">
                     {{#each recipes}}
-                    <div class="col">
-                        <div class="recipe-card">
-                            <div class="recipe-card__img-wrap">
-                                <a href="/recipes/{{ this.slug }}">
-                                    {{#if this.image}}
-                                    <img
-                                        src="{{ this.image }}"
-                                        class="recipe-card__thumb"
-                                        alt="{{ this.title }}"
-                                    />
-                                    {{else}}
-                                    <img
-                                        src="/assets/img/recipe-placeholder.jpg"
-                                        class="recipe-card__thumb"
-                                        alt="{{ this.title }}"
-                                    />
-                                    {{/if}}
-                                </a>
-                            </div>
-                            <div class="recipe-card__content">
-                                <h3 class="recipe-card__title">
-                                    <a href="/recipes/{{ this.slug }}">{{ this.title }}</a>
-                                </h3>
-
-                                <div class="recipe-card__meta">
-                                    <div class="recipe-card__stats">
-                                        <span class="recipe-card__stat">
-                                            <i class="fas fa-thumbs-up"></i>
-                                            {{ this.votes.upvotes }}
-                                        </span>
-                                        <span class="recipe-card__stat">
-                                            <i class="fas fa-eye"></i>
-                                            {{ this.views }}
-                                        </span>
-                                        <span class="recipe-card__stat">
-                                            <i class="fas fa-clock"></i>
-                                            {{formatDate this.createdAt}}
-                                        </span>
-                                    </div>
-                                </div>
-
-                                <p class="recipe-card__desc">{{ this.description }}</p>
-
-                                <div class="recipe-card__actions">
-                                    <a
-                                        href="/recipes/{{ this.slug }}"
-                                        class="btn btn--primary recipe-card__btn"
-                                    >
-                                        View
-                                    </a>
-                                    <a
-                                        href="/recipes/{{ this._id }}/edit"
-                                        class="btn btn--outline recipe-card__btn"
-                                    >
-                                        Edit
-                                    </a>
-                                    <button
-                                        class="btn btn--danger recipe-card__btn"
-                                        data-bs-toggle="modal"
-                                        data-bs-id="{{ this._id }}"
-                                        data-bs-target="#delete-recipe-modal"
-                                    >
-                                        Delete
-                                    </button>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
+                    {{> recipe-card-store}}
                     {{/each}}
                 </div>
             </div>

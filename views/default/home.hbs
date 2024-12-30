@@ -63,7 +63,7 @@
             <a href="./recipes">See more</a>
         </div>
         <div class="row row-cols-4 gy-3">
-            {{#each recipes}}
+            {{#each (limit recipes 4)}}
             <div class="col">
                 {{>recipe-card}}
             </div>

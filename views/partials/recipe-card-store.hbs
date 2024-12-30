@@ -47,12 +47,21 @@
                 <span class="recipe-card__tag recipe-card__tag--{{ this.difficulty }}">
                     {{ this.difficulty }}
                 </span>
-                <span class="recipe-card__tag"> {{ this.servings }} servings </span>
+                <span class="recipe-card__tag">{{ this.servings }} servings</span>
             </div>
             <div class="recipe-card__stats">
                 <span><i class="fas fa-thumbs-up"></i>{{ this.votes.upvotes }}</span>
                 <span><i class="fas fa-eye"></i>{{ this.views }}</span>
             </div>
+        </div>
+
+        <div class="content-card__actions">
+            <a href="/recipes/{{ this._id }}/edit" class="btn btn--outline btn--sm">
+                <i class="fas fa-edit"></i>Edit
+            </a>
+            <button class="btn btn--danger btn--sm" onclick="deleteRecipe('{{ this._id }}')">
+                <i class="fas fa-trash-alt"></i>Delete
+            </button>
         </div>
     </div>
 </div>

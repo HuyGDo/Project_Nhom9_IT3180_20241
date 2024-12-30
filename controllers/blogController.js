@@ -65,7 +65,7 @@ module.exports.showBlogDetail = async (req, res) => {
 
 // [GET] /blogs/create
 module.exports.createBlog = (req, res) => {
-    res.render("recipes/blog-edit", {
+    res.render("blogs/blog-create", {
         layout: "default",
         title: "Create Blog",
     });
@@ -94,7 +94,7 @@ module.exports.storeBlog = async (req, res) => {
         res.redirect(`/blogs/${blog.slug}`);
     } catch (error) {
         console.error(error);
-        res.render("recipes/blog-edit", {
+        res.render("blogs/blog-create", {
             layout: "default",
             title: "Create Blog",
             error: "Failed to create blog",
@@ -260,5 +260,21 @@ module.exports.updateBlog = async (req, res) => {
             message: "Error updating blog",
             error: error.message,
         });
+    }
+};
+
+// [GET] /users/me/stored/blogs
+module.exports.showStoredBlogs = async (req, res) => {
+    try {
+        const blogs = await Blog.find({ author: req.user._id }).sort({ createdAt: -1 }).lean();
+
+        res.render("blogs/blog-store", {
+            layout: "default",
+            title: "My Blogs",
+            blogs,
+        });
+    } catch (error) {
+        console.error(error);
+        res.status(500).send("Server Error");
     }
 };
