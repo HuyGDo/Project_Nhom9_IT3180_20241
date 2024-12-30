@@ -4,6 +4,7 @@ const path = require("path");
 const notificationService = require("../services/notificationService");
 // const recommendationService = require('../services/recommendationService');
 const { uploadRecipeImage } = require("../services/uploadService");
+const RecommendationService = require('../services/recommendationService');
 const fuzzball = require('fuzzball');
 
 // [GET] /recipes/
@@ -40,8 +41,11 @@ module.exports.showRecipeDetail = async (req, res) => {
             }).lean();
 
         if (!recipe) {
+            console.log('Recipe not found');
             return res.render("default/404");
         }
+
+        console.log('Found recipe:', recipe._id);
 
         // Add userVoted info if user is logged in
         if (req.user) {
@@ -54,11 +58,73 @@ module.exports.showRecipeDetail = async (req, res) => {
             };
         }
 
+
         // Increment view count
         await Recipe.findByIdAndUpdate(recipe._id, { $inc: { views: 1 } });
 
-        // Check if the logged-in user is following the recipe author
         const isFollowing = req.user ? req.user.following.includes(recipe.author._id) : false;
+
+        // Get recommendations
+        let recommendedRecipes = [];
+        try {
+            console.log('Getting recommendations for recipe:', recipe._id);
+            const recommendations = await RecommendationService.getRecommendations(recipe._id.toString());
+            console.log('Raw recommendations:', recommendations);
+
+            if (recommendations && recommendations.length > 0) {
+                // Get recipes from database using recommendation IDs
+                const recipeIds = recommendations.map(r => r.id);
+                console.log('Looking for recipes with IDs:', recipeIds);
+
+                const recipesFromDb = await Recipe.find({
+                    _id: { $in: recipeIds }
+                })
+                .select("title image description slug author votes views prepTime cookTime servings difficulty")
+                .populate("author", "username first_name last_name profile_picture")
+                .lean();
+
+                console.log('Found recipes from DB:', recipesFromDb.map(r => r.title));
+
+                // Create a map for quick recipe lookup
+                const recipeMap = new Map(
+                    recipesFromDb.map(recipe => [recipe._id.toString(), recipe])
+                );
+
+                // Map recommendations preserving order and scores
+                recommendedRecipes = recommendations
+                    .map(rec => {
+                        const recipe = recipeMap.get(rec.id);
+                        if (recipe) {
+                            console.log(`Processing recommendation: ${recipe.title} (score: ${rec.similarity_score})`);
+                            return {
+                                ...recipe,
+                                similarity_score: rec.similarity_score
+                            };
+                        }
+                        console.log(`Recipe not found for id: ${rec.id}`);
+                        return null;
+                    })
+                    .filter(Boolean);
+
+                console.log('Final recommendations:', 
+                    recommendedRecipes.map(r => `${r.title} (score: ${r.similarity_score})`));
+            }
+
+            if (recommendedRecipes.length === 0) {
+                // Get top 4 recipes by views/votes as fallback
+                recommendedRecipes = await Recipe.find({ _id: { $ne: recipe._id } })
+                    .sort({ views: -1 })
+                    .limit(4)
+                    .select("title image description slug author votes views prepTime cookTime servings difficulty")
+                    .populate("author", "username first_name last_name profile_picture")
+                    .lean();
+
+                console.log('Using fallback recommendations based on popularity');
+            }
+        } catch (error) {
+            console.error("Error getting recommendations:", error);
+            recommendedRecipes = [];
+        }
 
         res.render("recipes/recipe-detail", {
             layout: "default",
@@ -71,6 +137,7 @@ module.exports.showRecipeDetail = async (req, res) => {
                 success: req.flash("success"),
                 error: req.flash("error"),
             },
+            recommendations: recommendedRecipes
         });
     } catch (error) {
         console.error(error);

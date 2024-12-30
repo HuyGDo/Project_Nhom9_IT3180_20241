@@ -145,4 +145,6 @@ out
 
 .prettierrc
 
+public/css
+
 package-lock.json

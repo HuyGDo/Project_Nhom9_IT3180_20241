@@ -166,6 +166,18 @@
                         {{/if}}
                     </div>
                 </section>
+
+                {{!-- Recommendations Section --}}
+                {{#if recommendations.length}}
+                <div class="recommendations-section">
+                    <h2 class="recommendations-title">Similar Recipes</h2>
+                    <div class="recommendations-grid">
+                        {{#each recommendations}}
+                            {{> recipe-card this}}
+                        {{/each}}
+                    </div>
+                </div>
+                {{/if}}
             </div>
 
             {{!-- Sidebar --}}
