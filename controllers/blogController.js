@@ -103,7 +103,7 @@ module.exports.storeBlog = async (req, res) => {
     }
 };
 
-// [POST] /blogs/:id/vote
+// [POST] /blogs/:slug/vote
 module.exports.handleVote = async (req, res) => {
     try {
         const { id } = req.params;
@@ -161,7 +161,7 @@ module.exports.handleVote = async (req, res) => {
     }
 };
 
-// [POST] /blogs/:id/comment
+// [POST] /blogs/:slug/comment
 module.exports.addComment = async (req, res) => {
     try {
         const blog = await Blog.findById(req.params.id);
@@ -199,7 +199,7 @@ module.exports.addComment = async (req, res) => {
     }
 };
 
-// [GET] /blogs/:id/edit
+// [GET] /blogs/:slug/edit
 module.exports.editBlog = async (req, res) => {
     try {
         const blog = await Blog.findById(req.params.id).lean();
@@ -224,7 +224,7 @@ module.exports.editBlog = async (req, res) => {
     }
 };
 
-// [PUT] /blogs/:id
+// [PUT] /blogs/:slug
 module.exports.updateBlog = async (req, res) => {
     try {
         const blogData = {

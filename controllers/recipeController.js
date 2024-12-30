@@ -29,9 +29,9 @@ module.exports.showRecipes = async (req, res) => {
 // [GET] /recipes/:slug
 module.exports.showRecipeDetail = async (req, res) => {
     try {
-        // First find the recipe
         const recipe = await Recipe.findOne({ slug: req.params.slug })
             .populate("author", "username first_name last_name profile_picture")
+            .populate("comments.user_id", "username first_name last_name profile_picture")
             .lean();
 
         if (!recipe) {
@@ -49,45 +49,26 @@ module.exports.showRecipeDetail = async (req, res) => {
             };
         }
 
-        // Increment view count in a separate query
+        // Increment view count
         await Recipe.findByIdAndUpdate(recipe._id, { $inc: { views: 1 } });
 
-        // Get recommendations
-        let recommendedRecipes = [];
-        try {
-            const recommendations = await recommendationService.getRecommendations(recipe._id);
-            if (recommendations && recommendations.length > 0) {
-                recommendedRecipes = await Recipe.find({
-                    _id: { $in: recommendations },
-                })
-                    .select("title image votes slug")
-                    .lean();
-            } else {
-                recommendedRecipes = await Recipe.find({
-                    _id: { $ne: recipe._id },
-                })
-                    .select("title image votes slug")
-                    .limit(5)
-                    .lean();
-            }
-        } catch (error) {
-            console.log("Error getting recommendations:", error.message);
-            recommendedRecipes = await Recipe.find({
-                _id: { $ne: recipe._id },
-            })
-                .select("title image votes slug")
-                .limit(5)
-                .lean();
-        }
+        // Check if the logged-in user is following the recipe author
+        const isFollowing = req.user ? req.user.following.includes(recipe.author._id) : false;
 
         res.render("recipes/recipe-detail", {
             layout: "default",
             title: recipe.title,
             recipe,
-            recommendations: recommendedRecipes,
+            isAuthenticated: !!req.user,
+            isFollowing,
+            user: req.user,
+            messages: {
+                success: req.flash("success"),
+                error: req.flash("error"),
+            },
         });
-    } catch (err) {
-        console.error("Error in showRecipeDetail:", err);
+    } catch (error) {
+        console.error(error);
         res.render("default/404");
     }
 };
@@ -153,7 +134,7 @@ module.exports.storeRecipe = async (req, res) => {
     }
 };
 
-// [GET] /recipes/:id/edit
+// [GET] /recipes/:slug/edit
 module.exports.editRecipe = (req, res, next) => {
     Recipe.findById(req.params.id)
         .lean()
@@ -167,7 +148,7 @@ module.exports.editRecipe = (req, res, next) => {
         .catch(next);
 };
 
-// [PUT] /recipes/:id
+// [PUT] /recipes/:slug
 module.exports.updateRecipe = async (req, res) => {
     try {
         const recipeId = req.params.id;
@@ -233,7 +214,7 @@ module.exports.updateRecipe = async (req, res) => {
     }
 };
 
-// [DELETE] /recipes/:id
+// [DELETE] /recipes/:slug
 module.exports.deleteRecipe = (req, res, next) => {
     Recipe.deleteOne({ _id: req.params.id })
         .then(() => res.redirect("back"))
@@ -267,38 +248,49 @@ module.exports.likeRecipe = async (req, res) => {
     }
 };
 
-// Add comment functionality
+// [POST] /recipes/:slug/comment
 module.exports.addComment = async (req, res) => {
     try {
-        const recipe = await Recipe.findById(req.params.id);
-        const comment = {
+        const recipe = await Recipe.findOne({ slug: req.params.slug });
+        if (!recipe) {
+            req.flash("error", "Recipe not found");
+            return res.redirect("/recipes");
+        }
+
+        // Add the comment
+        if (!recipe.comments) {
+            recipe.comments = [];
+        }
+
+        recipe.comments.push({
             user_id: req.user._id,
-            comments: req.body.comment,
-            rating: req.body.rating,
-        };
-
-        await Recipe.findByIdAndUpdate(req.params.id, {
-            $push: { reviews: comment },
+            content: req.body.content,
         });
 
-        // Create notification directly
-        await notificationService.createNotification({
-            type: "comment",
-            payload: {
-                contentAuthorId: recipe.author,
-                interactingUser: req.user,
-                contentId: recipe._id,
-                contentType: "Recipe",
-            },
-        });
+        await recipe.save();
 
-        res.redirect("back");
+        // Create notification for recipe author if commenter is not the author
+        if (req.user._id.toString() !== recipe.author.toString()) {
+            await notificationService.createNotification({
+                type: "comment",
+                recipient: recipe.author,
+                sender: req.user._id,
+                recipe: recipe._id,
+                message: "commented on your recipe",
+            });
+        }
+
+        // Redirect back to recipe with success message
+        req.flash("success", "Comment added successfully!");
+        return res.redirect(`/recipes/${recipe.slug}#comments`);
     } catch (error) {
-        console.error("Error adding comment:", error);
-        res.status(500).send("Failed to add comment");
+        console.error("Comment error:", error);
+        // Redirect back with error message
+        req.flash("error", "Error adding comment");
+        return res.redirect(`/recipes/${req.params.slug}`);
     }
 };
-// [POST] /recipes/:id/vote
+// [POST] /recipes/:slug/vote
 module.exports.handleVote = async (req, res) => {
     try {
         const { id } = req.params;
@@ -352,7 +344,7 @@ module.exports.handleVote = async (req, res) => {
     }
 };
 
-// [GET] /recipes/test-recommendations/:id
+// [GET] /recipes/test-recommendations/:slug
 module.exports.testRecommendations = async (req, res) => {
     try {
         const recommendations = await recommendationService.getRecommendations(req.params.id);

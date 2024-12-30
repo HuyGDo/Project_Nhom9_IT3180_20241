@@ -2,19 +2,15 @@ const mongoose = require("mongoose");
 const slug = require("mongoose-slug-updater");
 mongoose.plugin(slug);
 
-// Define the review schema (embedded)
-const reviewSchema = new mongoose.Schema({
+const commentSchema = new mongoose.Schema({
     user_id: {
-        type: mongoose.Schema.Types.ObjectId, // Reference to the user who wrote the review
-        ref: "User", // Assuming there is a User model for user accounts
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "User",
+        required: true,
     },
-    comments: {
+    content: {
         type: String,
-    },
-    rating: {
-        type: Number,
-        min: 1,
-        max: 5,
+        required: true,
     },
     createdAt: {
         type: Date,
@@ -83,7 +79,6 @@ const recipeSchema = new mongoose.Schema(
         image: {
             type: String, // Store URL or path to the image
         },
-        reviews: [reviewSchema], // Embed reviews directly into the recipe
         created_at: {
             type: Date,
             default: Date.now,
@@ -111,6 +106,7 @@ const recipeSchema = new mongoose.Schema(
             },
         ],
         slug: { type: String, slug: "title", unique: true },
+        comments: [commentSchema],
     },
     {
         timestamps: true,

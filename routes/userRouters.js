@@ -9,7 +9,7 @@ const auth = require("../middleware/authMiddleware");
 const { uploadAvatar } = require("../services/uploadService");
 
 // Me routes (profile routes)
-router.get("/me", auth.requireAuth, auth.checkUser, userController.showUserInfo);
+router.get("/me", auth.requireAuth, auth.checkUser, userController.viewProfile);
 router.get("/me/stored/recipes", auth.requireAuth, recipeController.showStoredRecipes);
 router.get("/me/stored/blogs", auth.requireAuth, blogController.showStoredBlogs);
 router.get("/me/following", auth.requireAuth, userController.getFollowing);
