@@ -251,7 +251,7 @@
         }
 
         try {
-            const response = await fetch(`/recipes/{{ recipe._id }}/vote`, {
+            const response = await fetch(`/recipes/{{ recipe.slug }}/vote`, {
                 method: "POST",
                 headers: {
                     "Content-Type": "application/json",
