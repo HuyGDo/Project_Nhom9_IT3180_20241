@@ -1,0 +1,255 @@
+<script>
+    window.isAuthenticated = {{#if user}}true{{else}}false{{/if}};
+</script>
+
+<div class="blog">
+    <main class="content-detail">
+        <div class="container">
+            <div class="row">
+                <div class="col-lg-8">
+                    {{!-- Blog Header --}}
+                    <div class="content-detail__header">
+                        <h1 class="content-detail__heading">{{ blog.title }}</h1>
+                        <div class="content-detail__meta">
+                            <a href="/users/{{ blog.author._id }}" class="content-detail__author">
+                                <img
+                                    src="{{#if blog.author.profile_picture}}{{
+                                        blog.author.profile_picture
+                                    }}{{else}}/assets/img/avatar.jpg{{/if}}"
+                                    alt="{{ blog.author.username }}"
+                                    class="content-detail__author-img"
+                                />
+                                <span
+                                    >By {{ blog.author.first_name }}
+                                    {{ blog.author.last_name }}</span
+                                >
+                            </a>
+                            <div class="content-detail__stats">
+                                <span
+                                    class="content-detail__date"
+                                    >{{ formatDate blog.createdAt }}</span
+                                >
+                                <span class="content-detail__views">{{ blog.views }} views</span>
+                                <span class="content-detail__read-time"
+                                    >{{ blog.readTime }} min read</span
+                                >
+                            </div>
+                        </div>
+                    </div>
+
+                    {{!-- Blog Image --}}
+                    <div class="content-detail__image-wrapper">
+                        {{#if blog.image}}
+                        <img
+                            src="{{ blog.image }}"
+                            alt="{{ blog.title }}"
+                            class="content-detail__image"
+                        />
+                        {{else}}
+                        <img
+                            src="/assets/img/blog-placeholder.jpg"
+                            alt="{{ blog.title }}"
+                            class="content-detail__image"
+                        />
+                        {{/if}}
+                    </div>
+
+                    {{!-- Blog Info --}}
+                    <div class="content-detail__info">
+                        <div class="content-detail__info-item">
+                            <i class="fas fa-book"></i>
+                            <div>
+                                <h4>Category</h4>
+                                <p>{{ blog.category }}</p>
+                            </div>
+                        </div>
+                        <div class="content-detail__info-item">
+                            <i class="fas fa-clock"></i>
+                            <div>
+                                <h4>Read Time</h4>
+                                <p>{{ blog.readTime }} mins</p>
+                            </div>
+                        </div>
+                        <div class="content-detail__info-item">
+                            <i class="fas fa-eye"></i>
+                            <div>
+                                <h4>Views</h4>
+                                <p>{{ blog.views }}</p>
+                            </div>
+                        </div>
+                        <div class="content-detail__info-item">
+                            <i class="fas fa-thumbs-up"></i>
+                            <div>
+                                <h4>Upvotes</h4>
+                                <p>{{ blog.votes.upvotes }}</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    {{!-- Blog Content --}}
+                    <div class="content-detail__section">
+                        <div class="content-detail__content">{{{ blog.content }}}</div>
+                    </div>
+
+                    {{!-- Tags --}}
+                    <div class="content-detail__tags">
+                        {{#each blog.tags}}
+                        <span class="content-detail__tag">{{ this }}</span>
+                        {{/each}}
+                    </div>
+
+                    {{!-- Comments Section --}}
+                    <section class="content-detail__comments">
+                        <h2 class="content-detail__section-title">Comments ({{blog.comments.length}})</h2>
+                        
+                        {{!-- Comment Form --}}
+                        {{#if user}}
+                        <form action="/blogs/{{blog.slug}}/comment" method="POST" class="content-detail__comment-form">
+                            <div class="comment-form__group">
+                                <textarea 
+                                    name="content" 
+                                    class="comment-form__input" 
+                                    placeholder="Write your comment..."
+                                    required
+                                ></textarea>
+                            </div>
+                            <button type="submit" class="btn btn--primary">Post Comment</button>
+                        </form>
+                        {{else}}
+                        <div class="comment-form__login-prompt">
+                            <p>Please <a href="/auth/signin">sign in</a> to leave a comment.</p>
+                        </div>
+                        {{/if}}
+
+                        {{!-- Comments List --}}
+                        <div class="comments-list">
+                            {{#if blog.comments.length}}
+                                {{#each blog.comments}}
+                                    {{> comment comment=this user=../user}}
+                                {{/each}}
+                            {{else}}
+                                <p class="comments-list__empty">No comments yet. Be the first to comment!</p>
+                            {{/if}}
+                        </div>
+                    </section>
+                </div>
+
+                {{!-- Sidebar --}}
+                <div class="col-lg-4">
+                    <div class="content-detail__sidebar">
+                        {{!-- Author Card --}}
+                        <div class="content-detail__author-card">
+                            <img
+                                src="{{#if blog.author.profile_picture}}{{
+                                    blog.author.profile_picture
+                                }}{{else}}/assets/img/avatar.jpg{{/if}}"
+                                alt="{{ blog.author.username }}"
+                            />
+                            <h3>{{ blog.author.first_name }} {{ blog.author.last_name }}</h3>
+                            <p>@{{ blog.author.username }}</p>
+                            {{#if isAuthenticated}}
+                            {{#unless (eq user._id blog.author._id)}}
+                            <button
+                                onclick="handleFollowAction('{{#if isFollowing}}unfollow{{else}}follow{{/if}}', '{{
+                                    blog.author._id
+                                }}')"
+                                class="btn {{#if isFollowing}}btn--outline{{else}}btn--primary{{/if}}"
+                            >
+                                {{#if isFollowing}}Unfollow{{else}}Follow{{/if}}
+                            </button>
+                            {{/unless}}
+                            {{else}}
+                            <a href="/sign-in" class="btn btn--primary">Follow</a>
+                            {{/if}}
+                        </div>
+
+                        {{!-- Actions Card --}}
+                        <div class="content-detail__actions-card">
+                            <div class="content-detail__actions-wrapper">
+                                <button
+                                    class="vote-btn upvote-btn {{#if blog.userVoted.up}}voted{{/if}}"
+                                    onclick="handleVote('up')"
+                                >
+                                    <i class="fas fa-thumbs-up"></i>
+                                    <span class="upvote-count">{{ blog.votes.upvotes }}</span>
+                                </button>
+                                <button
+                                    class="vote-btn downvote-btn {{#if blog.userVoted.down}}voted{{/if}}"
+                                    onclick="handleVote('down')"
+                                >
+                                    <i class="fas fa-thumbs-down"></i>
+                                    <span class="downvote-count">{{ blog.votes.downvotes }}</span>
+                                </button>
+                            </div>
+                            <div class="content-detail__actions-wrapper">
+                                <button class="btn btn--outline btn--block">
+                                    <i class="fas fa-share"></i>Share Blog
+                                </button>
+                                <button class="btn btn--outline btn--block">
+                                    <i class="fas fa-print"></i>Print Blog
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+</div>
+
+{{#if messages.success}}
+<div class="alert alert--success">
+    {{ messages.success }}
+</div>
+{{/if}}
+{{#if messages.error}}
+<div class="alert alert--danger">
+    {{ messages.error }}
+</div>
+{{/if}}
+
+<script src="/js/userActions.js"></script>
+<script>
+    // Voting functionality
+    async function handleVote(voteType) {
+        if (!window.isAuthenticated) {
+            window.location.href = "/sign-in";
+            return;
+        }
+
+        try {
+            const response = await fetch(`/blogs/{{ blog.slug }}/vote`, {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                },
+                body: JSON.stringify({ voteType }),
+            });
+
+            if (response.url.includes("/sign-in")) {
+                window.location.href = "/sign-in";
+                return;
+            }
+
+            const data = await response.json();
+
+            if (data.success) {
+                // Update vote counts
+                document.querySelector(".upvote-count").textContent = data.upvotes;
+                document.querySelector(".downvote-count").textContent = data.downvotes;
+
+                // Update button states
+                const upvoteBtn = document.querySelector(".upvote-btn");
+                const downvoteBtn = document.querySelector(".downvote-btn");
+
+                upvoteBtn.classList.toggle("voted", data.userVoted.up);
+                downvoteBtn.classList.toggle("voted", data.userVoted.down);
+            }
+        } catch (error) {
+            console.error("Error:", error);
+            alert("Error updating vote");
+        }
+    }
+</script>
+
+<script src="/js/comment.js"></script>

@@ -1,0 +1,57 @@
+<aside class="dashboard__sidebar">
+    <nav class="dashboard__nav">
+        <div class="dashboard__nav-group">
+            <h3 class="dashboard__nav-title">Main</h3>
+            <ul class="dashboard__nav-list">
+                <li>
+                    <a href="/admin/dashboard" class="dashboard__nav-link {{#if isDashboard}}active{{/if}}">
+                        <i class="fas fa-tachometer-alt"></i>
+                        <span>Dashboard</span>
+                    </a>
+                </li>
+                <li>
+                    <a href="/admin/analytics" class="dashboard__nav-link {{#if isAnalytics}}active{{/if}}">
+                        <i class="fas fa-chart-line"></i>
+                        <span>Analytics</span>
+                    </a>
+                </li>
+            </ul>
+        </div>
+
+        <div class="dashboard__nav-group">
+            <h3 class="dashboard__nav-title">Content</h3>
+            <ul class="dashboard__nav-list">
+                <li>
+                    <a href="/admin/posts" class="dashboard__nav-link {{#if isPosts}}active{{/if}}">
+                        <i class="fas fa-file-alt"></i>
+                        <span>Posts</span>
+                    </a>
+                </li>
+                <li>
+                    <a href="/admin/comments" class="dashboard__nav-link {{#if isComments}}active{{/if}}">
+                        <i class="fas fa-comments"></i>
+                        <span>Comments</span>
+                    </a>
+                </li>
+            </ul>
+        </div>
+
+        <div class="dashboard__nav-group">
+            <h3 class="dashboard__nav-title">Users</h3>
+            <ul class="dashboard__nav-list">
+                <li>
+                    <a href="/admin/users" class="dashboard__nav-link {{#if isUsers}}active{{/if}}">
+                        <i class="fas fa-users"></i>
+                        <span>All Users</span>
+                    </a>
+                </li>
+                <li>
+                    <a href="/admin/roles" class="dashboard__nav-link {{#if isRoles}}active{{/if}}">
+                        <i class="fas fa-user-shield"></i>
+                        <span>Roles</span>
+                    </a>
+                </li>
+            </ul>
+        </div>
+    </nav>
+</aside> 

@@ -1,13 +1,9 @@
-const express = require('express');
+//routes/defaultRouters.js
+const express = require("express");
 const router = express.Router();
-const defaultController = require('../controllers/defaultController')
+const defaultController = require("../controllers/defaultController");
 
-router.all('/*', (req, res, next) => {
-    req.app.local.layout = 'default';
-    next();
-})
+router.get("/", defaultController.home);
+router.get("/search", defaultController.search);
 
-router.get('/', defaultController.index);
-router.get('/index.html', defaultController.index);
-
-module.exports = router; 
+module.exports = router;

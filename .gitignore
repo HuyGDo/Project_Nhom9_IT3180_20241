@@ -140,10 +140,12 @@ out
 # SvelteKit build / generate output
 .svelte-kit
 
-# Uploads
-uploads/
 
 # End of https://www.toptal.com/developers/gitignore/api/node
 
+.prettierrc
+
+# CSS map files
+public/css/
+
 package-lock.json
-package.json

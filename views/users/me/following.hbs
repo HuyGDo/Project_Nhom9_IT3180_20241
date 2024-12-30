@@ -1,0 +1,56 @@
+<main class="user-list">
+    <div class="container">
+        <div class="user-list__header">
+            <div>
+                <h1 class="user-list__heading">Following</h1>
+                <p class="user-list__subtitle">People you follow</p>
+            </div>
+            <div class="user-list__filters">
+                <button class="user-list__filter-btn active">Most Recent</button>
+                <button class="user-list__filter-btn">A-Z</button>
+            </div>
+        </div>
+
+        {{#if following.length}}
+        <div class="user-list__grid">
+            {{#each following}}
+            <div class="user-list__card">
+                <img
+                    src="{{#if this.profile_picture}}{{
+                        this.profile_picture
+                    }}{{else}}/assets/img/avatar.jpg{{/if}}"
+                    alt="{{ this.first_name }}'s avatar"
+                    class="user-list__avatar"
+                />
+                <div class="user-list__info">
+                    <h2 class="user-list__name">{{ this.first_name }} {{ this.last_name }}</h2>
+                    <p class="user-list__username">@{{ this.username }}</p>
+                    <p class="user-list__stats">
+                        <span>{{ this.followers.length }} followers</span>
+                        <span>•</span>
+                        <span>{{ this.recipes.length }} recipes</span>
+                    </p>
+                </div>
+                <div class="user-list__action">
+                    <button
+                        onclick="handleFollowAction('unfollow', '{{ this._id }}')"
+                        class="btn btn--outline user-list__follow-btn"
+                    >
+                        Unfollow
+                    </button>
+                </div>
+            </div>
+            {{/each}}
+        </div>
+        {{else}}
+        <div class="user-list__empty">
+            <img src="/assets/img/no-following.svg" alt="Not following anyone" />
+            <h2>Not Following Anyone</h2>
+            <p>Discover and follow other chefs to see their recipes in your feed!</p>
+            <a href="/users" class="btn btn--primary">Discover Users</a>
+        </div>
+        {{/if}}
+    </div>
+</main>
+
+<script src="/js/userActions.js"></script>

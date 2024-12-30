@@ -1,0 +1,42 @@
+<main class="recipe-browse">
+    <div class="container">
+        {{!-- Header --}}
+        <div class="recipe-browse__header">
+            <div>
+                <h1 class="recipe-browse__title">Browse Recipes</h1>
+                <p class="recipe-browse__subtitle">Discover delicious recipes from our community</p>
+            </div>
+            <a href="/recipes/create" class="btn btn--primary recipe-browse__create-btn">
+                <i class="fas fa-plus"></i>
+                Create Recipe
+            </a>
+        </div>
+
+        <div class="row">
+            {{!-- Filter column --}}
+            <div class="col-lg-3">
+                {{> filter-panel isRecipe=true}}
+            </div>
+
+            {{!-- Recipes Grid --}}
+            <div class="col-lg-9">
+                {{#if recipes.length}}
+                <div class="row row-cols-3 gy-4">
+                    {{#each recipes}}
+                    <div class="col">
+                        {{> recipe-card}}
+                    </div>
+                    {{/each}}
+                </div>
+                {{else}}
+                <div class="recipe-browse__empty">
+                    <img src="/assets/img/no-recipes.svg" alt="No recipes" />
+                    <h2>No Recipes Yet</h2>
+                    <p>Be the first one to share a recipe!</p>
+                    <a href="/recipes/create" class="btn btn--primary">Create Recipe</a>
+                </div>
+                {{/if}}
+            </div>
+        </div>
+    </div>
+</main>

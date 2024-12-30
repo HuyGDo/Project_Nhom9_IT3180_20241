@@ -1,0 +1,180 @@
+@use "../abstracts";
+
+.footer {
+    padding: 60px 0;
+    background-color: var(--footer-bg-color);
+
+    font-size: 1.4rem;
+
+    &__row {
+        margin-top: 60px;
+        display: grid;
+        grid-template-columns: 2fr 1fr 1fr 2fr;
+        gap: 20px;
+
+        @include abstracts.screen(lg) {
+            grid-template-columns: 1fr 1fr;
+            gap: 60px;
+        }
+    }
+
+    &__col {
+        @include abstracts.screen(lg) {
+            &--big {
+                grid-column: 1 / span 2;
+            }
+        }
+    }
+
+    &__heading {
+        font-size: 2rem;
+        line-height: 142.857%;
+        font-weight: 500;
+    }
+
+    &__phone {
+        display: block;
+        margin-top: 20px;
+        font-size: 2rem;
+        line-height: 142.857%;
+        font-weight: 500;
+    }
+
+    &__mail {
+        display: block;
+        margin-top: 20px;
+        text-decoration: underline;
+    }
+
+    &__list {
+        margin-top: 30px;
+
+        @include abstracts.screen(lg) {
+            margin-top: 16px;
+        }
+    }
+
+    &__item {
+        margin-top: 10px;
+
+        line-height: 142.857%;
+        font-weight: 400;
+    }
+
+    &__desc {
+        margin-top: 26px;
+
+        line-height: 142.857%;
+        font-weight: 400;
+
+        @include abstracts.screen(lg) {
+            margin-top: 16px;
+        }
+    }
+
+    &__link {
+        line-height: 142.857%;
+        font-weight: 400;
+
+        &:hover {
+            color: #ffb601;
+            font-weight: 500;
+        }
+    }
+    &__form {
+        margin-top: 20px;
+        display: flex;
+        gap: 10px;
+
+        @include abstracts.screen(xl) {
+            flex-direction: column;
+        }
+
+        @include abstracts.screen(lg) {
+            flex-direction: row;
+        }
+
+        @include abstracts.screen(sm) {
+            flex-direction: column;
+        }
+
+        &-input {
+            height: 46px;
+            width: 100%;
+            padding: 0 16px;
+            border-radius: 6px;
+            border: 1px solid #d2d1d6;
+            font-size: 1.6rem;
+            font-weight: 500;
+
+            &::placeholder {
+                font-weight: 400;
+                color: #9e9da8;
+            }
+        }
+    }
+
+    &__socials {
+        display: flex;
+        align-items: center;
+        gap: 20px;
+
+        margin-top: 30px;
+
+        @include abstracts.screen(xl) {
+            justify-content: center;
+        }
+    }
+
+    &__social-link {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+
+        filter: grayscale(50%);
+        transition: translate, filter;
+        transition-duration: 0.2s;
+
+        width: 40px;
+        height: 40px;
+        border-radius: 6px;
+
+        &--facebook {
+            background-color: #4863a9;
+        }
+
+        &--tiktok {
+            background-color: #000;
+        }
+
+        &--youtube {
+            background-color: #f00;
+        }
+
+        &--twitter {
+            background-color: #4999e6;
+        }
+
+        &--linkedin {
+            background-color: #2f71ab;
+        }
+
+        &:hover {
+            filter: grayscale(0);
+            translate: 0 -5px;
+        }
+    }
+
+    &__social-icon {
+        width: 20px;
+        height: 20px;
+        filter: brightness(0) saturate(100%) invert(99%) sepia(12%) saturate(40%) hue-rotate(196deg)
+            brightness(116%) contrast(100%);
+    }
+
+    &__copyright {
+        margin-top: 60px;
+        text-align: center;
+        margin-bottom: 60px;
+    }
+}

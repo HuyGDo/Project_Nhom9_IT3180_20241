@@ -1,0 +1,130 @@
+.blog-browse {
+    padding: 40px 0;
+    background-color: #fafafa;
+    min-height: calc(100vh - 80px);
+
+    &__header {
+        margin-bottom: 30px;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    }
+
+    &__title {
+        font-size: 2.8rem;
+        font-weight: 700;
+        color: #1a162e;
+    }
+
+    &__subtitle {
+        font-size: 1.6rem;
+        color: #666;
+        margin-top: 8px;
+    }
+
+    &__create-btn {
+        height: 48px;
+        padding: 0 24px;
+        font-size: 1.6rem;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+    }
+
+    &__filter {
+        background: white;
+        border-radius: 16px;
+        padding: 24px;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+    }
+
+    &__filter-heading {
+        font-size: 2rem;
+        font-weight: 600;
+        color: #1a162e;
+        margin-bottom: 24px;
+    }
+
+    &__filter-section {
+        margin-bottom: 24px;
+
+        &:last-child {
+            margin-bottom: 0;
+        }
+    }
+
+    &__filter-title {
+        font-size: 1.6rem;
+        font-weight: 600;
+        color: #1a162e;
+        margin-bottom: 16px;
+    }
+
+    &__filter-list {
+        display: flex;
+        flex-direction: column;
+        gap: 12px;
+    }
+
+    &__filter-item {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        font-size: 1.4rem;
+        color: #666;
+        cursor: pointer;
+
+        input[type="checkbox"] {
+            width: 16px;
+            height: 16px;
+            border-radius: 4px;
+            border: 2px solid #ddd;
+            cursor: pointer;
+
+            &:checked {
+                background-color: #1971c2;
+                border-color: #1971c2;
+            }
+        }
+    }
+
+    &__empty {
+        text-align: center;
+        padding: 60px 20px;
+        background: white;
+        border-radius: 16px;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+
+        img {
+            width: 200px;
+            height: 200px;
+            margin-bottom: 24px;
+            opacity: 0.8;
+        }
+
+        h2 {
+            font-size: 2.4rem;
+            font-weight: 600;
+            color: #1a162e;
+            margin-bottom: 12px;
+        }
+
+        p {
+            font-size: 1.6rem;
+            color: #666;
+            margin-bottom: 24px;
+        }
+
+        .btn {
+            min-width: 180px;
+        }
+    }
+
+    @media (max-width: 768px) {
+        &__header {
+            flex-direction: column;
+            gap: 20px;
+            text-align: center;
+        }
+    }
+}

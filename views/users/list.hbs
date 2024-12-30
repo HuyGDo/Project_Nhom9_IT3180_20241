@@ -1,0 +1,60 @@
+<main class="user-list">
+    <div class="container">
+        <div class="user-list__header">
+            <h1 class="user-list__heading">Users</h1>
+            <div class="user-list__filters">
+                <button class="user-list__filter-btn active">Most Relevant</button>
+                <button class="user-list__filter-btn">Newest</button>
+                <button class="user-list__filter-btn">Oldest</button>
+            </div>
+        </div>
+
+        <div class="user-list__grid">
+            {{#each users}}
+            <a href="/users/{{ this._id }}" class="user-list__card-link">
+                <div class="user-list__card">
+                    <img
+                        class="user-list__avatar"
+                        src="{{#if this.profile_picture}}{{
+                            this.profile_picture
+                        }}{{else}}/assets/img/avatar.jpg{{/if}}"
+                        alt="{{ this.first_name }}'s avatar"
+                    />
+                    <div class="user-list__info">
+                        <h2 class="user-list__name">{{ this.first_name }} {{ this.last_name }}</h2>
+                        <p class="user-list__username">@{{ this.username }}</p>
+                    </div>
+                    <div class="user-list__action">
+                        {{#if ../isAuthenticated}}
+                        {{#if this.isFollowing}}
+                        <button
+                            onclick="handleFollowAction('unfollow', '{{ this._id }}', event)"
+                            class="btn btn--outline user-list__follow-btn"
+                        >
+                            Unfollow
+                        </button>
+                        {{else}}
+                        <button
+                            onclick="handleFollowAction('follow', '{{ this._id }}', event)"
+                            class="btn btn--primary user-list__follow-btn"
+                        >
+                            Follow
+                        </button>
+                        {{/if}}
+                        {{else}}
+                        <button
+                            onclick="window.location.href='/sign-in'; event.preventDefault();"
+                            class="btn btn--primary user-list__follow-btn"
+                        >
+                            Follow
+                        </button>
+                        {{/if}}
+                    </div>
+                </div>
+            </a>
+            {{/each}}
+        </div>
+    </div>
+</main>
+
+<script src="/js/userActions.js"></script>

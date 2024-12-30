@@ -1,0 +1,93 @@
+<main class="recipe-browse">
+    <div class="container">
+        {{!-- Search Header --}}
+        <div class="recipe-browse__header">
+            <div>
+                <h1 class="recipe-browse__title">Search Results</h1>
+                {{#if searchData.keyword}}
+                <p class="recipe-browse__subtitle">
+                    Found {{ recipes.length }} results for "{{ searchData.keyword }}"
+                </p>
+                {{/if}}
+            </div>
+        </div>
+
+        <div class="row">
+            {{!-- Filter column --}}
+            <div class="col-lg-3">
+                <div class="recipe-browse__filter">
+                    <h3 class="recipe-browse__filter-heading">Filter Results</h3>
+
+                    {{!-- Categories --}}
+                    <div class="recipe-browse__filter-section">
+                        <h4 class="recipe-browse__filter-title">Categories</h4>
+                        <div class="recipe-browse__filter-list">
+                            <label class="recipe-browse__filter-item">
+                                <input type="checkbox" name="category" value="main-course" />
+                                Main Course
+                            </label>
+                            <label class="recipe-browse__filter-item">
+                                <input type="checkbox" name="category" value="appetizer" />
+                                Appetizer
+                            </label>
+                            <label class="recipe-browse__filter-item">
+                                <input type="checkbox" name="category" value="dessert" />
+                                Dessert
+                            </label>
+                            <label class="recipe-browse__filter-item">
+                                <input type="checkbox" name="category" value="beverage" />
+                                Beverage
+                            </label>
+                        </div>
+                    </div>
+
+                    {{!-- Cooking Time --}}
+                    <div class="recipe-browse__filter-section">
+                        <h4 class="recipe-browse__filter-title">Cooking Time</h4>
+                        <div class="recipe-browse__filter-list">
+                            <label class="recipe-browse__filter-item">
+                                <input type="checkbox" name="time" value="quick" />
+                                Under 30 mins
+                            </label>
+                            <label class="recipe-browse__filter-item">
+                                <input type="checkbox" name="time" value="medium" />
+                                30-60 mins
+                            </label>
+                            <label class="recipe-browse__filter-item">
+                                <input type="checkbox" name="time" value="long" />
+                                Over 60 mins
+                            </label>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            {{!-- Results Grid --}}
+            <div class="col-lg-9">
+                {{#if recipes.length}}
+                <div class="row row-cols-3 gy-4">
+                    {{#each recipes}}
+                    <div class="col">
+                        {{> recipe-card}}
+                    </div>
+                    {{/each}}
+                </div>
+                {{else}}
+                <div class="recipe-browse__empty">
+                    <img
+                        src="/assets/img/no-results.svg"
+                        alt="No results"
+                        class="recipe-browse__empty-img"
+                    />
+                    <h3 class="recipe-browse__empty-title">No Results Found</h3>
+                    <p class="recipe-browse__empty-text">
+                        We couldn't find any recipes matching "{{ searchData.keyword }}". Try
+                        different keywords or browse our recipe categories.
+                    </p>
+                    <a href="/recipes" class="btn btn--primary">Browse All Recipes</a>
+                </div>
+                {{/if}}
+            </div>
+        </div>
+    </div>
+</main>
