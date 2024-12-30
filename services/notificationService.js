@@ -29,13 +29,13 @@ class NotificationService {
                         const author = await User.findById(notification.content_id.author)
                             .select("username profile_picture")
                             .lean();
-                        
+
                         if (author) {
                             notification.content_id.author = author;
                         }
                     }
                     return notification;
-                })
+                }),
             );
 
             // Debug log to see what's being returned
@@ -54,7 +54,7 @@ class NotificationService {
             // });
             populatedNotifications.forEach((notification) => {
                 console.log("Notification content:", {
-                    type: notification.notification_type
+                    type: notification.notification_type,
                     // contentType: notification.content_type,
                     // contentId: notification.content_id,
                     // userId: notification.content_id?.author?._id,
