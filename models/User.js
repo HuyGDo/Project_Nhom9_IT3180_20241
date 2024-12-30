@@ -22,11 +22,19 @@ const userSchema = new mongoose.Schema(
         },
         first_name: {
             type: String,
-            required: [true, "Please enter your first name."],
+            required: [true, "First name is required"],
+            trim: true,
+            minlength: [2, "First name must be at least 2 characters long"],
+            maxlength: [50, "First name cannot exceed 50 characters"],
+            match: [/^[A-Za-zÀ-ỹ\s]+$/, "First name can only contain letters and spaces"],
         },
         last_name: {
             type: String,
-            required: [true, "Please enter your last name."],
+            required: [true, "Last name is required"],
+            trim: true,
+            minlength: [2, "Last name must be at least 2 characters long"],
+            maxlength: [50, "Last name cannot exceed 50 characters"],
+            match: [/^[A-Za-zÀ-ỹ\s]+$/, "Last name can only contain letters and spaces"],
         },
         role: {
             type: String,
