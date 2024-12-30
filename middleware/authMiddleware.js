@@ -68,7 +68,7 @@ const middleware = {
         const token = getTokenFromRequest(req);
 
         if (!token) {
-            return res.redirect("/login");
+            return res.redirect("/sign-in");
         }
 
         try {
@@ -77,7 +77,7 @@ const middleware = {
 
             if (!user) {
                 res.clearCookie("jwt");
-                return res.redirect("/login");
+                return res.redirect("/sign-in");
             }
 
             req.user = user;
@@ -85,7 +85,7 @@ const middleware = {
         } catch (err) {
             console.error("Authentication error:", err.message);
             res.clearCookie("jwt");
-            return res.redirect("/login");
+            return res.redirect("/sign-in");
         }
     },
 
