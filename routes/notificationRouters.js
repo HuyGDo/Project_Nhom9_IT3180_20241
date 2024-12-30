@@ -1,12 +1,24 @@
 const express = require("express");
 const router = express.Router();
 const notificationController = require("../controllers/notificationController");
-const auth = require("../middleware/authMiddleware");
+const { requireAuth } = require("../middleware/authMiddleware");
 
-router.get("/", auth.requireAuth, notificationController.getUserNotifications);
-router.put("/:id/read", auth.requireAuth, notificationController.markAsRead);
-router.get("/preferences", auth.requireAuth, notificationController.getPreferences);
-router.put("/preferences", auth.requireAuth, notificationController.updatePreferences);
-router.get("/unread-count", auth.requireAuth, notificationController.getUnreadCount);
+// Apply auth middleware to all notification routes
+router.use(requireAuth);
+
+// Get notifications page
+router.get("/", notificationController.getNotificationsPage);
+
+// Get notifications for dropdown
+router.get("/list", notificationController.getNotifications);
+
+// Get unread count
+router.get("/unread-count", notificationController.getUnreadCount);
+
+// Mark notification as read
+router.put("/:id/read", notificationController.markAsRead);
+
+// Mark all notifications as read
+router.put("/mark-all-read", notificationController.markAllAsRead);
 
 module.exports = router;

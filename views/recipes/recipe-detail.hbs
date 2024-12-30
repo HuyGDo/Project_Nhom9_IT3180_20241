@@ -2,113 +2,179 @@
     window.isAuthenticated = {{#if user}}true{{else}}false{{/if}};
 </script>
 
-<main class="recipe-detail">
+<main class="content-detail">
     <div class="container">
         <div class="row">
             <div class="col-lg-8">
                 {{!-- Recipe Header --}}
-                <div class="recipe-detail__header">
-                    <h1 class="recipe-detail__heading">{{ recipe.title }}</h1>
-                    <div class="recipe-detail__meta">
-                        <a href="/users/{{ recipe.author._id }}" class="recipe-detail__author">
-                            {{#if recipe.author.profile_picture}}
+                <div class="content-detail__header">
+                    <h1 class="content-detail__heading">{{ recipe.title }}</h1>
+                    <div class="content-detail__meta">
+                        <a href="/users/{{ recipe.author._id }}" class="content-detail__author">
                             <img
-                                src="{{ recipe.author.profile_picture }}"
+                                src="{{#if recipe.author.profile_picture}}{{
+                                    recipe.author.profile_picture
+                                }}{{else}}/assets/img/avatar.jpg{{/if}}"
                                 alt="{{ recipe.author.username }}"
-                                class="recipe-detail__author-img"
+                                class="content-detail__author-img"
                             />
-                            {{else}}
-                            <img
-                                src="/assets/img/avatar.jpg"
-                                alt="{{ recipe.author.username }}"
-                                class="recipe-detail__author-img"
-                            />
-                            {{/if}}
                             <span
                                 >By {{ recipe.author.first_name }}
                                 {{ recipe.author.last_name }}</span
                             >
                         </a>
-                        <div class="recipe-detail__stats">
+                        <div class="content-detail__stats">
                             <span
-                                class="recipe-detail__date"
+                                class="content-detail__date"
                                 >{{ formatDate recipe.createdAt }}</span
                             >
-                            <span class="recipe-detail__views">{{ recipe.views }} views</span>
+                            <span class="content-detail__views">{{ recipe.views }} views</span>
                         </div>
                     </div>
                 </div>
 
                 {{!-- Recipe Image --}}
-                <div class="recipe-detail__image-wrapper">
+                <div class="content-detail__image-wrapper">
                     {{#if recipe.image}}
                     <img
                         src="{{ recipe.image }}"
                         alt="{{ recipe.title }}"
-                        class="recipe-detail__image"
+                        class="content-detail__image"
                     />
                     {{else}}
                     <img
                         src="/assets/img/recipe-placeholder.jpg"
                         alt="{{ recipe.title }}"
-                        class="recipe-detail__image"
+                        class="content-detail__image"
                     />
                     {{/if}}
                 </div>
 
-                {{!-- Voting Section --}}
-                <div class="recipe-detail__actions">
-                    <div class="vote-container" data-recipe-id="{{ recipe._id }}">
-                        <button
-                            class="vote-btn upvote-btn {{#if recipe.userVoted.up}}voted{{/if}}"
-                            data-vote="up"
-                        >
-                            <img src="/assets/icons/thumbs-up.svg" alt="upvote" />
-                            <span class="upvote-count">{{ recipe.votes.upvotes }}</span>
-                        </button>
-                        <button
-                            class="vote-btn downvote-btn {{#if recipe.userVoted.down}}voted{{/if}}"
-                            data-vote="down"
-                        >
-                            <img src="/assets/icons/thumbs-down.svg" alt="downvote" />
-                            <span class="downvote-count">{{ recipe.votes.downvotes }}</span>
-                        </button>
+                {{!-- Recipe Info --}}
+                <div class="content-detail__info">
+                    <div class="content-detail__info-item">
+                        <i class="fas fa-clock"></i>
+                        <div>
+                            <h4>Total Time</h4>
+                            <p>{{ add recipe.prepTime recipe.cookTime }} mins</p>
+                        </div>
                     </div>
-                    <div class="recipe-detail__share">
-                        <button class="btn btn--outline">
-                            <img src="/assets/icons/share.svg" alt="share" />
-                            Share
-                        </button>
+                    <div class="content-detail__info-item">
+                        <i class="fas fa-user-clock"></i>
+                        <div>
+                            <h4>Prep Time</h4>
+                            <p>{{ recipe.prepTime }} mins</p>
+                        </div>
+                    </div>
+                    <div class="content-detail__info-item">
+                        <i class="fas fa-fire"></i>
+                        <div>
+                            <h4>Cook Time</h4>
+                            <p>{{ recipe.cookTime }} mins</p>
+                        </div>
+                    </div>
+                    <div class="content-detail__info-item">
+                        <i class="fas fa-users"></i>
+                        <div>
+                            <h4>Servings</h4>
+                            <p>{{ recipe.servings }} people</p>
+                        </div>
+                    </div>
+                    <div class="content-detail__info-item">
+                        <i class="fas fa-chart-line"></i>
+                        <div>
+                            <h4>Difficulty</h4>
+                            <p
+                                class="content-detail__difficulty content-detail__difficulty--{{
+                                    recipe.difficulty
+                                }}"
+                            >
+                                {{ recipe.difficulty }}
+                            </p>
+                        </div>
                     </div>
                 </div>
 
-                {{!-- Recipe Description --}}
-                <div class="recipe-detail__description">
-                    <h2 class="recipe-detail__section-title">Description</h2>
-                    <p>{{ recipe.description }}</p>
+                {{!-- Description --}}
+                <div class="content-detail__section">
+                    <h2 class="content-detail__section-title">Description</h2>
+                    <p class="content-detail__description">{{ recipe.description }}</p>
                 </div>
 
-                {{!-- Ingredients Section --}}
-                <div class="recipe-detail__ingredients">
-                    <h2 class="recipe-detail__section-title">Ingredients</h2>
-                    <ul class="recipe-detail__ingredients-list">
+                {{!-- Ingredients --}}
+                <div class="content-detail__section">
+                    <h2 class="content-detail__section-title">Ingredients</h2>
+                    <ul class="content-detail__ingredients">
                         {{#each recipe.ingredients}}
-                        <li class="recipe-detail__ingredient-item">
-                            <span class="ingredient-name">{{ this.name }}</span>
-                            <span class="ingredient-quantity">{{ this.quantity }}</span>
+                        <li class="content-detail__ingredient">
+                            <span class="content-detail__ingredient-quantity">{{
+                                this.quantity
+                            }}</span>
+                            <span class="content-detail__ingredient-name">{{ this.name }}</span>
                         </li>
                         {{/each}}
                     </ul>
                 </div>
 
-                {{!-- Instructions Section --}}
-                <div class="recipe-detail__instructions">
-                    <h3 class="recipe-detail__subtitle">Instructions</h3>
-                    <div class="recipe-detail__steps">
+                {{!-- Instructions --}}
+                <div class="content-detail__section">
+                    <h2 class="content-detail__section-title">Instructions</h2>
+                    <ol class="content-detail__instructions">
                         {{#each recipe.instructions}}
-                        <div class="recipe-detail__step">
-                            <span class="step-number">{{add @index 1}}</span>
-                            <p class="step-description">{{ this.description }}</p>
+                        <li class="content-detail__instruction">
+                            <span
+                                class="content-detail__instruction-number"
+                                >{{ add @index 1 }}</span
+                            >
+                            <p>{{ this.description }}</p>
+                        </li>
+                        {{/each}}
+                    </ol>
+                </div>
+
+                {{!-- Comments Section --}}
+                <div class="content-detail__comments" id="comments">
+                    <h2 class="content-detail__section-title">
+                        Comments ({{ recipe.comments.length }})
+                    </h2>
+
+                    {{#if user}}
+                    <form
+                        action="/recipes/{{ recipe.slug }}/comment"
+                        method="POST"
+                        class="content-detail__comment-form"
+                    >
+                        <textarea
+                            name="content"
+                            placeholder="Write a comment..."
+                            required
+                        ></textarea>
+                        <button type="submit" class="btn btn--primary">Post Comment</button>
+                    </form>
+                    {{else}}
+                    <div class="content-detail__comment-login">
+                        <p>Please <a href="/sign-in">sign in</a> to leave a comment.</p>
+                    </div>
+                    {{/if}}
+
+                    <div class="content-detail__comments-list">
+                        {{#each recipe.comments}}
+                        <div class="content-detail__comment">
+                            <div class="content-detail__comment-author">
+                                <img
+                                    src="{{#if this.user_id.profile_picture}}{{
+                                        this.user_id.profile_picture
+                                    }}{{else}}/assets/img/avatar.jpg{{/if}}"
+                                    alt="{{ this.user_id.username }}"
+                                />
+                                <div>
+                                    <h4>
+                                        {{ this.user_id.first_name }} {{ this.user_id.last_name }}
+                                    </h4>
+                                    <span>{{ formatDate this.createdAt }}</span>
+                                </div>
+                            </div>
+                            <p class="content-detail__comment-content">{{ this.content }}</p>
                         </div>
                         {{/each}}
                     </div>
@@ -135,20 +201,59 @@
 
             {{!-- Sidebar --}}
             <div class="col-lg-4">
-                <div class="recipe-detail__sidebar">
-                    <div class="recipe-detail__info-card">
-                        <h3>Recipe Info</h3>
-                        <div class="info-item">
-                            <span class="info-label">Prep Time:</span>
-                            <span class="info-value">{{ recipe.prepTime }} mins</span>
+                <div class="content-detail__sidebar">
+                    {{!-- Author Card --}}
+                    <div class="content-detail__author-card">
+                        <img
+                            src="{{#if recipe.author.profile_picture}}{{
+                                recipe.author.profile_picture
+                            }}{{else}}/assets/img/avatar.jpg{{/if}}"
+                            alt="{{ recipe.author.username }}"
+                        />
+                        <h3>{{ recipe.author.first_name }} {{ recipe.author.last_name }}</h3>
+                        <p>@{{ recipe.author.username }}</p>
+                        {{#if isAuthenticated}}
+                        {{#unless (eq user._id recipe.author._id)}}
+                        <button
+                            onclick="handleFollowAction('{{#if isFollowing}}unfollow{{else}}follow{{/if}}', '{{
+                                recipe.author._id
+                            }}')"
+                            class="btn {{#if isFollowing}}btn--outline{{else}}btn--primary{{/if}}"
+                        >
+                            {{#if isFollowing}}Unfollow{{else}}Follow{{/if}}
+                        </button>
+                        {{/unless}}
+                        {{else}}
+                        <a href="/sign-in" class="btn btn--primary">Follow</a>
+                        {{/if}}
+                    </div>
+
+                    {{!-- Actions Card --}}
+                    <div class="content-detail__actions-card">
+                        <div class="content-detail__actions-wrapper">
+                            <button
+                                class="vote-btn upvote-btn {{#if recipe.userVoted.up}}voted{{/if}}"
+                                onclick="handleVote('up')"
+                            >
+                                <i class="fas fa-thumbs-up"></i>
+                                <span class="upvote-count">{{ recipe.votes.upvotes }}</span>
+                            </button>
+                            <button
+                                class="vote-btn downvote-btn {{#if recipe.userVoted.down}}voted{{/if}}"
+                                onclick="handleVote('down')"
+                            >
+                                <i class="fas fa-thumbs-down"></i>
+                                <span class="downvote-count">{{ recipe.votes.downvotes }}</span>
+                            </button>
                         </div>
-                        <div class="info-item">
-                            <span class="info-label">Cook Time:</span>
-                            <span class="info-value">{{ recipe.cookTime }} mins</span>
-                        </div>
-                        <div class="info-item">
-                            <span class="info-label">Servings:</span>
-                            <span class="info-value">{{ recipe.servings }}</span>
+
+                        <div class="content-detail__actions-wrapper">
+                            <button class="btn btn--outline btn--block">
+                                <i class="fas fa-share"></i>Share
+                            </button>
+                            <button class="btn btn--outline btn--block">
+                                <i class="fas fa-print"></i>Print
+                            </button>
                         </div>
                     </div>
                 </div>
@@ -157,65 +262,57 @@
     </div>
 </main>
 
-{{!-- Voting Script --}}
+<script src="/js/userActions.js"></script>
 <script>
-    document.addEventListener("DOMContentLoaded", function () {
-        const voteContainer = document.querySelector(".vote-container");
-        if (!voteContainer) return;
+    // Voting functionality
+    async function handleVote(voteType) {
+        if (!window.isAuthenticated) {
+            window.location.href = "/sign-in";
+            return;
+        }
 
-        const recipeId = voteContainer.dataset.recipeId;
-        const voteButtons = voteContainer.querySelectorAll(".vote-btn");
-        let isVoting = false;
-
-        voteButtons.forEach((button) => {
-            button.addEventListener("click", async function (e) {
-                e.preventDefault();
-
-                if (!window.isAuthenticated) {
-                    alert("Please login to vote");
-                    window.location.href = "/sign-in";
-                    return;
-                }
-
-                if (isVoting) return;
-
-                const voteType = this.dataset.vote;
-                isVoting = true;
-                this.classList.add("loading");
-
-                try {
-                    const response = await fetch(`/recipes/${recipeId}/vote`, {
-                        method: "POST",
-                        headers: {
-                            "Content-Type": "application/json",
-                        },
-                        body: JSON.stringify({ voteType }),
-                    });
-
-                    const data = await response.json();
-
-                    if (data.success) {
-                        // Update vote counts
-                        voteContainer.querySelector(".upvote-count").textContent = data.upvotes;
-                        voteContainer.querySelector(".downvote-count").textContent = data.downvotes;
-
-                        // Update button states
-                        const upvoteBtn = voteContainer.querySelector(".upvote-btn");
-                        const downvoteBtn = voteContainer.querySelector(".downvote-btn");
-
-                        upvoteBtn.classList.toggle("voted", data.userVoted.up);
-                        downvoteBtn.classList.toggle("voted", data.userVoted.down);
-                    } else {
-                        alert(data.message || "Error voting");
-                    }
-                } catch (error) {
-                    console.error("Vote error:", error);
-                    alert("Error submitting vote");
-                } finally {
-                    isVoting = false;
-                    this.classList.remove("loading");
-                }
+        try {
+            const response = await fetch(`/recipes/{{ recipe.slug }}/vote`, {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                },
+                body: JSON.stringify({ voteType }),
             });
-        });
-    });
+
+            if (response.url.includes("/sign-in")) {
+                window.location.href = "/sign-in";
+                return;
+            }
+
+            const data = await response.json();
+
+            if (data.success) {
+                // Update vote counts
+                document.querySelector(".upvote-count").textContent = data.upvotes;
+                document.querySelector(".downvote-count").textContent = data.downvotes;
+
+                // Update button states
+                const upvoteBtn = document.querySelector(".upvote-btn");
+                const downvoteBtn = document.querySelector(".downvote-btn");
+
+                upvoteBtn.classList.toggle("voted", data.userVoted.up);
+                downvoteBtn.classList.toggle("voted", data.userVoted.down);
+            }
+        } catch (error) {
+            console.error("Error:", error);
+            alert("Error updating vote");
+        }
+    }
 </script>
+
+{{#if messages.success}}
+<div class="alert alert--success">
+    {{ messages.success }}
+</div>
+{{/if}}
+{{#if messages.error}}
+<div class="alert alert--danger">
+    {{ messages.error }}
+</div>
+{{/if}}

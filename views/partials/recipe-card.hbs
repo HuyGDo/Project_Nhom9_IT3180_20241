@@ -1,53 +1,58 @@
-<div class="recipe-card">
-    {{log this}}
-    <div class="recipe-card__img-wrap">
-        <a href="/recipes/{{ this.slug }}">
+<div class="content-card recipe-card">
+    <div class="content-card__header">
+        <div class="content-card__img-wrap">
             {{#if this.image}}
-            <img src="{{ this.image }}" class="recipe-card__thumb" alt="{{ this.title }}" />
+            <img src="{{ this.image }}" class="content-card__img" alt="{{ this.title }}" />
             {{else}}
             <img
                 src="/assets/img/recipe-placeholder.jpg"
-                class="recipe-card__thumb"
+                class="content-card__img"
                 alt="{{ this.title }}"
             />
             {{/if}}
-        </a>
+            <div class="content-card__overlay">
+                <div class="recipe-card__badges">
+                    <div class="recipe-card__badge recipe-card__badge--type">
+                        <i class="fas fa-utensils"></i>Recipe
+                    </div>
+                    <div class="recipe-card__badge">
+                        <i class="fas fa-clock"></i>{{ add this.prepTime this.cookTime }}m
+                    </div>
+                </div>
+            </div>
+        </div>
     </div>
-    <div class="recipe-card__content">
-        <h3 class="recipe-card__title">
+
+    <div class="content-card__body">
+        <div class="content-card__meta">
+            <a href="/users/{{ author._id }}" class="content-card__author">
+                <img
+                    src="{{#if author.profile_picture}}{{
+                        author.profile_picture
+                    }}{{else}}/assets/img/avatar.jpg{{/if}}"
+                    alt="{{ author.username }}"
+                />
+                <span>{{ author.first_name }} {{ author.last_name }}</span>
+            </a>
+        </div>
+
+        <h3 class="content-card__title">
             <a href="/recipes/{{ this.slug }}">{{ this.title }}</a>
         </h3>
 
-        <div class="recipe-card__meta">
-            <div class="recipe-card__author">
-                <img
-                    src="{{#if this.author.profile_picture}}{{
-                        this.author.profile_picture
-                    }}{{else}}/assets/img/avatar.jpg{{/if}}"
-                    alt="{{ this.author.username }}"
-                    class="recipe-card__author-img"
-                />
-                <span>{{ this.author.first_name }} {{ this.author.last_name }}</span>
+        <p class="content-card__desc">{{ this.description }}</p>
+
+        <div class="content-card__footer">
+            <div class="recipe-card__tags">
+                <span class="recipe-card__tag recipe-card__tag--{{ this.difficulty }}">
+                    {{ this.difficulty }}
+                </span>
+                <span class="recipe-card__tag"> {{ this.servings }} servings</span>
             </div>
             <div class="recipe-card__stats">
-                <span class="recipe-card__stat">
-                    <i class="fas fa-thumbs-up"></i>
-                    {{ this.votes.upvotes }}
-                </span>
-                <span class="recipe-card__stat">
-                    <i class="fas fa-eye"></i>
-                    {{ this.views }}
-                </span>
-                <span class="recipe-card__stat">
-                    <i class="fas fa-clock"></i>
-                    {{formatDate this.createdAt}}
-                </span>
+                <span><i class="fas fa-thumbs-up"></i>{{ this.votes.upvotes }}</span>
+                <span><i class="fas fa-eye"></i>{{ this.views }}</span>
             </div>
         </div>
-
-        <p class="recipe-card__desc">{{ this.description }}</p>
-        <a href="/recipes/{{ this.slug }}" class="btn btn--primary recipe-card__btn">
-            See details
-        </a>
     </div>
 </div>

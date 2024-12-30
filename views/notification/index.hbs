@@ -1,0 +1,79 @@
+<div class="container notification-page">
+    <div class="notification-page__header">
+        <div class="notification-page__title">
+            <h1>Notifications</h1>
+            <span class="notification-page__count">{{notifications.length}} notifications</span>
+        </div>
+        {{#if notifications.length}}
+            <button class="btn btn-secondary" id="markAllAsRead" style="height: 36px; font-size: 1.4rem; padding: 0 16px; border-radius: 8px;">
+                <i class="fas fa-check" style="margin-right: 8px;"></i>
+                Mark all as read
+            </button>
+        {{/if}}
+    </div>
+
+    <div class="notification-page__content">
+        {{#if notifications.length}}
+            <div class="notification-list">
+                {{#each notifications}}
+                    <div class="notification-card {{#unless is_read}}notification-card--unread{{/unless}}" data-notification-id="{{this._id}}">
+                        <div class="notification-card__left">
+                            <div class="notification-card__user">
+                                <img src="{{#if content_id.author.profile_picture}}{{content_id.author.profile_picture}}{{else}}/assets/img/avatar.jpg{{/if}}" 
+                                     alt="User avatar" 
+                                     class="notification-card__avatar">
+                                <div class="notification-card__details">
+                                    <div class="notification-card__message">
+                                        <span class="notification-card__username">{{#if content_id.author.username}}{{content_id.author.username}}{{else}}null{{/if}}</span>
+                                        {{#if (eq notification_type "follow")}}
+                                            started following you
+                                        {{else if (eq notification_type "new_post")}}
+                                            {{#if (eq content_type "Recipe")}}
+                                                has uploaded a new recipe:
+                                            {{else}}
+                                                has posted a new blog:
+                                            {{/if}}
+                                            <span class="notification-card__content-title">"{{content_id.title}}"</span>
+                                        {{else if (eq notification_type "comment")}}
+                                            commented on your {{toLowerCase content_type}}:
+                                            <span class="notification-card__content-title">"{{content_id.title}}"</span>
+                                        {{else if (eq notification_type "like")}}
+                                            liked your {{toLowerCase content_type}}:
+                                            <span class="notification-card__content-title">"{{content_id.title}}"</span>
+                                        {{else}}
+                                            {{message}}
+                                        {{/if}}
+                                    </div>
+                                    <span class="notification-card__time">{{formatTimeAgo created_at}}</span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="notification-card__right">
+                            {{#unless is_read}}
+                                <span class="notification-card__badge">Unread</span>
+                            {{/unless}}
+                            <div class="notification-card__actions">
+                                {{#unless (eq notification_type "follow")}}
+                                    <a href="{{generateNotificationLink this}}" class="btn btn-primary">
+                                        View Details
+                                    </a>
+                                {{/unless}}
+                                {{#unless is_read}}
+                                    <button class="btn btn-secondary mark-as-read" data-notification-id="{{this._id}}">
+                                        Mark as read
+                                    </button>
+                                {{/unless}}
+                            </div>
+                        </div>
+                    </div>
+                {{/each}}
+            </div>
+        {{else}}
+            <div class="notification-page__empty">
+                <img src="/assets/img/no-notifications.svg" alt="No notifications">
+                <h3>No notifications yet</h3>
+                <p>We'll notify you when something important happens</p>
+            </div>
+        {{/if}}
+    </div>
+</div>

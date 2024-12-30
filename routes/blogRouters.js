@@ -14,8 +14,12 @@ router.post("/store", auth.requireAuth, upload.single("blog-image"), blogControl
 
 // Public routes - đặt các dynamic routes sau
 router.get("/", blogController.showBlogs);
+router.get("/search", blogController.searchBlogs);
 router.get("/:slug", blogController.showBlogDetail);
-router.post("/:id/vote", auth.requireAuth, blogController.handleVote);
-router.post("/:id/comment", auth.requireAuth, blogController.addComment);
+router.post("/:slug/vote", auth.requireAuth, blogController.handleVote);
+router.post("/:slug/comment", auth.requireAuth, blogController.addComment);
+router.get("/:slug/edit", auth.requireAuth, blogController.editBlog);
+router.put("/:slug", auth.requireAuth, upload.single("blog-image"), blogController.updateBlog);
+router.delete("/:slug", auth.requireAuth, blogController.deleteBlog);
 
 module.exports = router;

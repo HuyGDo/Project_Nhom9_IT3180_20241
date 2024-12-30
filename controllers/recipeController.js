@@ -5,6 +5,7 @@ const notificationService = require("../services/notificationService");
 // const recommendationService = require('../services/recommendationService');
 const { uploadRecipeImage } = require("../services/uploadService");
 const RecommendationService = require('../services/recommendationService');
+const fuzzball = require('fuzzball');
 
 // [GET] /recipes/
 module.exports.showRecipes = async (req, res) => {
@@ -13,12 +14,12 @@ module.exports.showRecipes = async (req, res) => {
             .populate("author", "username first_name last_name profile_picture")
             .lean();
 
-        console.log("Recipes with populated authors:", recipes);
-
         res.render("recipes/recipe-browse", {
             layout: "default",
             title: "Browse Recipes",
             recipes,
+            searchType: 'recipes',
+            searchPlaceholder: 'recipes'
         });
     } catch (err) {
         console.error(err);
@@ -32,9 +33,9 @@ module.exports.showRecipes = async (req, res) => {
 // [GET] /recipes/:slug
 module.exports.showRecipeDetail = async (req, res) => {
     try {
-        // First find the recipe
         const recipe = await Recipe.findOne({ slug: req.params.slug })
             .populate("author", "username first_name last_name profile_picture")
+            .populate("comments.user_id", "username first_name last_name profile_picture")
             .lean();
 
         if (!recipe) {
@@ -55,7 +56,7 @@ module.exports.showRecipeDetail = async (req, res) => {
             };
         }
 
-        // Increment view count in a separate query
+        // Increment view count
         await Recipe.findByIdAndUpdate(recipe._id, { $inc: { views: 1 } });
 
         // Get recommendations
@@ -108,17 +109,24 @@ module.exports.showRecipeDetail = async (req, res) => {
             layout: "default",
             title: recipe.title,
             recipe,
+            isAuthenticated: !!req.user,
+            isFollowing,
+            user: req.user,
+            messages: {
+                success: req.flash("success"),
+                error: req.flash("error"),
+            },
             recommendations: recommendedRecipes
         });
-    } catch (err) {
-        console.error("Error in showRecipeDetail:", err);
+    } catch (error) {
+        console.error(error);
         res.render("default/404");
     }
 };
 
-// [GET] /recipes/create
+// [GET] /recipes/recipe-create
 module.exports.createRecipe = (req, res) => {
-    res.render("recipes/create", {
+    res.render("recipes/recipe-create", {
         layout: "default",
         title: "Create Recipe",
     });
@@ -149,6 +157,7 @@ module.exports.storeRecipe = async (req, res) => {
             servings: parseInt(req.body.servings),
             ingredients: ingredients,
             instructions: instructions,
+            difficulty: req.body.difficulty,
         };
 
         if (req.file) {
@@ -159,15 +168,29 @@ module.exports.storeRecipe = async (req, res) => {
         const recipe = new Recipe(formData);
         await recipe.save();
 
+        console.log("Recipe created:", {
+            id: recipe._id,
+            title: recipe.title,
+            author: req.user._id,
+        });
+
         // Populate author data after saving
         await recipe.populate("author", "username first_name last_name profile_picture");
 
         console.log("Recipe with populated author:", recipe);
 
+        // Create notifications for followers
+        await notificationService.createNewContentNotification(
+            req.user,
+            recipe._id,
+            "Recipe",
+            recipe.title,
+        );
+
         res.redirect("/recipes/" + recipe.slug);
     } catch (error) {
         console.error("Error saving recipe:", error);
-        res.status(500).render("recipes/create", {
+        res.status(500).render("recipes/recipe-create", {
             layout: "default",
             title: "Create Recipe",
             error: "Failed to create recipe",
@@ -176,12 +199,12 @@ module.exports.storeRecipe = async (req, res) => {
     }
 };
 
-// [GET] /recipes/:id/edit
+// [GET] /recipes/:slug/edit
 module.exports.editRecipe = (req, res, next) => {
-    Recipe.findById(req.params.id)
+    Recipe.findOne({ slug: req.params.slug })
         .lean()
         .then((recipe) => {
-            res.render("recipes/edit", {
+            res.render("recipes/recipe-edit", {
                 layout: "default",
                 title: "Edit Recipe",
                 recipe,
@@ -190,7 +213,7 @@ module.exports.editRecipe = (req, res, next) => {
         .catch(next);
 };
 
-// [PUT] /recipes/:id
+// [PUT] /recipes/:slug
 module.exports.updateRecipe = async (req, res) => {
     try {
         const recipeId = req.params.id;
@@ -202,6 +225,7 @@ module.exports.updateRecipe = async (req, res) => {
             servings: req.body.servings,
             ingredients: [],
             instructions: [],
+            difficulty: req.body.difficulty,
         };
 
         // Handle ingredients
@@ -232,7 +256,7 @@ module.exports.updateRecipe = async (req, res) => {
             updateData.image = "/uploads/recipes/" + req.file.filename;
         }
 
-        const updatedRecipe = await Recipe.findByIdAndUpdate(recipeId, updateData, {
+        const updatedRecipe = await Recipe.findOneAndUpdate({ slug: req.params.slug }, updateData, {
             new: true,
             runValidators: true,
         });
@@ -241,11 +265,7 @@ module.exports.updateRecipe = async (req, res) => {
             return res.status(404).json({ message: "Recipe not found" });
         }
 
-        res.status(200).json({
-            success: true,
-            message: "Recipe updated successfully",
-            recipe: updatedRecipe,
-        });
+        res.redirect(`../users/me/stored/recipes`);
     } catch (error) {
         console.error("Update error:", error);
         res.status(500).json({
@@ -255,9 +275,9 @@ module.exports.updateRecipe = async (req, res) => {
     }
 };
 
-// [DELETE] /recipes/:id
+// [DELETE] /recipes/:slug
 module.exports.deleteRecipe = (req, res, next) => {
-    Recipe.deleteOne({ _id: req.params.id })
+    Recipe.deleteOne({ slug: req.params.slug })
         .then(() => res.redirect("back"))
         .catch(next);
 };
@@ -271,84 +291,71 @@ module.exports.likeRecipe = async (req, res) => {
                 $push: { likes: req.user._id },
             });
 
-            // Create notification directly
-            await notificationService.createNotification({
-                type: "like",
-                payload: {
-                    contentAuthorId: recipe.author,
-                    interactingUser: req.user,
-                    contentId: recipe._id,
-                    contentType: "Recipe",
-                },
-            });
+            // Create notification if the liker is not the author
+            if (req.user._id.toString() !== recipe.author.toString()) {
+                await notificationService.createLikeNotification(req.user, recipe, "Recipe");
+            }
         }
         res.redirect("back");
     } catch (error) {
-        console.error("Error liking recipe:", error);
-        res.status(500).send("Failed to like recipe");
+        console.error("Like error:", error);
+        res.status(500).json({ error: "Failed to like recipe" });
     }
 };
 
-// Add comment functionality
+// [POST] /recipes/:slug/comment
 module.exports.addComment = async (req, res) => {
     try {
-        const recipe = await Recipe.findById(req.params.id);
-        const comment = {
+        const recipe = await Recipe.findOne({ slug: req.params.slug });
+        if (!recipe) {
+            req.flash("error", "Recipe not found");
+            return res.redirect("/recipes");
+        }
+
+        // Add the comment
+        if (!recipe.comments) {
+            recipe.comments = [];
+        }
+
+        recipe.comments.push({
             user_id: req.user._id,
-            comments: req.body.comment,
-            rating: req.body.rating,
-        };
-
-        await Recipe.findByIdAndUpdate(req.params.id, {
-            $push: { reviews: comment },
+            content: req.body.content,
         });
 
-        // Create notification directly
-        await notificationService.createNotification({
-            type: "comment",
-            payload: {
-                contentAuthorId: recipe.author,
-                interactingUser: req.user,
-                contentId: recipe._id,
-                contentType: "Recipe",
-            },
-        });
+        await recipe.save();
+
+        // Create notification if commenter is not the author
+        if (req.user._id.toString() !== recipe.author.toString()) {
+            await notificationService.createCommentNotification(req.user, recipe, "Recipe");
+        }
 
         res.redirect("back");
     } catch (error) {
-        console.error("Error adding comment:", error);
-        res.status(500).send("Failed to add comment");
+        console.error("Comment error:", error);
+        // Redirect back with error message
+        req.flash("error", "Error adding comment");
+        return res.redirect(`/recipes/${req.params.slug}`);
     }
 };
-// [POST] /recipes/:id/vote
+// [POST] /recipes/:slug/vote
 module.exports.handleVote = async (req, res) => {
     try {
-        const { id } = req.params;
         const { voteType } = req.body;
         const userId = req.user._id;
 
-        // Validate vote type
         if (!["up", "down"].includes(voteType)) {
-            return res.status(400).json({
-                success: false,
-                message: "Invalid vote type",
-            });
+            return res.status(400).json({ success: false, message: "Invalid vote type" });
         }
 
-        const recipe = await Recipe.findById(id);
+        const recipe = await Recipe.findOne({ slug: req.params.slug });
         if (!recipe) {
-            return res.status(404).json({
-                success: false,
-                message: "Recipe not found",
-            });
+            return res.status(404).json({ message: "Recipe not found" });
         }
 
-        // Find existing vote
         const existingVoteIndex = recipe.userVotes.findIndex(
             (vote) => vote.user.toString() === userId.toString(),
         );
 
-        // Handle vote logic
         if (existingVoteIndex > -1) {
             const existingVote = recipe.userVotes[existingVoteIndex];
             if (existingVote.voteType === voteType) {
@@ -367,25 +374,11 @@ module.exports.handleVote = async (req, res) => {
             recipe.votes[`${voteType}votes`]++;
         }
 
-        // Update score
         recipe.votes.score = recipe.votes.upvotes - recipe.votes.downvotes;
-
         await recipe.save();
-
-        // Create notification for recipe author if it's an upvote from another user
-        if (voteType === "up" && userId.toString() !== recipe.author.toString()) {
-            await notificationService.createNotification({
-                type: "vote",
-                recipient: recipe.author,
-                sender: userId,
-                recipe: recipe._id,
-                message: "voted for your recipe",
-            });
-        }
 
         res.json({
             success: true,
-            message: "Vote recorded successfully",
             upvotes: recipe.votes.upvotes,
             downvotes: recipe.votes.downvotes,
             userVoted: {
@@ -399,15 +392,12 @@ module.exports.handleVote = async (req, res) => {
             },
         });
     } catch (error) {
-        console.error("Vote handling error:", error);
-        res.status(error.status || 500).json({
-            success: false,
-            message: error.message || "Error processing vote",
-        });
+        console.error(error);
+        res.status(500).json({ message: "Server error" });
     }
 };
 
-// [GET] /recipes/test-recommendations/:id
+// [GET] /recipes/test-recommendations/:slug
 module.exports.testRecommendations = async (req, res) => {
     try {
         const recommendations = await recommendationService.getRecommendations(req.params.id);
@@ -423,7 +413,7 @@ module.exports.showStoredRecipes = async (req, res) => {
             .populate("author", "username first_name last_name profile_picture")
             .lean();
 
-        res.render("recipes/store", {
+        res.render("recipes/recipe-store", {
             layout: "default",
             title: "My Recipes",
             recipes,
@@ -431,5 +421,86 @@ module.exports.showStoredRecipes = async (req, res) => {
     } catch (error) {
         console.error(error);
         res.status(500).send("Server Error");
+    }
+};
+
+// Search recipes
+module.exports.searchRecipes = async (req, res) => {
+    try {
+        console.log('Search query:', req.query);
+        const query = req.query.q;
+        if (!query) {
+            console.log('No query provided, redirecting to /recipes');
+            return res.redirect('/recipes');
+        }
+
+        // 1. Text search
+        const textMatches = await Recipe.find({
+            $text: { $search: query }
+        })
+        .populate("author", "username first_name last_name profile_picture")
+        .select("title description image prepTime cookTime difficulty cuisine category votes userVotes createdAt slug")
+        .limit(10)
+        .lean();
+        console.log('Text search results:', textMatches.length);
+
+        // 2. Fuzzy regex search
+        const regexMatches = await Recipe.find({
+            $or: [
+                { title: { $regex: query, $options: 'i' } },
+                { description: { $regex: query, $options: 'i' } },
+                { "ingredients.name": { $regex: query, $options: 'i' } },
+                { "instructions.description": { $regex: query, $options: 'i' } }
+            ]
+        })
+        .populate("author", "username first_name last_name profile_picture")
+        .select("title description image prepTime cookTime difficulty cuisine category votes userVotes createdAt slug")
+        .limit(10)
+        .lean();
+        console.log('Regex search results:', regexMatches.length);
+
+        // 3. Fuzzy scoring
+        const allRecipes = await Recipe.find()
+            .populate("author", "username first_name last_name profile_picture")
+            .select("title description image prepTime cookTime difficulty cuisine category votes userVotes createdAt slug")
+            .limit(50)
+            .lean();
+
+        const fuzzyMatches = allRecipes
+            .map(recipe => ({
+                ...recipe,
+                score: Math.max(
+                    fuzzball.partial_ratio(query.toLowerCase(), recipe.title.toLowerCase()),
+                    fuzzball.partial_ratio(query.toLowerCase(), recipe.description.toLowerCase())
+                )
+            }))
+            .filter(match => match.score > 70)
+            .sort((a, b) => b.score - a.score)
+            .slice(0, 10);
+
+        // Combine and deduplicate results using _id
+        const seenIds = new Set();
+        const combinedResults = [...textMatches, ...regexMatches, ...fuzzyMatches].filter(recipe => {
+            if (seenIds.has(recipe._id.toString())) {
+                return false;
+            }
+            seenIds.add(recipe._id.toString());
+            return true;
+        });
+
+        console.log('Total combined results:', combinedResults.length);
+
+        // Render the correct view
+        res.render('recipes/recipe-browse', {
+            title: `Search Results for "${query}"`,
+            recipes: combinedResults,
+            query,
+            searchType: 'recipes',
+            searchPlaceholder: 'recipes',
+            isRecipes: true
+        });
+    } catch (error) {
+        console.error('Search error:', error);
+        res.status(500).send('Server Error');
     }
 };

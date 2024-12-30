@@ -1,0 +1,133 @@
+<main class="blog-browse">
+    <div class="container">
+        {{!-- Header --}}
+        <div class="blog-browse__header">
+            <div>
+                <h1 class="blog-browse__title">My Blog Posts</h1>
+                <p class="blog-browse__subtitle">Manage your blog posts</p>
+            </div>
+            <a href="/blogs/create" class="btn btn--primary blog-browse__create-btn">
+                <i class="fas fa-plus"></i>
+                Write Blog
+            </a>
+        </div>
+
+        <div class="row">
+            {{!-- Filter column --}}
+            <div class="col-lg-3">
+                <div class="blog-browse__filter">
+                    <h3 class="blog-browse__filter-heading">Filter</h3>
+
+                    {{!-- Status --}}
+                    <div class="blog-browse__filter-section">
+                        <h4 class="blog-browse__filter-title">Status</h4>
+                        <div class="blog-browse__filter-list">
+                            <label class="blog-browse__filter-item">
+                                <input type="checkbox" name="status" value="published" />
+                                Published
+                            </label>
+                            <label class="blog-browse__filter-item">
+                                <input type="checkbox" name="status" value="draft" />
+                                Draft
+                            </label>
+                        </div>
+                    </div>
+
+                    {{!-- Category --}}
+                    <div class="blog-browse__filter-section">
+                        <h4 class="blog-browse__filter-title">Category</h4>
+                        <div class="blog-browse__filter-list">
+                            <label class="blog-browse__filter-item">
+                                <input type="checkbox" name="category" value="cooking-tips" />
+                                Cooking Tips
+                            </label>
+                            <label class="blog-browse__filter-item">
+                                <input type="checkbox" name="category" value="kitchen-stories" />
+                                Kitchen Stories
+                            </label>
+                            <label class="blog-browse__filter-item">
+                                <input type="checkbox" name="category" value="food-culture" />
+                                Food Culture
+                            </label>
+                        </div>
+                    </div>
+
+                    {{!-- Date --}}
+                    <div class="blog-browse__filter-section">
+                        <h4 class="blog-browse__filter-title">Date</h4>
+                        <div class="blog-browse__filter-list">
+                            <label class="blog-browse__filter-item">
+                                <input type="checkbox" name="date" value="last-week" />
+                                Last Week
+                            </label>
+                            <label class="blog-browse__filter-item">
+                                <input type="checkbox" name="date" value="last-month" />
+                                Last Month
+                            </label>
+                            <label class="blog-browse__filter-item">
+                                <input type="checkbox" name="date" value="last-year" />
+                                Last Year
+                            </label>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            {{!-- Blogs grid --}}
+            <div class="col-lg-9">
+                {{#if blogs.length}}
+                <div class="row row-cols-3 gy-4">
+                    {{#each blogs}}
+                    <div class="col">
+                        {{> blog-card-store}}
+                    </div>
+                    {{/each}}
+                </div>
+                {{else}}
+                <div class="blog-browse__empty">
+                    <img src="/assets/img/no-blogs.svg" alt="No blogs" />
+                    <h2>No Blog Posts Yet</h2>
+                    <p>Start sharing your cooking journey with others!</p>
+                    <a href="/blogs/create" class="btn btn--primary">Write Your First Blog</a>
+                </div>
+                {{/if}}
+            </div>
+        </div>
+    </div>
+
+    {{!-- Delete Modal --}}
+    <div class="modal fade" id="deleteModal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Delete Blog</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <p>
+                        Are you sure you want to delete this blog post? This action cannot be
+                        undone.
+                    </p>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn--outline" data-bs-dismiss="modal">
+                        Cancel
+                    </button>
+                    <form id="deleteForm" method="POST">
+                        <input type="hidden" name="_method" value="DELETE" />
+                        <button type="submit" class="btn btn--danger">Delete</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</main>
+
+<script>
+    function deleteBlog(blogId) {
+        const deleteModal = new bootstrap.Modal(document.getElementById("deleteModal"));
+        const deleteForm = document.getElementById("deleteForm");
+        deleteForm.action = `/blogs/${blogId}?_method=DELETE`;
+        deleteModal.show();
+    }
+</script>

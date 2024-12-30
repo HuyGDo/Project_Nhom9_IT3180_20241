@@ -4,12 +4,21 @@ const Recipe = require("../models/Recipe");
 const mongoose = require("mongoose");
 const notificationService = require("../services/notificationService");
 
-// [GET] /users/:id
+// [GET] /users/:id or /me
 module.exports.viewProfile = async (req, res) => {
     try {
-        const profileUser = await User.findById(req.params.id)
+        // Determine if viewing own profile or other user's profile
+        const isOwnProfile = req.path === "/me";
+        const userId = isOwnProfile ? req.user._id : req.params.id;
+
+        const profileUser = await User.findById(userId)
             .populate({
                 path: "recipes",
+                select: "title image description votes views createdAt slug prepTime cookTime servings difficulty",
+                options: { sort: { createdAt: -1 } },
+            })
+            .populate({
+                path: "blogs",
                 select: "title image description votes views createdAt slug",
                 options: { sort: { createdAt: -1 } },
             })
@@ -19,44 +28,29 @@ module.exports.viewProfile = async (req, res) => {
             return res.status(404).render("default/404");
         }
 
-        const isOwnProfile = req.user && req.user._id.toString() === profileUser._id.toString();
+        // Debug logs
+        console.log("Profile User Data:", {
+            id: profileUser._id,
+            name: `${profileUser.first_name} ${profileUser.last_name}`,
+            recipesCount: profileUser.recipes?.length || 0,
+            blogsCount: profileUser.blogs?.length || 0,
+        });
+
         const isFollowing = req.user ? req.user.following.includes(profileUser._id) : false;
 
         res.render("users/profile", {
             layout: "default",
-            title: `${profileUser.first_name}'s Profile`,
+            title: isOwnProfile
+                ? "My Profile"
+                : `${profileUser.first_name} ${profileUser.last_name}'s Profile`,
             profileUser,
             isOwnProfile,
             isFollowing,
             isAuthenticated: !!req.user,
+            successMessage: isOwnProfile ? req.flash("success")[0] : null,
         });
     } catch (error) {
         console.error("Error viewing profile:", error);
-        res.status(500).send("Server Error");
-    }
-};
-
-// [GET] /me
-module.exports.showUserInfo = async (req, res) => {
-    try {
-        const profileUser = await User.findById(req.user._id)
-            .populate({
-                path: "recipes",
-                select: "title image description votes views createdAt slug",
-                options: { sort: { createdAt: -1 } },
-            })
-            .lean();
-
-        res.render("users/profile", {
-            layout: "default",
-            title: "My Profile",
-            profileUser,
-            isOwnProfile: true,
-            isAuthenticated: true,
-            successMessage: req.flash("success")[0],
-        });
-    } catch (error) {
-        console.error(error);
         res.status(500).send("Server Error");
     }
 };
@@ -130,53 +124,30 @@ module.exports.getFollowers = async (req, res) => {
 // [POST] /users/:id/follow
 module.exports.followUser = async (req, res) => {
     try {
-        const targetUserId = req.params.id;
+        const userToFollow = await User.findById(req.params.id);
+        const currentUser = await User.findById(req.user._id);
 
-        if (!targetUserId || !mongoose.Types.ObjectId.isValid(targetUserId)) {
-            return res.status(400).json({ message: "Invalid user ID" });
+        if (!userToFollow || !currentUser) {
+            return res.status(404).json({ error: "User not found" });
         }
 
-        const currentUserId = req.user?._id;
-        if (!currentUserId) {
-            return res.status(401).json({ message: "Please login to continue" });
+        // Add to following/followers
+        if (!currentUser.following.includes(userToFollow._id)) {
+            currentUser.following.push(userToFollow._id);
+            userToFollow.followers.push(currentUser._id);
+
+            await Promise.all([
+                currentUser.save(),
+                userToFollow.save(),
+                // Create notification
+                notificationService.createFollowNotification(currentUser, userToFollow),
+            ]);
         }
 
-        if (currentUserId.toString() === targetUserId) {
-            return res.status(400).json({ message: "You cannot follow yourself" });
-        }
-
-        const currentUser = await User.findById(currentUserId);
-        if (!currentUser) {
-            return res.status(404).json({ message: "Current user not found" });
-        }
-
-        const targetUser = await User.findById(targetUserId);
-        if (!targetUser) {
-            return res.status(404).json({ message: "Target user not found" });
-        }
-
-        await currentUser.follow(targetUserId);
-
-        // Create follow notification
-        await notificationService.createNotification({
-            type: "follow",
-            payload: {
-                followedUserId: targetUserId,
-                follower: currentUser,
-            },
-        });
-
-        return res.json({
-            success: true,
-            isFollowing: true,
-            message: "Successfully followed user",
-        });
+        res.json({ success: true });
     } catch (error) {
         console.error("Follow error:", error);
-        return res.status(500).json({
-            success: false,
-            message: "Unable to follow this user",
-        });
+        res.status(500).json({ error: "Failed to follow user" });
     }
 };
 

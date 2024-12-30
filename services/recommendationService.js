@@ -1,4 +1,4 @@
-const axios = require('axios');
+const axios = require("axios");
 
 class RecommendationService {
     static baseUrl = 'http://localhost:5001';
@@ -73,10 +73,10 @@ class RecommendationService {
             });
             return response.status === 200;
         } catch (error) {
-            console.error('Service health check failed:', error.message);
-            return false;
+            console.log('Recommendation service not available:', error.message);
+            return []; // Trả về mảng rỗng nếu service không hoạt động
         }
     }
 }
 
-module.exports = RecommendationService; 
+module.exports = RecommendationService;

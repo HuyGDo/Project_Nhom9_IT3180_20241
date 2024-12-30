@@ -63,11 +63,14 @@
             height: 24px;
             border-radius: 50%;
             object-fit: cover;
+            border: 2px solid #ffb601;
         }
 
         span {
             font-size: 1.4rem;
             color: #666;
+            font-weight: 500;
+            color: #1a162e;
         }
     }
 

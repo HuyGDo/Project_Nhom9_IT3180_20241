@@ -1,56 +1,60 @@
-<div class="blog-card">
-    <div class="blog-card__img-wrap">
-        <a href="/blogs/{{ this.slug }}">
+<div class="content-card blog-card">
+    <div class="content-card__header">
+        <div class="content-card__img-wrap">
             {{#if this.image}}
-            <img src="{{ this.image }}" class="blog-card__thumb" alt="{{ this.title }}" />
+            <img src="{{ this.image }}" class="content-card__img" alt="{{ this.title }}" />
             {{else}}
             <img
                 src="/assets/img/blog-placeholder.jpg"
-                class="blog-card__thumb"
+                class="content-card__img"
                 alt="{{ this.title }}"
             />
             {{/if}}
-        </a>
-        <span class="blog-card__category">{{ this.category }}</span>
+            <div class="content-card__overlay">
+                <div class="blog-card__badges">
+                    <div class="blog-card__badge blog-card__badge--type">
+                        <i class="fas fa-book"></i>Blog
+                    </div>
+                    <div class="blog-card__badge">
+                        <i class="fas fa-book-reader"></i>{{ this.readTime }}m read
+                    </div>
+                </div>
+            </div>
+        </div>
     </div>
 
-    <div class="blog-card__content">
-        <h3 class="blog-card__title">
+    <div class="content-card__body">
+        <div class="content-card__meta">
+            <a href="/users/{{ author._id }}" class="content-card__author">
+                <img
+                    src="{{#if author.profile_picture}}{{
+                        author.profile_picture
+                    }}{{else}}/assets/img/avatar.jpg{{/if}}"
+                    alt="{{ author.username }}"
+                />
+                <span>{{ author.first_name }} {{ author.last_name }}</span>
+            </a>
+        </div>
+
+        <h3 class="content-card__title">
             <a href="/blogs/{{ this.slug }}">{{ this.title }}</a>
         </h3>
 
-        <div class="blog-card__meta">
-            <a href="/users/{{ this.author._id }}" class="blog-card__author">
-                <img
-                    src="{{#if this.author.profile_picture}}{{
-                        this.author.profile_picture
-                    }}{{else}}/assets/img/avatar.jpg{{/if}}"
-                    alt="{{ this.author.first_name }}"
-                />
-                <span>{{ this.author.first_name }} {{ this.author.last_name }}</span>
-            </a>
-            <div class="blog-card__stats">
-                <span class="blog-card__stat">
-                    <i class="fas fa-thumbs-up"></i>
-                    {{ this.votes.upvotes }}
+        <p class="content-card__desc">{{ this.description }}</p>
+
+        <div class="content-card__footer">
+            <div class="blog-card__tags">
+                <span class="blog-card__tag blog-card__tag--category">
+                    {{ this.category }}
                 </span>
-                <span class="blog-card__stat">
-                    <i class="fas fa-eye"></i>
-                    {{ this.views }}
-                </span>
-                <span class="blog-card__stat">
-                    <i class="fas fa-clock"></i>
-                    {{ this.readTime }} min read
-                </span>
+                {{#each (limit this.tags 2)}}
+                <span class="blog-card__tag">{{ this }}</span>
+                {{/each}}
             </div>
-        </div>
-
-        <p class="blog-card__desc">{{ this.description }}</p>
-
-        <div class="blog-card__tags">
-            {{#each this.tags}}
-            <span class="blog-card__tag">{{ this }}</span>
-            {{/each}}
+            <div class="blog-card__stats">
+                <span><i class="fas fa-thumbs-up"></i>{{ this.votes.upvotes }}</span>
+                <span><i class="fas fa-eye"></i>{{ this.views }}</span>
+            </div>
         </div>
     </div>
 </div>

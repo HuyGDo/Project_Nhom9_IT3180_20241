@@ -1,17 +1,16 @@
 // routes/adminRouters.js
-const express = require('express');
+const express = require("express");
 const router = express.Router();
-const adminController = require('../controllers/adminController');
-const auth = require('../middleware/authMiddleware');
-const adminMiddleware = require('../middleware/adminMiddleware');
+const adminController = require("../controllers/adminController");
+const auth = require("../middleware/authMiddleware");
 
 // Admin Dashboard
-router.get('/dashboard', auth.requireAuth, auth.checkUser, adminMiddleware.requireAdmin, adminController.showDashboard);
+router.get("/dashboard", auth.requireAuth, auth.checkUser, adminController.showDashboard);
 
 // List Users
-router.get('/users', auth.requireAuth, auth.checkUser, adminMiddleware.requireAdmin, adminController.listUsers);
+router.get("/users", auth.requireAuth, auth.checkUser, adminController.listUsers);
 
 // Delete User
-router.delete('/users/:id', auth.requireAuth, auth.checkUser, adminMiddleware.requireAdmin, adminController.deleteUser);
+router.delete("/users/:id", auth.requireAuth, auth.checkUser, adminController.deleteUser);
 
 module.exports = router;

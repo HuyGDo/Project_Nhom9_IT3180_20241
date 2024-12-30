@@ -3,19 +3,15 @@ const mongoose = require("mongoose");
 const slug = require("mongoose-slug-updater");
 mongoose.plugin(slug);
 
-// Define the review schema (embedded)
-const reviewSchema = new mongoose.Schema({
+const commentSchema = new mongoose.Schema({
     user_id: {
-        type: mongoose.Schema.Types.ObjectId, // Reference to the user who wrote the review
-        ref: "User", // Assuming there is a User model for user accounts
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "User",
+        required: true,
     },
-    comments: {
+    content: {
         type: String,
-    },
-    rating: {
-        type: Number,
-        min: 1,
-        max: 5,
+        required: true,
     },
     createdAt: {
         type: Date,
@@ -54,6 +50,11 @@ const recipeSchema = new mongoose.Schema(
             required: [true, "Number of servings is required"],
             min: [1, "Number of servings must be at least 1"],
         },
+        difficulty: {
+            type: String,
+            enum: ["easy", "medium", "hard"],
+            required: true,
+        },
         ingredients: [
             {
                 _id: false,
@@ -79,7 +80,6 @@ const recipeSchema = new mongoose.Schema(
         image: {
             type: String, // Store URL or path to the image
         },
-        reviews: [reviewSchema], // Embed reviews directly into the recipe
         created_at: {
             type: Date,
             default: Date.now,
@@ -107,6 +107,7 @@ const recipeSchema = new mongoose.Schema(
             },
         ],
         slug: { type: String, slug: "title", unique: true },
+        comments: [commentSchema],
     },
     {
         timestamps: true,
@@ -114,6 +115,14 @@ const recipeSchema = new mongoose.Schema(
         toJSON: { virtuals: true },
     },
 );
+
+// Add text indexes for search
+recipeSchema.index({
+    title: 'text',
+    description: 'text',
+    'ingredients.name': 'text',
+    'instructions.description': 'text'
+});
 
 // Add virtual to check if user has voted
 recipeSchema.virtual("userVoted").get(function () {

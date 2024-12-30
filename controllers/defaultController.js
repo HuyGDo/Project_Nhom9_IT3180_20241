@@ -2,19 +2,25 @@
 const Config = require("../config/configuration");
 const { redirect } = require("express/lib/response");
 const Recipe = require("../models/Recipe");
+const Blog = require("../models/Blog");
 
 // Controller function for rendering the home page
-module.exports.show = async (req, res) => {
+module.exports.home = async (req, res) => {
     try {
         const recipes = await Recipe.find()
+            .populate("author", "username first_name last_name profile_picture")
+            .lean();
+
+        const blogs = await Blog.find()
             .populate("author", "username first_name last_name profile_picture")
             .lean();
 
         // Render the home page with the recipe data
         res.render("default/home", {
             layout: "default",
-            title: "Browse recipes",
+            title: "Bussin Cookin",
             recipes,
+            blogs,
         });
     } catch (error) {
         console.error("Error fetching recipes:", error);
