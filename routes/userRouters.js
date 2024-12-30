@@ -3,13 +3,15 @@ const express = require("express");
 const router = express.Router();
 const userController = require("../controllers/userController");
 const recipeController = require("../controllers/recipeController");
+const blogController = require("../controllers/blogController");
 const profileController = require("../controllers/profileController");
 const auth = require("../middleware/authMiddleware");
 const { uploadAvatar } = require("../services/uploadService");
 
 // Me routes (profile routes)
-router.get("/me", auth.requireAuth, auth.checkUser, userController.showUserInfo);
+router.get("/me", auth.requireAuth, auth.checkUser, userController.viewProfile);
 router.get("/me/stored/recipes", auth.requireAuth, recipeController.showStoredRecipes);
+router.get("/me/stored/blogs", auth.requireAuth, blogController.showStoredBlogs);
 router.get("/me/following", auth.requireAuth, userController.getFollowing);
 router.get("/me/followers", auth.requireAuth, userController.getFollowers);
 router.get("/me/edit-profile", auth.requireAuth, profileController.showEditProfile);

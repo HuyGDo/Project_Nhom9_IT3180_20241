@@ -1,5 +1,6 @@
 const Blog = require("../models/Blog");
 const notificationService = require("../services/notificationService");
+const fuzzball = require('fuzzball');
 
 // [GET] /blogs
 module.exports.showBlogs = async (req, res) => {
@@ -13,6 +14,9 @@ module.exports.showBlogs = async (req, res) => {
             layout: "default",
             title: "Browse Blogs",
             blogs,
+            searchType: 'blogs',
+            searchPlaceholder: 'blogs',
+            isBlogs: true
         });
     } catch (error) {
         console.error(error);
@@ -65,7 +69,7 @@ module.exports.showBlogDetail = async (req, res) => {
 
 // [GET] /blogs/create
 module.exports.createBlog = (req, res) => {
-    res.render("recipes/blog-edit", {
+    res.render("blogs/blog-create", {
         layout: "default",
         title: "Create Blog",
     });
@@ -102,7 +106,7 @@ module.exports.storeBlog = async (req, res) => {
         res.redirect(`/blogs/${blog.slug}`);
     } catch (error) {
         console.error(error);
-        res.render("recipes/blog-edit", {
+        res.render("blogs/blog-create", {
             layout: "default",
             title: "Create Blog",
             error: "Failed to create blog",
@@ -111,10 +115,16 @@ module.exports.storeBlog = async (req, res) => {
     }
 };
 
-// [POST] /blogs/:id/vote
+// [DELETE] /blogs/:slug
+module.exports.deleteBlog = (req, res, next) => {
+    Blog.deleteOne({ slug: req.params.slug })
+        .then(() => res.redirect("back"))
+        .catch(next);
+};
+
+// [POST] /blogs/:slug/vote
 module.exports.handleVote = async (req, res) => {
     try {
-        const { id } = req.params;
         const { voteType } = req.body;
         const userId = req.user._id;
 
@@ -122,7 +132,7 @@ module.exports.handleVote = async (req, res) => {
             return res.status(400).json({ success: false, message: "Invalid vote type" });
         }
 
-        const blog = await Blog.findById(id);
+        const blog = await Blog.findOne({ slug: req.params.slug });
         if (!blog) {
             return res.status(404).json({ message: "Blog not found" });
         }
@@ -169,7 +179,7 @@ module.exports.handleVote = async (req, res) => {
     }
 };
 
-// [POST] /blogs/:id/comment
+// [POST] /blogs/:slug/comment
 module.exports.addComment = async (req, res) => {
     try {
         const blog = await Blog.findById(req.params.id);
@@ -199,10 +209,10 @@ module.exports.addComment = async (req, res) => {
     }
 };
 
-// [GET] /blogs/:id/edit
+// [GET] /blogs/:slug/edit
 module.exports.editBlog = async (req, res) => {
     try {
-        const blog = await Blog.findById(req.params.id).lean();
+        const blog = await Blog.findOne({ slug: req.params.slug }).lean();
 
         if (!blog) {
             return res.render("default/404");
@@ -224,7 +234,7 @@ module.exports.editBlog = async (req, res) => {
     }
 };
 
-// [PUT] /blogs/:id
+// [PUT] /blogs/:slug
 module.exports.updateBlog = async (req, res) => {
     try {
         const blogData = {
@@ -240,7 +250,7 @@ module.exports.updateBlog = async (req, res) => {
             blogData.image = `/uploads/blogs/${req.file.filename}`;
         }
 
-        const blog = await Blog.findByIdAndUpdate(req.params.id, blogData, {
+        const blog = await Blog.findOneAndUpdate({ slug: req.params.slug }, blogData, {
             new: true,
             runValidators: true,
         });
@@ -249,16 +259,124 @@ module.exports.updateBlog = async (req, res) => {
             return res.status(404).json({ message: "Blog not found" });
         }
 
-        res.json({
-            success: true,
-            message: "Blog updated successfully",
-            blog,
-        });
+        res.redirect(`/blogs/${blog.slug}`);
     } catch (error) {
         console.error(error);
         res.status(500).json({
             message: "Error updating blog",
             error: error.message,
         });
+    }
+};
+
+// [GET] /users/me/stored/blogs
+module.exports.showStoredBlogs = async (req, res) => {
+    try {
+        const blogs = await Blog.find({ author: req.user._id }).sort({ createdAt: -1 }).lean();
+
+        res.render("blogs/blog-store", {
+            layout: "default",
+            title: "My Blogs",
+            blogs,
+        });
+    } catch (error) {
+        console.error(error);
+        res.status(500).send("Server Error");
+    }
+};
+
+// Get all blogs
+module.exports.getAllBlogs = async (req, res) => {
+    try {
+        const blogs = await Blog.find()
+            .populate('author', 'username avatar')
+            .sort({ createdAt: -1 });
+
+        res.render('blog/browse', {
+            title: 'Browse Blogs',
+            blogs,
+            searchType: 'blogs',
+            searchPlaceholder: 'blogs'
+        });
+    } catch (error) {
+        console.error(error);
+        res.status(500).send('Server Error');
+    }
+};
+
+// Search blogs
+module.exports.searchBlogs = async (req, res) => {
+    try {
+        console.log('Search query:', req.query);
+        const query = req.query.q;
+        if (!query) {
+            console.log('No query provided, redirecting to /blogs');
+            return res.redirect('/blogs');
+        }
+
+        // 1. Text search
+        const textMatches = await Blog.find({
+            $text: { $search: query }
+        })
+        .populate("author", "username first_name last_name profile_picture")
+        .limit(10)
+        .lean();
+        console.log('Text search results:', textMatches.length);
+
+        // 2. Fuzzy regex search
+        const regexMatches = await Blog.find({
+            $or: [
+                { title: { $regex: query, $options: 'i' } },
+                { content: { $regex: query, $options: 'i' } },
+                { description: { $regex: query, $options: 'i' } }
+            ]
+        })
+        .populate("author", "username first_name last_name profile_picture")
+        .limit(10)
+        .lean();
+        console.log('Regex search results:', regexMatches.length);
+
+        // 3. Fuzzy scoring
+        const allBlogs = await Blog.find()
+            .populate("author", "username first_name last_name profile_picture")
+            .limit(50)
+            .lean();
+
+        const fuzzyMatches = allBlogs
+            .map(blog => ({
+                ...blog,
+                score: Math.max(
+                    fuzzball.partial_ratio(query.toLowerCase(), blog.title.toLowerCase()),
+                    fuzzball.partial_ratio(query.toLowerCase(), blog.description.toLowerCase())
+                )
+            }))
+            .filter(match => match.score > 70)
+            .sort((a, b) => b.score - a.score)
+            .slice(0, 10);
+
+        // Combine and deduplicate results using _id
+        const seenIds = new Set();
+        const combinedResults = [...textMatches, ...regexMatches, ...fuzzyMatches].filter(blog => {
+            if (seenIds.has(blog._id.toString())) {
+                return false;
+            }
+            seenIds.add(blog._id.toString());
+            return true;
+        });
+
+        console.log('Total combined results:', combinedResults.length);
+
+        // Render the correct view
+        res.render('blogs/blog-browse', {
+            title: `Search Results for "${query}"`,
+            blogs: combinedResults,
+            query,
+            searchType: 'blogs',
+            searchPlaceholder: 'blogs',
+            isBlogs: true
+        });
+    } catch (error) {
+        console.error('Search error:', error);
+        res.status(500).send('Server Error');
     }
 };

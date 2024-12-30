@@ -30,14 +30,14 @@
         <div class="header__right">
             {{!-- Search --}}
             <div class="header__search">
-                <form action="/search" method="GET" class="header__search-form">
+                <form action="{{#if isRecipes}}/recipes/search{{else if isBlogs}}/blogs/search{{else}}/recipes/search{{/if}}" method="GET" class="header__search-form">
                     <div class="header__search-wrapper">
                         <input
                             type="text"
                             name="q"
                             class="header__search-input"
-                            placeholder="Search for recipes..."
-                            value="{{ searchQuery }}"
+                            placeholder="Search for {{#if searchPlaceholder}}{{searchPlaceholder}}{{else}}recipes{{/if}}..."
+                            value="{{query}}"
                             autocomplete="off"
                         />
                         <button type="submit" class="header__search-btn">

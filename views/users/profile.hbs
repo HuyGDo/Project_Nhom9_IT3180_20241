@@ -2,24 +2,53 @@
 
 <main class="profile">
     <div class="container">
-        <div class="profile__container">
-            {{!-- Header Section --}}
-            <div class="profile__header">
-                <div class="profile__avatar">
-                    <img
-                        src="{{#if profileUser.profile_picture}}{{
-                            profileUser.profile_picture
-                        }}{{else}}/assets/img/avatar.jpg{{/if}}"
-                        alt="Profile Picture"
-                    />
+        {{!-- Profile Header --}}
+        <div class="profile__header">
+            <div class="profile__avatar">
+                <img
+                    src="{{#if profileUser.profile_picture}}{{
+                        profileUser.profile_picture
+                    }}{{else}}/assets/img/avatar.jpg{{/if}}"
+                    alt="Profile Picture"
+                />
+            </div>
+            <div class="profile__info">
+                <h1 class="profile__name">
+                    {{ profileUser.first_name }} {{ profileUser.last_name }}
+                </h1>
+                <p class="profile__username">@{{ profileUser.username }}</p>
+                <p class="profile__bio">{{ profileUser.bio }}</p>
+                <div class="profile__stats">
+                    <a
+                        href="/users/{{#if isOwnProfile}}me{{else}}{{
+                            profileUser._id
+                        }}{{/if}}/followers"
+                        class="profile__stat-item"
+                    >
+                        <span class="profile__stat-value">{{ profileUser.followers.length }}</span>
+                        <span class="profile__stat-label">Followers</span>
+                    </a>
+                    <a
+                        href="/users/{{#if isOwnProfile}}me{{else}}{{
+                            profileUser._id
+                        }}{{/if}}/following"
+                        class="profile__stat-item"
+                    >
+                        <span class="profile__stat-value">{{ profileUser.following.length }}</span>
+                        <span class="profile__stat-label">Following</span>
+                    </a>
+                    <div class="profile__stat-item">
+                        <span class="profile__stat-value">{{ profileUser.recipes.length }}</span>
+                        <span class="profile__stat-label">Recipes</span>
+                    </div>
+                    <div class="profile__stat-item">
+                        <span class="profile__stat-value">{{ profileUser.blogs.length }}</span>
+                        <span class="profile__stat-label">Blogs</span>
+                    </div>
                 </div>
-                <div class="profile__info">
-                    <h1 class="profile__name">
-                        {{ profileUser.first_name }} {{ profileUser.last_name }}
-                    </h1>
-                    <p class="profile__username">@{{ profileUser.username }}</p>
-                    <div class="profile__actions">
-                        {{#if isOwnProfile}}
+                <div class="profile__actions">
+                    {{#if isOwnProfile}}
+                    <div class="profile__actions-main">
                         <a href="/users/me/edit-profile" class="btn btn--primary">Edit Profile</a>
                         <button
                             class="btn btn--danger"
@@ -29,136 +58,91 @@
                             Delete Account
                         </button>
                         <a href="/log-out" class="btn btn--outline">Logout</a>
-                        {{else}}
-                        {{#if isAuthenticated}}
-                        <button
-                            onclick="handleFollowAction('{{#if isFollowing}}unfollow{{else}}follow{{/if}}', '{{
-                                profileUser._id
-                            }}')"
-                            class="btn {{#if isFollowing}}btn--outline{{else}}btn--primary{{/if}}"
+                    </div>
+                    <div class="profile__actions-secondary">
+                        <a
+                            href="/users/{{#if isOwnProfile}}me{{else}}
+                            {{ profileUser._id }}
+                            {{/if}}/stored/recipes"
+                            class="btn btn--outline"
+                            >View all {{ profileUser.first_name }} {{ profileUser.last_name }}'s
+                            Recipes</a
                         >
-                            {{#if isFollowing}}Unfollow{{else}}Follow{{/if}}
-                        </button>
-                        {{else}}
-                        <a href="/sign-in" class="btn btn--primary">Follow</a>
-                        {{/if}}
+                        <a
+                            href="/users/{{#if isOwnProfile}}me{{else}}
+                            {{ profileUser._id }}
+                            {{/if}}/stored/blogs"
+                            class="btn btn--outline"
+                            >View all {{ profileUser.first_name }} {{ profileUser.last_name }}'s
+                            Blogs</a
+                        >
+                    </div>
+                    {{else}}
+                    {{#if isAuthenticated}}
+                    <button
+                        onclick="handleFollowAction('{{#if isFollowing}}unfollow{{else}}follow{{/if}}', '{{
+                            profileUser._id
+                        }}')"
+                        class="btn {{#if isFollowing}}btn--outline{{else}}btn--primary{{/if}}"
+                    >
+                        {{#if isFollowing}}Unfollow{{else}}Follow{{/if}}
+                    </button>
+                    {{else}}
+                    <a href="/sign-in" class="btn btn--primary">Follow</a>
+                    {{/if}}
+                    {{/if}}
+                </div>
+            </div>
+        </div>
+
+        {{!-- Content Tabs --}}
+        <div class="profile__tabs">
+            <button class="profile__tab active" data-tab="recipes">Recipes</button>
+            <button class="profile__tab" data-tab="blogs">Blogs</button>
+            <button class="profile__tab" data-tab="about">About</button>
+        </div>
+
+        {{!-- Tab Content --}}
+        <div class="profile__content">
+            {{!-- Recipes Tab --}}
+            <div class="profile__tab-content active" id="recipes">
+                <div class="profile__grid">
+                    {{#each (limit profileUser.recipes 3)}}
+                    {{> recipe-card author=../profileUser}}
+                    {{else}}
+                    <div class="profile__empty">
+                        <img src="/assets/img/no-recipes.svg" alt="No recipes" />
+                        <h3>No Recipes Yet</h3>
+                        {{#if isOwnProfile}}
+                        <a href="/recipes/create" class="btn btn--primary">Create Recipe</a>
                         {{/if}}
                     </div>
+                    {{/each}}
                 </div>
             </div>
 
-            {{!-- Stats Section --}}
-            <div class="profile__stats">
-                <a
-                    href="/users/{{#if isOwnProfile}}me{{else}}{{
-                        profileUser._id
-                    }}{{/if}}/followers"
-                    class="profile__stat-item"
-                >
-                    <span class="profile__stat-value">{{ profileUser.followers.length }}</span>
-                    <span class="profile__stat-label">Followers</span>
-                </a>
-                <a
-                    href="/users/{{#if isOwnProfile}}me{{else}}{{
-                        profileUser._id
-                    }}{{/if}}/following"
-                    class="profile__stat-item"
-                >
-                    <span class="profile__stat-value">{{ profileUser.following.length }}</span>
-                    <span class="profile__stat-label">Following</span>
-                </a>
-                <a
-                    href="/users/{{#if isOwnProfile}}me/stored{{else}}{{
-                        profileUser._id
-                    }}{{/if}}/recipes"
-                    class="profile__stat-item"
-                >
-                    <span class="profile__stat-value">{{ profileUser.recipes.length }}</span>
-                    <span class="profile__stat-label">Recipes</span>
-                </a>
-                <a
-                    href="/users/{{#if isOwnProfile}}me/blogs{{else}}{{
-                        profileUser._id
-                    }}{{/if}}/blogs"
-                    class="profile__stat-item"
-                >
-                    <span class="profile__stat-value">{{ profileUser.blogs.length }}</span>
-                    <span class="profile__stat-label">Blogs</span>
-                </a>
+            {{!-- Blogs Tab --}}
+            <div class="profile__tab-content" id="blogs">
+                <div class="profile__grid">
+                    {{#each (limit profileUser.blogs 3)}}
+                    {{> blog-card author=../profileUser}}
+                    {{else}}
+                    <div class="profile__empty">
+                        <img src="/assets/img/no-blogs.svg" alt="No blogs" />
+                        <h3>No Blog Posts Yet</h3>
+                        {{#if isOwnProfile}}
+                        <a href="/blogs/create" class="btn btn--primary">Write Blog</a>
+                        {{/if}}
+                    </div>
+                    {{/each}}
+                </div>
             </div>
 
-            {{!-- Content Section --}}
-            <div class="profile__content">
-                <div class="profile__main">
-                    {{!-- Recipes Section --}}
-                    <section class="profile__section">
-                        <h2 class="profile__section-title">
-                            {{#if isOwnProfile}}My{{else}}{{ profileUser.first_name }}'s{{/if}}
-                            Recipes
-                        </h2>
-                        {{#if profileUser.recipes.length}}
-                        <div class="profile__recipes">
-                            {{#each (limit profileUser.recipes 2)}}
-                            {{> recipe-card 
-                                this 
-                                author=../profileUser
-                            }}
-                            {{/each}}
-                        </div>
-                        <a
-                            href="/users/{{#if ../isOwnProfile}}me/stored{{else}}{{
-                                ../profileUser._id
-                            }}{{/if}}/recipes"
-                            class="btn btn--outline profile__see-all"
-                        >
-                            See all recipes
-                        </a>
-                        {{else}}
-                        <div class="profile__empty">
-                            <p>No recipes yet</p>
-                            {{#if isOwnProfile}}
-                            <a href="/recipes/create" class="btn btn--primary">Create Recipe</a>
-                            {{/if}}
-                        </div>
-                        {{/if}}
-                    </section>
-
-                    {{!-- Blogs Section --}}
-                    <section class="profile__section">
-                        <h2 class="profile__section-title">
-                            {{#if isOwnProfile}}My{{else}}{{ profileUser.first_name }}'s{{/if}}
-                            Blogs
-                        </h2>
-                        {{#if profileUser.blogs.length}}
-                        <div class="profile__blogs">
-                            {{#each (limit profileUser.blogs 2)}}
-                            {{> blog-card 
-                                this 
-                                author=../profileUser
-                            }}
-                            {{/each}}
-                        </div>
-                        <a
-                            href="/users/{{#if ../isOwnProfile}}me/stored{{else}}{{
-                                ../profileUser._id
-                            }}{{/if}}/blogs"
-                            class="btn btn--outline profile__see-all"
-                        >
-                            See all blogs
-                        </a>
-                        {{else}}
-                        <div class="profile__empty">
-                            <p>No blog posts yet</p>
-                            {{#if isOwnProfile}}
-                            <a href="/blogs/create" class="btn btn--primary">Write Blog</a>
-                            {{/if}}
-                        </div>
-                        {{/if}}
-                    </section>
-                </div>
-                <div class="profile__sidebar">
-                    <div class="profile__section">
-                        <h2 class="profile__section-title">Account Info</h2>
+            {{!-- About Tab --}}
+            <div class="profile__tab-content" id="about">
+                <div class="profile__about">
+                    <div class="profile__about-section">
+                        <h3>Account Info</h3>
                         <div class="profile__info-list">
                             <div class="profile__info-item">
                                 <span class="profile__info-label">Email</span>
@@ -171,55 +155,68 @@
                                     >{{formatDate profileUser.createdAt}}</span
                                 >
                             </div>
-                            <div class="profile__info-item">
-                                <span class="profile__info-label">Bio</span>
-                                <span class="profile__info-value">{{ profileUser.bio }}</span>
-                            </div>
                         </div>
                     </div>
                 </div>
             </div>
         </div>
     </div>
-
-    {{!-- Delete Account Modal (Only shown for own profile) --}}
-    {{#if isOwnProfile}}
-    <div class="modal fade" id="deleteAccountModal" tabindex="-1" aria-hidden="true">
-        <div class="modal-dialog">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h5 class="modal-title">Delete Account</h5>
-                    <button
-                        type="button"
-                        class="btn-close"
-                        data-bs-dismiss="modal"
-                        aria-label="Close"
-                    ></button>
-                </div>
-                <div class="modal-body">
-                    <p>
-                        Are you sure you want to delete your account? This action cannot be undone.
-                    </p>
-                    <ul class="text-danger">
-                        <li>All your recipes will be deleted</li>
-                        <li>Your profile information will be permanently removed</li>
-                        <li>You will be logged out immediately</li>
-                    </ul>
-                </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn--outline" data-bs-dismiss="modal">
-                        Cancel
-                    </button>
-                    <form action="/users/me/delete-account" method="POST" style="display: inline">
-                        <button type="submit" class="btn btn--danger">Delete Account</button>
-                    </form>
-                </div>
-            </div>
-        </div>
-    </div>
-    {{/if}}
 </main>
 
 {{#if isAuthenticated}}
 <script src="/js/userActions.js"></script>
+{{/if}}
+
+<script>
+    // Tab switching functionality
+    const tabs = document.querySelectorAll(".profile__tab");
+    const tabContents = document.querySelectorAll(".profile__tab-content");
+
+    tabs.forEach((tab) => {
+        tab.addEventListener("click", () => {
+            // Remove active class from all tabs and contents
+            tabs.forEach((t) => t.classList.remove("active"));
+            tabContents.forEach((c) => c.classList.remove("active"));
+
+            // Add active class to clicked tab and corresponding content
+            tab.classList.add("active");
+            const contentId = tab.dataset.tab;
+            document.getElementById(contentId).classList.add("active");
+        });
+    });
+</script>
+
+{{!-- Add the delete account modal --}}
+{{#if isOwnProfile}}
+<div class="modal fade" id="deleteAccountModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Delete Account</h5>
+                <button
+                    type="button"
+                    class="btn-close"
+                    data-bs-dismiss="modal"
+                    aria-label="Close"
+                ></button>
+            </div>
+            <div class="modal-body">
+                <p>Are you sure you want to delete your account? This action cannot be undone.</p>
+                <ul class="text-danger">
+                    <li>All your recipes will be deleted</li>
+                    <li>Your profile information will be permanently removed</li>
+                    <li>You will be logged out immediately</li>
+                </ul>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn--outline" data-bs-dismiss="modal">
+                    Cancel
+                </button>
+                <form action="/users/me/delete-account" method="POST" style="display: inline">
+                    <button type="submit" class="btn btn--danger">Delete Account</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
 {{/if}}

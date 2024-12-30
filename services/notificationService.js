@@ -15,8 +15,6 @@ class NotificationService {
                 })
                 .lean();
 
-            console.log("Raw notifications:", JSON.stringify(notifications, null, 2));
-
             // Only filter out null content_id notifications (deleted content)
             // but keep read notifications
             const validNotifications = notifications.filter(
@@ -41,17 +39,30 @@ class NotificationService {
             );
 
             // Debug log to see what's being returned
+            // populatedNotifications.forEach((notification) => {
+            //     console.log("Notification content:", {
+            //         type: notification.notification_type,
+            //         contentType: notification.content_type,
+            //         contentId: notification.content_id,
+            //         userId: notification.content_id?.author?._id,
+            //         username: notification.content_id?.author?.username,
+            //         profilePicture: notification.content_id?.author?.profile_picture,
+            //         title: notification.content_id?.title,
+            //         slug: notification.content_id?.slug,
+            //         isRead: notification.is_read,
+            //     });
+            // });
             populatedNotifications.forEach((notification) => {
                 console.log("Notification content:", {
-                    type: notification.notification_type,
-                    contentType: notification.content_type,
-                    contentId: notification.content_id,
-                    userId: notification.content_id?.author?._id,
-                    username: notification.content_id?.author?.username,
-                    profilePicture: notification.content_id?.author?.profile_picture,
-                    title: notification.content_id?.title,
-                    slug: notification.content_id?.slug,
-                    isRead: notification.is_read,
+                    type: notification.notification_type
+                    // contentType: notification.content_type,
+                    // contentId: notification.content_id,
+                    // userId: notification.content_id?.author?._id,
+                    // username: notification.content_id?.author?.username,
+                    // profilePicture: notification.content_id?.author?.profile_picture,
+                    // title: notification.content_id?.title,
+                    // slug: notification.content_id?.slug,
+                    // isRead: notification.is_read,
                 });
             });
 

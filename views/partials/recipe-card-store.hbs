@@ -1,22 +1,22 @@
-<div class="content-card blog-card">
+<div class="content-card recipe-card">
     <div class="content-card__header">
         <div class="content-card__img-wrap">
             {{#if this.image}}
             <img src="{{ this.image }}" class="content-card__img" alt="{{ this.title }}" />
             {{else}}
             <img
-                src="/assets/img/blog-placeholder.jpg"
+                src="/assets/img/recipe-placeholder.jpg"
                 class="content-card__img"
                 alt="{{ this.title }}"
             />
             {{/if}}
             <div class="content-card__overlay">
-                <div class="blog-card__badges">
-                    <div class="blog-card__badge blog-card__badge--type">
-                        <i class="fas fa-book"></i>Blog
+                <div class="recipe-card__badges">
+                    <div class="recipe-card__badge recipe-card__badge--type">
+                        <i class="fas fa-utensils"></i>Recipe
                     </div>
-                    <div class="blog-card__badge">
-                        <i class="fas fa-book-reader"></i>{{ this.readTime }}m read
+                    <div class="recipe-card__badge">
+                        <i class="fas fa-clock"></i>{{ add this.prepTime this.cookTime }}m
                     </div>
                 </div>
             </div>
@@ -37,24 +37,36 @@
         </div>
 
         <h3 class="content-card__title">
-            <a href="/blogs/{{ this.slug }}">{{ this.title }}</a>
+            <a href="/recipes/{{ this.slug }}">{{ this.title }}</a>
         </h3>
 
         <p class="content-card__desc">{{ this.description }}</p>
 
         <div class="content-card__footer">
-            <div class="blog-card__tags">
-                <span class="blog-card__tag blog-card__tag--category">
-                    {{ this.category }}
+            <div class="recipe-card__tags">
+                <span class="recipe-card__tag recipe-card__tag--{{ this.difficulty }}">
+                    {{ this.difficulty }}
                 </span>
-                {{#each (limit this.tags 2)}}
-                <span class="blog-card__tag">{{ this }}</span>
-                {{/each}}
+                <span class="recipe-card__tag">{{ this.servings }} servings</span>
             </div>
-            <div class="blog-card__stats">
+            <div class="recipe-card__stats">
                 <span><i class="fas fa-thumbs-up"></i>{{ this.votes.upvotes }}</span>
                 <span><i class="fas fa-eye"></i>{{ this.views }}</span>
             </div>
+        </div>
+
+        <div class="content-card__actions">
+            <a href="/recipes/{{ this.slug }}/edit" class="btn btn--outline btn--sm">
+                <i class="fas fa-edit"></i>Edit
+            </a>
+            <button
+                class="btn btn--danger btn--sm"
+                data-bs-toggle="modal"
+                data-bs-target="#deleteModal"
+                onclick="deleteRecipe('{{ this.slug }}')"
+            >
+                <i class="fas fa-trash-alt"></i>Delete
+            </button>
         </div>
     </div>
 </div>

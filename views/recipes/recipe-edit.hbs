@@ -1,19 +1,25 @@
-<main class="create-recipe">
-    <div class="create-recipe__container">
-        <h1 class="create-recipe__heading">Edit Recipe</h1>
+<main class="create-form">
+    <div class="create-form__container">
+        <h1 class="create-form__heading">Edit Recipe</h1>
 
-        <form id="editRecipeForm" class="create-recipe__form" enctype="multipart/form-data">
+        <form 
+            action="/recipes/{{ recipe.slug }}?_method=PUT"
+            method="POST" 
+            class="create-form__form" 
+            enctype="multipart/form-data"
+        >
             {{!-- Basic Info --}}
             <div class="form-group">
-                <h2 class="section-title">Basic Information</h2>
+                <h2 class="section-title">
+                    <i class="fas fa-info-circle"></i>
+                    Basic Information
+                </h2>
                 <div class="form-group">
                     <label for="recipe-image">Recipe Image</label>
                     <div class="image-upload">
                         <div class="image-upload__preview">
                             <img
-                                src="{{#if recipe.image}}{{
-                                    recipe.image
-                                }}{{else}}/assets/img/recipe-placeholder.jpg{{/if}}"
+                                src="{{#if recipe.image}}{{ recipe.image }}{{else}}/assets/img/recipe-placeholder.jpg{{/if}}"
                                 alt="Recipe preview"
                                 id="imagePreview"
                             />
@@ -34,6 +40,7 @@
                         </div>
                     </div>
                 </div>
+
                 <div class="form-group">
                     <label for="title">Recipe Title</label>
                     <input
@@ -45,161 +52,174 @@
                         required
                     />
                 </div>
+
                 <div class="form-group">
-                    <label for="description">Recipe Description</label>
+                    <label for="description">Description</label>
                     <textarea
                         id="description"
                         name="description"
-                        placeholder="Describe your recipe..."
+                        placeholder="Write a brief description of your recipe..."
                         required
-                        >{{ recipe.description }}</textarea
-                    >
+                    >{{ recipe.description }}</textarea>
                 </div>
-            </div>
 
-            {{!-- Cooking Info --}}
-            <div class="form-group">
-                <h2 class="section-title">Cooking Information</h2>
-                <div class="create-recipe__form__item--row">
-                    <div class="form-group">
-                        <label for="prepTime">Prep Time (minutes)</label>
-                        <input
-                            type="number"
-                            id="prepTime"
-                            name="prepTime"
-                            value="{{ recipe.prepTime }}"
-                            min="0"
-                            required
-                        />
+                <div class="form-group">
+                    <div class="row">
+                        <div class="col-md-4">
+                            <label for="prepTime">Prep Time (mins)</label>
+                            <input 
+                                type="number" 
+                                id="prepTime" 
+                                name="prepTime" 
+                                value="{{ recipe.prepTime }}"
+                                min="0" 
+                                required 
+                            />
+                        </div>
+                        <div class="col-md-4">
+                            <label for="cookTime">Cook Time (mins)</label>
+                            <input 
+                                type="number" 
+                                id="cookTime" 
+                                name="cookTime" 
+                                value="{{ recipe.cookTime }}"
+                                min="0" 
+                                required 
+                            />
+                        </div>
+                        <div class="col-md-4">
+                            <label for="servings">Servings</label>
+                            <input 
+                                type="number" 
+                                id="servings" 
+                                name="servings" 
+                                value="{{ recipe.servings }}"
+                                min="1" 
+                                required 
+                            />
+                        </div>
                     </div>
-                    <div class="form-group">
-                        <label for="cookTime">Cook Time (minutes)</label>
-                        <input
-                            type="number"
-                            id="cookTime"
-                            name="cookTime"
-                            value="{{ recipe.cookTime }}"
-                            min="0"
-                            required
-                        />
-                    </div>
-                    <div class="form-group">
-                        <label for="servings">Servings</label>
-                        <input
-                            type="number"
-                            id="servings"
-                            name="servings"
-                            value="{{ recipe.servings }}"
-                            min="1"
-                            required
-                        />
-                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label for="difficulty">Difficulty</label>
+                    <select name="difficulty" id="difficulty" required>
+                        <option value="" disabled>Select difficulty level</option>
+                        <option value="easy" {{#if (eq recipe.difficulty "easy")}}selected{{/if}}>Easy</option>
+                        <option value="medium" {{#if (eq recipe.difficulty "medium")}}selected{{/if}}>Medium</option>
+                        <option value="hard" {{#if (eq recipe.difficulty "hard")}}selected{{/if}}>Hard</option>
+                    </select>
                 </div>
             </div>
 
             {{!-- Ingredients --}}
             <div class="form-group">
-                <h2 class="section-title">Ingredients</h2>
-                <div class="ingredients-list" id="ingredientsList">
+                <h2 class="section-title">
+                    <i class="fas fa-list"></i>
+                    Ingredients
+                </h2>
+                <div id="ingredients-list">
                     {{#each recipe.ingredients}}
-                    <div class="ingredient-item">
-                        <input
-                            type="text"
-                            name="ingredients[{{@index}}][name]"
-                            value="{{ this.name }}"
-                            placeholder="Ingredient name"
-                            required
-                        />
-                        <input
-                            type="text"
-                            name="ingredients[{{@index}}][quantity]"
-                            value="{{ this.quantity }}"
-                            placeholder="Amount (e.g., 2 cups)"
-                            required
-                        />
-                        <button type="button" class="remove-btn">&times;</button>
-                    </div>
+                        <div class="ingredient-item">
+                            <input
+                                type="text"
+                                name="ingredients[{{@index}}][name]"
+                                value="{{ this.name }}"
+                                placeholder="Ingredient name"
+                                required
+                            />
+                            <input
+                                type="text"
+                                name="ingredients[{{@index}}][quantity]"
+                                value="{{ this.quantity }}"
+                                placeholder="Amount"
+                                required
+                            />
+                            <button type="button" class="remove-btn" onclick="removeItem(this)">
+                                <i class="fas fa-times"></i>
+                            </button>
+                        </div>
                     {{/each}}
                 </div>
-                <button type="button" class="btn btn--add" id="addIngredient">
-                    Add Another Ingredient
+                <button type="button" class="btn btn--add" onclick="addIngredient()">
+                    Add Ingredient
                 </button>
             </div>
 
             {{!-- Instructions --}}
             <div class="form-group">
-                <h2 class="section-title">Cooking Instructions</h2>
-                <div id="instructionsList">
+                <h2 class="section-title">
+                    <i class="fas fa-tasks"></i>
+                    Instructions
+                </h2>
+                <div id="instructions-list">
                     {{#each recipe.instructions}}
-                    <div class="instruction-item">
-                        <span class="instruction-number">{{add @index 1}}</span>
-                        <input
-                            type="text"
-                            name="instructions[{{@index}}][description]"
-                            value="{{ this.description }}"
-                            placeholder="Enter cooking instruction"
-                            required
-                        />
-                        <button type="button" class="remove-btn">&times;</button>
-                    </div>
+                        <div class="instruction-item">
+                            <span class="instruction-number">{{add @index 1}}</span>
+                            <input
+                                type="text"
+                                name="instructions[{{@index}}][description]"
+                                value="{{ this.description }}"
+                                placeholder="Enter instruction step"
+                                required
+                            />
+                            <button type="button" class="remove-btn" onclick="removeItem(this)">
+                                <i class="fas fa-times"></i>
+                            </button>
+                        </div>
                     {{/each}}
                 </div>
-                <button type="button" id="addInstruction" class="btn btn--add">Add Step</button>
+                <button type="button" class="btn btn--add" onclick="addInstruction()">
+                    Add Instruction
+                </button>
             </div>
 
-            <div class="create-recipe__form__actions">
-                <div class="create-recipe__form__buttons">
-                    <button type="submit" class="btn btn--primary create-recipe__form__submit">
-                        <i class="fas fa-save"></i>
-                        Save Changes
-                    </button>
-                    <a
-                        href="/users/me/stored/recipes"
-                        class="btn btn--outline create-recipe__form__cancel"
-                    >
-                        <i class="fas fa-times"></i>
-                        Cancel
-                    </a>
-                </div>
+            {{!-- Form Actions --}}
+            <div class="create-form__actions">
+                <button type="submit" class="btn btn--primary create-form__submit">
+                    <i class="fas fa-save"></i>
+                    Save Changes
+                </button>
+                <a href="/users/me/stored/recipes" class="btn btn--outline create-form__cancel">
+                    <i class="fas fa-times"></i>
+                    Cancel
+                </a>
             </div>
         </form>
     </div>
 </main>
 
 <script>
-    // Add dynamic fields for ingredients
-    const ingredientsList = document.getElementById("ingredientsList");
-    const addIngredientBtn = document.getElementById("addIngredient");
     let ingredientCount = {{recipe.ingredients.length}};
+    let instructionCount = {{recipe.instructions.length}};
 
-    addIngredientBtn.addEventListener("click", () => {
+    function addIngredient() {
+        const ingredientsList = document.getElementById("ingredients-list");
         const newIngredient = document.createElement("div");
         newIngredient.className = "ingredient-item";
         newIngredient.innerHTML = `
             <input
                 type="text"
                 name="ingredients[${ingredientCount}][name]"
-                placeholder="Enter ingredient"
+                placeholder="Ingredient name"
                 required
-            >
+            />
             <input
                 type="text"
                 name="ingredients[${ingredientCount}][quantity]"
-                placeholder="Amount (e.g., 2 cups)"
+                placeholder="Amount"
                 required
-            >
-            <button type="button" class="remove-btn">&times;</button>
+            />
+            <button type="button" class="remove-btn" onclick="removeItem(this)">
+                <i class="fas fa-times"></i>
+            </button>
         `;
         ingredientsList.appendChild(newIngredient);
         ingredientCount++;
-    });
+    }
 
-    // Add dynamic fields for instructions
-    const instructionsList = document.getElementById("instructionsList");
-    const addInstructionBtn = document.getElementById("addInstruction");
-    let instructionCount = {{recipe.instructions.length}};
-
-    addInstructionBtn.addEventListener("click", () => {
+    function addInstruction() {
+        const instructionsList = document.getElementById("instructions-list");
         const newInstruction = document.createElement("div");
         newInstruction.className = "instruction-item";
         newInstruction.innerHTML = `
@@ -207,15 +227,27 @@
             <input
                 type="text"
                 name="instructions[${instructionCount}][description]"
-                placeholder="Enter cooking instruction"
+                placeholder="Enter instruction step"
                 required
-            >
-            <button type="button" class="remove-btn">&times;</button>
+            />
+            <button type="button" class="remove-btn" onclick="removeItem(this)">
+                <i class="fas fa-times"></i>
+            </button>
         `;
         instructionsList.appendChild(newInstruction);
         instructionCount++;
         updateInstructionNumbers();
-    });
+    }
+
+    function removeItem(button) {
+        const item = button.parentElement;
+        const list = item.parentElement;
+        list.removeChild(item);
+
+        if (list.id === "instructions-list") {
+            updateInstructionNumbers();
+        }
+    }
 
     function updateInstructionNumbers() {
         const instructions = document.querySelectorAll(".instruction-item");
@@ -224,64 +256,23 @@
             if (numberSpan) {
                 numberSpan.textContent = index + 1;
             }
-
             const input = item.querySelector("input");
             if (input) {
                 input.name = `instructions[${index}][description]`;
             }
         });
+        instructionCount = instructions.length;
     }
 
-    // Remove items
-    document.addEventListener("click", (e) => {
-        if (e.target.classList.contains("remove-btn")) {
-            e.target.parentElement.remove();
-            if (e.target.closest("#instructionsList")) {
-                instructionCount--;
-                updateInstructionNumbers();
-            }
-        }
-    });
-
     function previewImage(input) {
-        const preview = document.getElementById("imagePreview");
+        const preview = document.getElementById('imagePreview');
         const file = input.files[0];
-
         if (file) {
             const reader = new FileReader();
-
-            reader.onload = function (e) {
+            reader.onload = function(e) {
                 preview.src = e.target.result;
             };
-
             reader.readAsDataURL(file);
         }
     }
-
-    // Add this new code for form submission
-    const form = document.getElementById('editRecipeForm');
-    form.addEventListener('submit', async (e) => {
-        e.preventDefault();
-
-        const formData = new FormData(form);
-
-        try {
-            const response = await fetch('/recipes/{{ recipe._id }}?_method=PUT', {
-                method: 'POST',
-                body: formData
-            });
-
-            const result = await response.json();
-
-            if (response.ok) {
-                alert('Recipe updated successfully!');
-                window.location.href = '/users/me/stored/recipes';
-            } else {
-                alert(result.message || 'Error updating recipe');
-            }
-        } catch (error) {
-            console.error('Error:', error);
-            alert('Error updating recipe');
-        }
-    });
 </script>

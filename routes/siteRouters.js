@@ -1,4 +1,6 @@
 // routes/siteRouters.js
+const express = require("express");
+const router = express.Router();
 const defaultRouter = require("./defaultRouters");
 const recipesRouter = require("./recipeRouters");
 const blogRouter = require("./blogRouters");
@@ -15,4 +17,6 @@ module.exports = (app) => {
     app.use("/recipes", recipesRouter);
     app.use("/blogs", blogRouter);
     app.use("/admin", adminRouter);
+
+  
 };

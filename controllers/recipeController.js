@@ -4,6 +4,7 @@ const path = require("path");
 const notificationService = require("../services/notificationService");
 // const recommendationService = require('../services/recommendationService');
 const { uploadRecipeImage } = require("../services/uploadService");
+const fuzzball = require('fuzzball');
 
 // [GET] /recipes/
 module.exports.showRecipes = async (req, res) => {
@@ -12,12 +13,12 @@ module.exports.showRecipes = async (req, res) => {
             .populate("author", "username first_name last_name profile_picture")
             .lean();
 
-        console.log("Recipes with populated authors:", recipes);
-
         res.render("recipes/recipe-browse", {
             layout: "default",
             title: "Browse Recipes",
             recipes,
+            searchType: 'recipes',
+            searchPlaceholder: 'recipes'
         });
     } catch (err) {
         console.error(err);
@@ -31,9 +32,9 @@ module.exports.showRecipes = async (req, res) => {
 // [GET] /recipes/:slug
 module.exports.showRecipeDetail = async (req, res) => {
     try {
-        // First find the recipe
         const recipe = await Recipe.findOne({ slug: req.params.slug })
             .populate("author", "username first_name last_name profile_picture")
+            .populate("comments.user_id", "username first_name last_name profile_picture")
             .lean();
 
         if (!recipe) {
@@ -51,45 +52,26 @@ module.exports.showRecipeDetail = async (req, res) => {
             };
         }
 
-        // Increment view count in a separate query
+        // Increment view count
         await Recipe.findByIdAndUpdate(recipe._id, { $inc: { views: 1 } });
 
-        // Get recommendations
-        let recommendedRecipes = [];
-        try {
-            const recommendations = await recommendationService.getRecommendations(recipe._id);
-            if (recommendations && recommendations.length > 0) {
-                recommendedRecipes = await Recipe.find({
-                    _id: { $in: recommendations },
-                })
-                    .select("title image votes slug")
-                    .lean();
-            } else {
-                recommendedRecipes = await Recipe.find({
-                    _id: { $ne: recipe._id },
-                })
-                    .select("title image votes slug")
-                    .limit(5)
-                    .lean();
-            }
-        } catch (error) {
-            console.log("Error getting recommendations:", error.message);
-            recommendedRecipes = await Recipe.find({
-                _id: { $ne: recipe._id },
-            })
-                .select("title image votes slug")
-                .limit(5)
-                .lean();
-        }
+        // Check if the logged-in user is following the recipe author
+        const isFollowing = req.user ? req.user.following.includes(recipe.author._id) : false;
 
         res.render("recipes/recipe-detail", {
             layout: "default",
             title: recipe.title,
             recipe,
-            recommendations: recommendedRecipes,
+            isAuthenticated: !!req.user,
+            isFollowing,
+            user: req.user,
+            messages: {
+                success: req.flash("success"),
+                error: req.flash("error"),
+            },
         });
-    } catch (err) {
-        console.error("Error in showRecipeDetail:", err);
+    } catch (error) {
+        console.error(error);
         res.render("default/404");
     }
 };
@@ -127,6 +109,7 @@ module.exports.storeRecipe = async (req, res) => {
             servings: parseInt(req.body.servings),
             ingredients: ingredients,
             instructions: instructions,
+            difficulty: req.body.difficulty,
         };
 
         if (req.file) {
@@ -168,9 +151,9 @@ module.exports.storeRecipe = async (req, res) => {
     }
 };
 
-// [GET] /recipes/:id/edit
+// [GET] /recipes/:slug/edit
 module.exports.editRecipe = (req, res, next) => {
-    Recipe.findById(req.params.id)
+    Recipe.findOne({ slug: req.params.slug })
         .lean()
         .then((recipe) => {
             res.render("recipes/recipe-edit", {
@@ -182,7 +165,7 @@ module.exports.editRecipe = (req, res, next) => {
         .catch(next);
 };
 
-// [PUT] /recipes/:id
+// [PUT] /recipes/:slug
 module.exports.updateRecipe = async (req, res) => {
     try {
         const recipeId = req.params.id;
@@ -194,6 +177,7 @@ module.exports.updateRecipe = async (req, res) => {
             servings: req.body.servings,
             ingredients: [],
             instructions: [],
+            difficulty: req.body.difficulty,
         };
 
         // Handle ingredients
@@ -224,7 +208,7 @@ module.exports.updateRecipe = async (req, res) => {
             updateData.image = "/uploads/recipes/" + req.file.filename;
         }
 
-        const updatedRecipe = await Recipe.findByIdAndUpdate(recipeId, updateData, {
+        const updatedRecipe = await Recipe.findOneAndUpdate({ slug: req.params.slug }, updateData, {
             new: true,
             runValidators: true,
         });
@@ -233,11 +217,7 @@ module.exports.updateRecipe = async (req, res) => {
             return res.status(404).json({ message: "Recipe not found" });
         }
 
-        res.status(200).json({
-            success: true,
-            message: "Recipe updated successfully",
-            recipe: updatedRecipe,
-        });
+        res.redirect(`../users/me/stored/recipes`);
     } catch (error) {
         console.error("Update error:", error);
         res.status(500).json({
@@ -247,9 +227,9 @@ module.exports.updateRecipe = async (req, res) => {
     }
 };
 
-// [DELETE] /recipes/:id
+// [DELETE] /recipes/:slug
 module.exports.deleteRecipe = (req, res, next) => {
-    Recipe.deleteOne({ _id: req.params.id })
+    Recipe.deleteOne({ slug: req.params.slug })
         .then(() => res.redirect("back"))
         .catch(next);
 };
@@ -275,19 +255,26 @@ module.exports.likeRecipe = async (req, res) => {
     }
 };
 
-// Add comment functionality
+// [POST] /recipes/:slug/comment
 module.exports.addComment = async (req, res) => {
     try {
-        const recipe = await Recipe.findById(req.params.id);
-        const comment = {
-            user_id: req.user._id,
-            comments: req.body.comment,
-            rating: req.body.rating,
-        };
+        const recipe = await Recipe.findOne({ slug: req.params.slug });
+        if (!recipe) {
+            req.flash("error", "Recipe not found");
+            return res.redirect("/recipes");
+        }
 
-        await Recipe.findByIdAndUpdate(req.params.id, {
-            $push: { reviews: comment },
+        // Add the comment
+        if (!recipe.comments) {
+            recipe.comments = [];
+        }
+
+        recipe.comments.push({
+            user_id: req.user._id,
+            content: req.body.content,
         });
+
+        await recipe.save();
 
         // Create notification if commenter is not the author
         if (req.user._id.toString() !== recipe.author.toString()) {
@@ -296,18 +283,23 @@ module.exports.addComment = async (req, res) => {
 
         res.redirect("back");
     } catch (error) {
-        console.error("Error adding comment:", error);
-        res.status(500).send("Failed to add comment");
+        console.error("Comment error:", error);
+        // Redirect back with error message
+        req.flash("error", "Error adding comment");
+        return res.redirect(`/recipes/${req.params.slug}`);
     }
 };
-// [POST] /recipes/:id/vote
+// [POST] /recipes/:slug/vote
 module.exports.handleVote = async (req, res) => {
     try {
-        const { id } = req.params;
         const { voteType } = req.body;
         const userId = req.user._id;
 
-        const recipe = await Recipe.findById(id);
+        if (!["up", "down"].includes(voteType)) {
+            return res.status(400).json({ success: false, message: "Invalid vote type" });
+        }
+
+        const recipe = await Recipe.findOne({ slug: req.params.slug });
         if (!recipe) {
             return res.status(404).json({ message: "Recipe not found" });
         }
@@ -319,14 +311,17 @@ module.exports.handleVote = async (req, res) => {
         if (existingVoteIndex > -1) {
             const existingVote = recipe.userVotes[existingVoteIndex];
             if (existingVote.voteType === voteType) {
+                // Remove vote if clicking same button
                 recipe.userVotes.splice(existingVoteIndex, 1);
                 recipe.votes[`${voteType}votes`]--;
             } else {
+                // Change vote type
                 recipe.votes[`${existingVote.voteType}votes`]--;
                 recipe.votes[`${voteType}votes`]++;
                 existingVote.voteType = voteType;
             }
         } else {
+            // Add new vote
             recipe.userVotes.push({ user: userId, voteType });
             recipe.votes[`${voteType}votes`]++;
         }
@@ -354,7 +349,7 @@ module.exports.handleVote = async (req, res) => {
     }
 };
 
-// [GET] /recipes/test-recommendations/:id
+// [GET] /recipes/test-recommendations/:slug
 module.exports.testRecommendations = async (req, res) => {
     try {
         const recommendations = await recommendationService.getRecommendations(req.params.id);
@@ -378,5 +373,86 @@ module.exports.showStoredRecipes = async (req, res) => {
     } catch (error) {
         console.error(error);
         res.status(500).send("Server Error");
+    }
+};
+
+// Search recipes
+module.exports.searchRecipes = async (req, res) => {
+    try {
+        console.log('Search query:', req.query);
+        const query = req.query.q;
+        if (!query) {
+            console.log('No query provided, redirecting to /recipes');
+            return res.redirect('/recipes');
+        }
+
+        // 1. Text search
+        const textMatches = await Recipe.find({
+            $text: { $search: query }
+        })
+        .populate("author", "username first_name last_name profile_picture")
+        .select("title description image prepTime cookTime difficulty cuisine category votes userVotes createdAt slug")
+        .limit(10)
+        .lean();
+        console.log('Text search results:', textMatches.length);
+
+        // 2. Fuzzy regex search
+        const regexMatches = await Recipe.find({
+            $or: [
+                { title: { $regex: query, $options: 'i' } },
+                { description: { $regex: query, $options: 'i' } },
+                { "ingredients.name": { $regex: query, $options: 'i' } },
+                { "instructions.description": { $regex: query, $options: 'i' } }
+            ]
+        })
+        .populate("author", "username first_name last_name profile_picture")
+        .select("title description image prepTime cookTime difficulty cuisine category votes userVotes createdAt slug")
+        .limit(10)
+        .lean();
+        console.log('Regex search results:', regexMatches.length);
+
+        // 3. Fuzzy scoring
+        const allRecipes = await Recipe.find()
+            .populate("author", "username first_name last_name profile_picture")
+            .select("title description image prepTime cookTime difficulty cuisine category votes userVotes createdAt slug")
+            .limit(50)
+            .lean();
+
+        const fuzzyMatches = allRecipes
+            .map(recipe => ({
+                ...recipe,
+                score: Math.max(
+                    fuzzball.partial_ratio(query.toLowerCase(), recipe.title.toLowerCase()),
+                    fuzzball.partial_ratio(query.toLowerCase(), recipe.description.toLowerCase())
+                )
+            }))
+            .filter(match => match.score > 70)
+            .sort((a, b) => b.score - a.score)
+            .slice(0, 10);
+
+        // Combine and deduplicate results using _id
+        const seenIds = new Set();
+        const combinedResults = [...textMatches, ...regexMatches, ...fuzzyMatches].filter(recipe => {
+            if (seenIds.has(recipe._id.toString())) {
+                return false;
+            }
+            seenIds.add(recipe._id.toString());
+            return true;
+        });
+
+        console.log('Total combined results:', combinedResults.length);
+
+        // Render the correct view
+        res.render('recipes/recipe-browse', {
+            title: `Search Results for "${query}"`,
+            recipes: combinedResults,
+            query,
+            searchType: 'recipes',
+            searchPlaceholder: 'recipes',
+            isRecipes: true
+        });
+    } catch (error) {
+        console.error('Search error:', error);
+        res.status(500).send('Server Error');
     }
 };

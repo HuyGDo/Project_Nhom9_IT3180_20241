@@ -1,8 +1,8 @@
 // emailWorker.js - Consumes Email Jobs from RabbitMQ
 
-const rabbitmqService = require('../services/rabbitmqService');
-const emailService = require('../services/emailService');
-const User = require('../models/User');
+const rabbitmqService = require("../services/rabbitmqService");
+const emailService = require("../services/emailService");
+const User = require("../models/User");
 
 //function to process emails
 const processEmailJob = async (message) => {
@@ -13,12 +13,12 @@ const processEmailJob = async (message) => {
         // Fetch all users who should receive weekly emails
         const users = await User.find(); // Adjust for users opted-in for emails --> Adjust later
 
-        for(const user in users){
+        for (const user in users) {
             await emailService.sendNotificationEmail(user.email, subject, htmlContent);
         }
 
-        console.log('Weekly summary emails sent successfully');
+        console.log("Weekly summary emails sent successfully");
     } catch (error) {
-        console.error('Error sending weekly summary emails:', error);
+        console.error("Error sending weekly summary emails:", error);
     }
-}
+};

@@ -121,6 +121,20 @@
                 resize: vertical;
                 line-height: 1.6;
             }
+
+            select[name="difficulty"] {
+                option[value="easy"] {
+                    color: #2b8a3e;
+                }
+
+                option[value="medium"] {
+                    color: #e67700;
+                }
+
+                option[value="hard"] {
+                    color: #c92a2a;
+                }
+            }
         }
     }
 

@@ -6,7 +6,6 @@ class NotificationController {
         try {
             const notifications = await notificationService.getUserNotifications(req.user._id);
             console.log("Fetched notifications for user:", req.user._id);
-            console.log("Notifications:", notifications);
             res.json({ notifications });
         } catch (error) {
             console.error("Error in getNotifications:", error);
