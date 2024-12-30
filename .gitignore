@@ -145,6 +145,7 @@ out
 
 .prettierrc
 
-public/css
+# CSS map files
+public/css/
 
 package-lock.json
