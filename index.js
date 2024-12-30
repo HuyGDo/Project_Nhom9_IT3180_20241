@@ -8,7 +8,7 @@ const flash = require("connect-flash");
 const cookieParser = require("cookie-parser");
 const session = require("express-session");
 const hbsHelpers = require("./helpers/handlebars");
-const { formatTimeAgo, generateNotificationLink } = require('./helpers/notificationHelpers');
+const { formatTimeAgo, generateNotificationLink } = require("./helpers/notificationHelpers");
 // const { setupWeeklyEmailCronJob } = require("./services/cronService");
 const app = express();
 /* Configure Mongoose */
@@ -38,7 +38,7 @@ const hbs = engine({
         sum: (a, b) => a + b,
         eq: (a, b) => a === b,
         formatTimeAgo,
-        generateNotificationLink
+        generateNotificationLink,
     },
 });
 app.engine("hbs", hbs);
@@ -79,9 +79,26 @@ app.use("/uploads", express.static("public/uploads"));
 
 const blogRouters = require("./routes/blogRouters");
 
-
+let server;
 
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => {
     console.log(`Server is running on: http://localhost:${PORT}`);
+});
+
+// Graceful shutdown on Nodemon restart
+process.on("SIGTERM", () => {
+    console.log("SIGTERM signal received: closing HTTP server");
+    server.close(() => {
+        console.log("HTTP server closed");
+        process.exit(0);
+    });
+});
+
+process.on("SIGINT", () => {
+    console.log("SIGINT signal received: closing HTTP server");
+    server.close(() => {
+        console.log("HTTP server closed");
+        process.exit(0);
+    });
 });

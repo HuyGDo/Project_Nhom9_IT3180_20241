@@ -1,6 +1,6 @@
 const Blog = require("../models/Blog");
 const notificationService = require("../services/notificationService");
-const fuzzball = require('fuzzball');
+const fuzzball = require("fuzzball");
 
 // [GET] /blogs
 module.exports.showBlogs = async (req, res) => {
@@ -14,9 +14,9 @@ module.exports.showBlogs = async (req, res) => {
             layout: "default",
             title: "Browse Blogs",
             blogs,
-            searchType: 'blogs',
-            searchPlaceholder: 'blogs',
-            isBlogs: true
+            searchType: "blogs",
+            searchPlaceholder: "blogs",
+            isBlogs: true,
         });
     } catch (error) {
         console.error(error);
@@ -182,7 +182,7 @@ module.exports.handleVote = async (req, res) => {
 // [POST] /blogs/:slug/comment
 module.exports.addComment = async (req, res) => {
     try {
-        const blog = await Blog.findById(req.params.id);
+        const blog = await Blog.findOne({ slug: req.params.slug });
         if (!blog) {
             return res.status(404).json({ message: "Blog not found" });
         }
@@ -289,52 +289,52 @@ module.exports.showStoredBlogs = async (req, res) => {
 module.exports.getAllBlogs = async (req, res) => {
     try {
         const blogs = await Blog.find()
-            .populate('author', 'username avatar')
+            .populate("author", "username avatar")
             .sort({ createdAt: -1 });
 
-        res.render('blog/browse', {
-            title: 'Browse Blogs',
+        res.render("blog/browse", {
+            title: "Browse Blogs",
             blogs,
-            searchType: 'blogs',
-            searchPlaceholder: 'blogs'
+            searchType: "blogs",
+            searchPlaceholder: "blogs",
         });
     } catch (error) {
         console.error(error);
-        res.status(500).send('Server Error');
+        res.status(500).send("Server Error");
     }
 };
 
 // Search blogs
 module.exports.searchBlogs = async (req, res) => {
     try {
-        console.log('Search query:', req.query);
+        console.log("Search query:", req.query);
         const query = req.query.q;
         if (!query) {
-            console.log('No query provided, redirecting to /blogs');
-            return res.redirect('/blogs');
+            console.log("No query provided, redirecting to /blogs");
+            return res.redirect("/blogs");
         }
 
         // 1. Text search
         const textMatches = await Blog.find({
-            $text: { $search: query }
+            $text: { $search: query },
         })
-        .populate("author", "username first_name last_name profile_picture")
-        .limit(10)
-        .lean();
-        console.log('Text search results:', textMatches.length);
+            .populate("author", "username first_name last_name profile_picture")
+            .limit(10)
+            .lean();
+        console.log("Text search results:", textMatches.length);
 
         // 2. Fuzzy regex search
         const regexMatches = await Blog.find({
             $or: [
-                { title: { $regex: query, $options: 'i' } },
-                { content: { $regex: query, $options: 'i' } },
-                { description: { $regex: query, $options: 'i' } }
-            ]
+                { title: { $regex: query, $options: "i" } },
+                { content: { $regex: query, $options: "i" } },
+                { description: { $regex: query, $options: "i" } },
+            ],
         })
-        .populate("author", "username first_name last_name profile_picture")
-        .limit(10)
-        .lean();
-        console.log('Regex search results:', regexMatches.length);
+            .populate("author", "username first_name last_name profile_picture")
+            .limit(10)
+            .lean();
+        console.log("Regex search results:", regexMatches.length);
 
         // 3. Fuzzy scoring
         const allBlogs = await Blog.find()
@@ -343,40 +343,42 @@ module.exports.searchBlogs = async (req, res) => {
             .lean();
 
         const fuzzyMatches = allBlogs
-            .map(blog => ({
+            .map((blog) => ({
                 ...blog,
                 score: Math.max(
                     fuzzball.partial_ratio(query.toLowerCase(), blog.title.toLowerCase()),
-                    fuzzball.partial_ratio(query.toLowerCase(), blog.description.toLowerCase())
-                )
+                    fuzzball.partial_ratio(query.toLowerCase(), blog.description.toLowerCase()),
+                ),
             }))
-            .filter(match => match.score > 70)
+            .filter((match) => match.score > 70)
             .sort((a, b) => b.score - a.score)
             .slice(0, 10);
 
         // Combine and deduplicate results using _id
         const seenIds = new Set();
-        const combinedResults = [...textMatches, ...regexMatches, ...fuzzyMatches].filter(blog => {
-            if (seenIds.has(blog._id.toString())) {
-                return false;
-            }
-            seenIds.add(blog._id.toString());
-            return true;
-        });
+        const combinedResults = [...textMatches, ...regexMatches, ...fuzzyMatches].filter(
+            (blog) => {
+                if (seenIds.has(blog._id.toString())) {
+                    return false;
+                }
+                seenIds.add(blog._id.toString());
+                return true;
+            },
+        );
 
-        console.log('Total combined results:', combinedResults.length);
+        console.log("Total combined results:", combinedResults.length);
 
         // Render the correct view
-        res.render('blogs/blog-browse', {
+        res.render("blogs/blog-browse", {
             title: `Search Results for "${query}"`,
             blogs: combinedResults,
             query,
-            searchType: 'blogs',
-            searchPlaceholder: 'blogs',
-            isBlogs: true
+            searchType: "blogs",
+            searchPlaceholder: "blogs",
+            isBlogs: true,
         });
     } catch (error) {
-        console.error('Search error:', error);
-        res.status(500).send('Server Error');
+        console.error("Search error:", error);
+        res.status(500).send("Server Error");
     }
 };
