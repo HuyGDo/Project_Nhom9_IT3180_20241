@@ -1,73 +1,158 @@
-<main class="container home">
-    <div class="home__container">
-        <div class="slider">
-            <div class="slider__list">
-                <div class="slider__item">
-                    <img
-                        id="slider-1"
-                        src="https://plus.unsplash.com/premium_photo-1710108920120-b4c0463bb82d?q=80&w=2070&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D"
-                        alt=""
-                        class="slider__img"
-                    />
-                    <div class="slider__content">
-                        <h2 class="slider__title">Discover Amazing Recipes</h2>
-                        <p class="slider__desc">
-                            Explore our collection of delicious recipes from around the world
-                        </p>
-                        <a href="/recipes" class="btn btn--primary">Browse Recipes</a>
+<main class="home">
+    {{!-- Hero Section --}}
+    <section class="hero">
+        <div class="container">
+            <div class="slider">
+                <div class="slider__list">
+                    <div class="slider__item">
+                        <img
+                            src="https://images.unsplash.com/photo-1504674900247-0877df9cc836?q=80&w=2070&auto=format&fit=crop"
+                            alt="Featured Recipe"
+                        />
+                        <div class="slider__content">
+                            <h2 class="slider__title">Discover Amazing Recipes</h2>
+                            <p class="slider__desc">
+                                Explore our collection of delicious recipes from talented home chefs
+                            </p>
+                            <a href="/recipes" class="slider__btn">Browse Recipes</a>
+                        </div>
+                    </div>
+
+                    <div class="slider__item">
+                        <img
+                            src="https://images.unsplash.com/photo-1495521821757-a1efb6729352?q=80&w=2026&auto=format&fit=crop"
+                            alt="Food Blog"
+                        />
+                        <div class="slider__content">
+                            <h2 class="slider__title">Share Your Culinary Journey</h2>
+                            <p class="slider__desc">
+                                Write blogs, share tips and connect with other food enthusiasts
+                            </p>
+                            <a href="/blogs" class="slider__btn">Read Blogs</a>
+                        </div>
+                    </div>
+
+                    <div class="slider__item">
+                        <img
+                            src="https://images.unsplash.com/photo-1556910103-1c02745aae4d?q=80&w=2070&auto=format&fit=crop"
+                            alt="Cooking Community"
+                        />
+                        <div class="slider__content">
+                            <h2 class="slider__title">Join Our Community</h2>
+                            <p class="slider__desc">
+                                Connect with fellow food lovers and share your passion for cooking
+                            </p>
+                            <a href="/sign-up" class="slider__btn">Get Started</a>
+                        </div>
                     </div>
                 </div>
 
-                <div class="slider__item">
-                    <img
-                        id="slider-2"
-                        src="https://images.unsplash.com/photo-1432139555190-58524dae6a55?q=80&w=1476&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D"
-                        alt=""
-                        class="slider__img"
-                    />
-                </div>
+                <button class="slider__nav slider__nav--prev">
+                    <i class="fas fa-chevron-left"></i>
+                </button>
+                <button class="slider__nav slider__nav--next">
+                    <i class="fas fa-chevron-right"></i>
+                </button>
 
-                <div class="slider__item">
-                    <img
-                        id="slider-3"
-                        src="https://images.unsplash.com/31/RpgvvtYAQeqAIs1knERU_vegetables.jpg?q=80&w=1475&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D"
-                        alt=""
-                        class="slider__img"
-                    />
+                <div class="slider__dots">
+                    <button class="slider__dot active"></button>
+                    <button class="slider__dot"></button>
+                    <button class="slider__dot"></button>
                 </div>
             </div>
+        </div>
+    </section>
 
-            {{!-- Slider prev next buttons --}}
-            <div class="slider__btn-wrapper">
-                <button id="prev" class="slider__btn">
-                    <img src="./assets/icons/arrow-left.svg" alt="" class="slider__btn-img" />
-                </button>
-                <button id="next" class="slider__btn">
-                    <img src="./assets/icons/arrow-right.svg" alt="" class="slider__btn-img" />
-                </button>
+    {{!-- Categories Section --}}
+    <section class="categories">
+        <div class="container">
+            <div class="section-header">
+                <h2 class="section-title">Popular Categories</h2>
+                <p class="section-subtitle">Explore recipes by category</p>
             </div>
 
-            {{!-- Dots --}}
-            <ul class="slider__dots">
-                <li class="slider__dot active"></li>
-                <li class="slider__dot"></li>
-                <li class="slider__dot"></li>
-            </ul>
-        </div>
-    </div>
+            <div class="categories__grid">
+                <a href="/recipes?category=main-course" class="category-card">
+                    <div class="category-card__icon">
+                        <i class="fas fa-utensils"></i>
+                    </div>
+                    <h3>Main Course</h3>
+                    <span>View Recipes</span>
+                </a>
 
-    {{!-- Trending recipes --}}
-    <section class="home__container">
-        <div class="home__row">
-            <h2 class="home__heading">Trending Recipes</h2>
-            <a href="./recipes">See more</a>
-        </div>
-        <div class="row row-cols-4 gy-3">
-            {{#each (limit recipes 4)}}
-            <div class="col">
-                {{>recipe-card}}
+                <a href="/recipes?category=appetizer" class="category-card">
+                    <div class="category-card__icon">
+                        <i class="fas fa-cheese"></i>
+                    </div>
+                    <h3>Appetizers</h3>
+                    <span>View Recipes</span>
+                </a>
+
+                <a href="/recipes?category=dessert" class="category-card">
+                    <div class="category-card__icon">
+                        <i class="fas fa-ice-cream"></i>
+                    </div>
+                    <h3>Desserts</h3>
+                    <span>View Recipes</span>
+                </a>
+
+                <a href="/recipes?category=beverage" class="category-card">
+                    <div class="category-card__icon">
+                        <i class="fas fa-glass-cheers"></i>
+                    </div>
+                    <h3>Beverages</h3>
+                    <span>View Recipes</span>
+                </a>
             </div>
-            {{/each}}
+        </div>
+    </section>
+
+    {{!-- Trending Recipes --}}
+    <section class="trending">
+        <div class="container">
+            <div class="section-header">
+                <h2 class="section-title">Trending Now</h2>
+                <p class="section-subtitle">Most popular recipes this week</p>
+                <a href="/recipes" class="section-link">View All Recipes</a>
+            </div>
+
+            <div class="row row-cols-4 gy-4">
+                {{#each (limit recipes 4)}}
+                <div class="col">
+                    {{> recipe-card}}
+                </div>
+                {{/each}}
+            </div>
+        </div>
+    </section>
+
+    {{!-- Latest Blogs --}}
+    <section class="latest-blogs">
+        <div class="container">
+            <div class="section-header">
+                <h2 class="section-title">Latest Blog Posts</h2>
+                <p class="section-subtitle">Food stories and cooking tips</p>
+                <a href="/blogs" class="section-link">View All Posts</a>
+            </div>
+
+            <div class="row row-cols-4 gy-4">
+                {{#each (limit blogs 4)}}
+                <div class="col">
+                    {{> blog-card}}
+                </div>
+                {{/each}}
+            </div>
+        </div>
+    </section>
+
+    {{!-- CTA Section --}}
+    <section class="cta">
+        <div class="container">
+            <div class="cta__content">
+                <h2>Share Your Recipes</h2>
+                <p>Join our community and share your favorite recipes with food lovers worldwide</p>
+                <a href="/sign-up" class="btn btn--primary">Get Started</a>
+            </div>
         </div>
     </section>
 </main>

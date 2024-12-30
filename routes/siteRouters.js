@@ -9,6 +9,7 @@ const { checkUser } = require("../middleware/authMiddleware");
 const adminRouter = require("./adminRouters");
 const notificationRouters = require("./notificationRouters");
 const userRouter = require("./userRouters");
+const adminMiddleware = require("../middleware/adminMiddleware");
 
 module.exports = (app) => {
     app.use("*", checkUser); // Apply to all routes and methods
@@ -17,6 +18,6 @@ module.exports = (app) => {
     app.use("/users", userRouter);
     app.use("/recipes", recipesRouter);
     app.use("/blogs", blogRouter);
-    app.use("/admin", adminRouter);
     app.use("/notifications", notificationRouters);
+    app.use("/admin", adminMiddleware.requireAdmin, adminRouter);
 };
