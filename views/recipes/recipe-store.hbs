@@ -56,7 +56,7 @@
 
             {{!-- Recipes grid --}}
             <div class="col-lg-9">
-                <div class="row row-cols-2 gy-4">
+                <div class="row row-cols-3 gy-4">
                     {{#each recipes}}
                     {{> recipe-card-store}}
                     {{/each}}
@@ -66,7 +66,7 @@
     </div>
 
     {{!-- Delete Modal --}}
-    <div id="delete-recipe-modal" class="modal" tabindex="-1">
+    <div class="modal fade" id="deleteModal" tabindex="-1" aria-hidden="true">
         <div class="modal-dialog">
             <div class="modal-content">
                 <div class="modal-header">
@@ -82,33 +82,21 @@
                     <button type="button" class="btn btn--outline" data-bs-dismiss="modal">
                         Cancel
                     </button>
-                    <button id="btn-delete-recipe" type="button" class="btn btn--danger">
-                        Delete
-                    </button>
+                    <form id="deleteForm" method="POST">
+                        <input type="hidden" name="_method" value="DELETE" />
+                        <button type="submit" class="btn btn--danger">Delete</button>
+                    </form>
                 </div>
             </div>
         </div>
     </div>
 </main>
 
-{{!-- Delete hidden form --}}
-<form name="delete-recipe-form" method="POST"></form>
-
 <script>
-    const deleteModal = document.getElementById("delete-recipe-modal");
-    const deleteForm = document.forms["delete-recipe-form"];
-    const btnDeleteRecipe = document.getElementById("btn-delete-recipe");
-    let recipeId;
-
-    if (deleteModal) {
-        deleteModal.addEventListener("show.bs.modal", (event) => {
-            const button = event.relatedTarget;
-            recipeId = button.getAttribute("data-bs-id");
-        });
+    function deleteRecipe(slug) {
+        const deleteModal = new bootstrap.Modal(document.getElementById("deleteModal"));
+        const deleteForm = document.getElementById("deleteForm");
+        deleteForm.action = `/recipes/${slug}?_method=DELETE`;
+        deleteModal.show();
     }
-
-    btnDeleteRecipe.onclick = function () {
-        deleteForm.action = "/recipes/" + recipeId + "?_method=DELETE";
-        deleteForm.submit();
-    };
 </script>

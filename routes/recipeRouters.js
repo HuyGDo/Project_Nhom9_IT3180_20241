@@ -28,6 +28,6 @@ router.put(
     upload.single("recipe-image"),
     recipeController.updateRecipe,
 );
-router.delete("/:slug", recipeController.deleteRecipe);
+router.delete("/:slug", auth.requireAuth, recipeController.deleteRecipe);
 
 module.exports = router;

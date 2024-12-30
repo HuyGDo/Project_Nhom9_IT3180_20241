@@ -103,10 +103,16 @@ module.exports.storeBlog = async (req, res) => {
     }
 };
 
+// [DELETE] /blogs/:slug
+module.exports.deleteBlog = (req, res, next) => {
+    Blog.deleteOne({ slug: req.params.slug })
+        .then(() => res.redirect("back"))
+        .catch(next);
+};
+
 // [POST] /blogs/:slug/vote
 module.exports.handleVote = async (req, res) => {
     try {
-        const { id } = req.params;
         const { voteType } = req.body;
         const userId = req.user._id;
 
@@ -114,7 +120,7 @@ module.exports.handleVote = async (req, res) => {
             return res.status(400).json({ success: false, message: "Invalid vote type" });
         }
 
-        const blog = await Blog.findById(id);
+        const blog = await Blog.findOne({ slug: req.params.slug });
         if (!blog) {
             return res.status(404).json({ message: "Blog not found" });
         }
@@ -202,7 +208,7 @@ module.exports.addComment = async (req, res) => {
 // [GET] /blogs/:slug/edit
 module.exports.editBlog = async (req, res) => {
     try {
-        const blog = await Blog.findById(req.params.id).lean();
+        const blog = await Blog.findOne({ slug: req.params.slug }).lean();
 
         if (!blog) {
             return res.render("default/404");
@@ -240,7 +246,7 @@ module.exports.updateBlog = async (req, res) => {
             blogData.image = `/uploads/blogs/${req.file.filename}`;
         }
 
-        const blog = await Blog.findByIdAndUpdate(req.params.id, blogData, {
+        const blog = await Blog.findOneAndUpdate({ slug: req.params.slug }, blogData, {
             new: true,
             runValidators: true,
         });
@@ -249,11 +255,7 @@ module.exports.updateBlog = async (req, res) => {
             return res.status(404).json({ message: "Blog not found" });
         }
 
-        res.json({
-            success: true,
-            message: "Blog updated successfully",
-            blog,
-        });
+        res.redirect(`/blogs/${blog.slug}`);
     } catch (error) {
         console.error(error);
         res.status(500).json({

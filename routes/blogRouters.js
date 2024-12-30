@@ -19,5 +19,6 @@ router.post("/:slug/vote", auth.requireAuth, blogController.handleVote);
 router.post("/:slug/comment", auth.requireAuth, blogController.addComment);
 router.get("/:slug/edit", auth.requireAuth, blogController.editBlog);
 router.put("/:slug", auth.requireAuth, upload.single("blog-image"), blogController.updateBlog);
+router.delete("/:slug", auth.requireAuth, blogController.deleteBlog);
 
 module.exports = router;

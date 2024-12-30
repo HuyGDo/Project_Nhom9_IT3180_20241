@@ -58,10 +58,10 @@
         </div>
 
         <div class="content-card__actions">
-            <a href="/blogs/{{ this._id }}/edit" class="btn btn--outline btn--sm">
+            <a href="/blogs/{{ this.slug }}/edit" class="btn btn--outline btn--sm">
                 <i class="fas fa-edit"></i>Edit
             </a>
-            <button class="btn btn--danger btn--sm" onclick="deleteBlog('{{ this._id }}')">
+            <button class="btn btn--danger btn--sm" onclick="deleteBlog('{{ this.slug }}')">
                 <i class="fas fa-trash-alt"></i>Delete
             </button>
         </div>

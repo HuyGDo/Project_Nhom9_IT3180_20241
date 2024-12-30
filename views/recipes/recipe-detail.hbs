@@ -212,7 +212,7 @@
 
                     {{!-- Actions Card --}}
                     <div class="content-detail__actions-card">
-                        <div class="content-detail__votes">
+                        <div class="content-detail__actions-wrapper">
                             <button
                                 class="vote-btn upvote-btn {{#if recipe.userVoted.up}}voted{{/if}}"
                                 onclick="handleVote('up')"
@@ -228,12 +228,15 @@
                                 <span class="downvote-count">{{ recipe.votes.downvotes }}</span>
                             </button>
                         </div>
-                        <button class="btn btn--outline btn--block">
-                            <i class="fas fa-share"></i>Share Recipe
-                        </button>
-                        <button class="btn btn--outline btn--block">
-                            <i class="fas fa-print"></i>Print Recipe
-                        </button>
+
+                        <div class="content-detail__actions-wrapper">
+                            <button class="btn btn--outline btn--block">
+                                <i class="fas fa-share"></i>Share
+                            </button>
+                            <button class="btn btn--outline btn--block">
+                                <i class="fas fa-print"></i>Print
+                            </button>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -259,6 +262,11 @@
                 body: JSON.stringify({ voteType }),
             });
 
+            if (response.url.includes("/sign-in")) {
+                window.location.href = "/sign-in";
+                return;
+            }
+
             const data = await response.json();
 
             if (data.success) {
@@ -275,6 +283,7 @@
             }
         } catch (error) {
             console.error("Error:", error);
+            alert("Error updating vote");
         }
     }
 </script>

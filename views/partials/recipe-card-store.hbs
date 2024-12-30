@@ -56,10 +56,15 @@
         </div>
 
         <div class="content-card__actions">
-            <a href="/recipes/{{ this._id }}/edit" class="btn btn--outline btn--sm">
+            <a href="/recipes/{{ this.slug }}/edit" class="btn btn--outline btn--sm">
                 <i class="fas fa-edit"></i>Edit
             </a>
-            <button class="btn btn--danger btn--sm" onclick="deleteRecipe('{{ this._id }}')">
+            <button
+                class="btn btn--danger btn--sm"
+                data-bs-toggle="modal"
+                data-bs-target="#deleteModal"
+                onclick="deleteRecipe('{{ this.slug }}')"
+            >
                 <i class="fas fa-trash-alt"></i>Delete
             </button>
         </div>

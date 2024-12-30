@@ -2,7 +2,12 @@
     <div class="create-form__container">
         <h1 class="create-form__heading">Edit Blog Post</h1>
 
-        <form id="editBlogForm" class="create-form__form" enctype="multipart/form-data">
+        <form 
+            action="/blogs/{{ blog.slug }}?_method=PUT"
+            method="POST" 
+            class="create-form__form" 
+            enctype="multipart/form-data"
+        >
             {{!-- Basic Info --}}
             <div class="form-group">
                 <h2 class="section-title">
@@ -142,7 +147,7 @@
                     <i class="fas fa-save"></i>
                     Save Changes
                 </button>
-                <a href="/blogs" class="btn btn--outline create-form__cancel">
+                <a href="/users/me/stored/blogs" class="btn btn--outline create-form__cancel">
                     <i class="fas fa-times"></i>
                     Cancel
                 </a>
@@ -155,7 +160,6 @@
     function previewImage(input) {
         const preview = document.getElementById('imagePreview');
         const file = input.files[0];
-
         if (file) {
             const reader = new FileReader();
             reader.onload = function(e) {
@@ -164,33 +168,6 @@
             reader.readAsDataURL(file);
         }
     }
-
-    // Form submission
-    const form = document.getElementById('editBlogForm');
-    form.addEventListener('submit', async (e) => {
-        e.preventDefault();
-
-        const formData = new FormData(form);
-
-        try {
-            const response = await fetch('/blogs/{{ blog._id }}?_method=PUT', {
-                method: 'POST',
-                body: formData
-            });
-
-            const result = await response.json();
-
-            if (response.ok) {
-                alert('Blog updated successfully!');
-                window.location.href = '/blogs';
-            } else {
-                alert(result.message || 'Error updating blog');
-            }
-        } catch (error) {
-            console.error('Error:', error);
-            alert('Error updating blog');
-        }
-    });
 </script>
 
 {{!-- Include TinyMCE for rich text editing --}}

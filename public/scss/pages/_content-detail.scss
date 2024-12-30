@@ -349,7 +349,7 @@
         box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
     }
 
-    &__votes {
+    &__actions-wrapper {
         display: flex;
         gap: 10px;
         margin-bottom: 20px;
@@ -379,6 +379,10 @@
                 border-color: var(--content-color);
                 color: white;
             }
+        }
+
+        .btn--block {
+            width: 100%;
         }
     }
 }

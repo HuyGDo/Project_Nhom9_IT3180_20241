@@ -136,7 +136,7 @@ module.exports.storeRecipe = async (req, res) => {
 
 // [GET] /recipes/:slug/edit
 module.exports.editRecipe = (req, res, next) => {
-    Recipe.findById(req.params.id)
+    Recipe.findOne({ slug: req.params.slug })
         .lean()
         .then((recipe) => {
             res.render("recipes/recipe-edit", {
@@ -191,7 +191,7 @@ module.exports.updateRecipe = async (req, res) => {
             updateData.image = "/uploads/recipes/" + req.file.filename;
         }
 
-        const updatedRecipe = await Recipe.findByIdAndUpdate(recipeId, updateData, {
+        const updatedRecipe = await Recipe.findOneAndUpdate({ slug: req.params.slug }, updateData, {
             new: true,
             runValidators: true,
         });
@@ -200,11 +200,7 @@ module.exports.updateRecipe = async (req, res) => {
             return res.status(404).json({ message: "Recipe not found" });
         }
 
-        res.status(200).json({
-            success: true,
-            message: "Recipe updated successfully",
-            recipe: updatedRecipe,
-        });
+        res.redirect(`../users/me/stored/recipes`);
     } catch (error) {
         console.error("Update error:", error);
         res.status(500).json({
@@ -216,7 +212,7 @@ module.exports.updateRecipe = async (req, res) => {
 
 // [DELETE] /recipes/:slug
 module.exports.deleteRecipe = (req, res, next) => {
-    Recipe.deleteOne({ _id: req.params.id })
+    Recipe.deleteOne({ slug: req.params.slug })
         .then(() => res.redirect("back"))
         .catch(next);
 };
@@ -293,11 +289,14 @@ module.exports.addComment = async (req, res) => {
 // [POST] /recipes/:slug/vote
 module.exports.handleVote = async (req, res) => {
     try {
-        const { id } = req.params;
         const { voteType } = req.body;
         const userId = req.user._id;
 
-        const recipe = await Recipe.findById(id);
+        if (!["up", "down"].includes(voteType)) {
+            return res.status(400).json({ success: false, message: "Invalid vote type" });
+        }
+
+        const recipe = await Recipe.findOne({ slug: req.params.slug });
         if (!recipe) {
             return res.status(404).json({ message: "Recipe not found" });
         }
@@ -309,14 +308,17 @@ module.exports.handleVote = async (req, res) => {
         if (existingVoteIndex > -1) {
             const existingVote = recipe.userVotes[existingVoteIndex];
             if (existingVote.voteType === voteType) {
+                // Remove vote if clicking same button
                 recipe.userVotes.splice(existingVoteIndex, 1);
                 recipe.votes[`${voteType}votes`]--;
             } else {
+                // Change vote type
                 recipe.votes[`${existingVote.voteType}votes`]--;
                 recipe.votes[`${voteType}votes`]++;
                 existingVote.voteType = voteType;
             }
         } else {
+            // Add new vote
             recipe.userVotes.push({ user: userId, voteType });
             recipe.votes[`${voteType}votes`]++;
         }

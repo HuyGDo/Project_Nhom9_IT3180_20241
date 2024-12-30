@@ -179,7 +179,7 @@
 
                         {{!-- Actions Card --}}
                         <div class="content-detail__actions-card">
-                            <div class="content-detail__votes">
+                            <div class="content-detail__actions-wrapper">
                                 <button
                                     class="vote-btn upvote-btn {{#if blog.userVoted.up}}voted{{/if}}"
                                     onclick="handleVote('up')"
@@ -195,12 +195,14 @@
                                     <span class="downvote-count">{{ blog.votes.downvotes }}</span>
                                 </button>
                             </div>
-                            <button class="btn btn--outline btn--block">
-                                <i class="fas fa-share"></i>Share Blog
-                            </button>
-                            <button class="btn btn--outline btn--block">
-                                <i class="fas fa-print"></i>Print Blog
-                            </button>
+                            <div class="content-detail__actions-wrapper">
+                                <button class="btn btn--outline btn--block">
+                                    <i class="fas fa-share"></i>Share Blog
+                                </button>
+                                <button class="btn btn--outline btn--block">
+                                    <i class="fas fa-print"></i>Print Blog
+                                </button>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -230,13 +232,18 @@
         }
 
         try {
-            const response = await fetch(`/blogs/{{ blog._id }}/vote`, {
+            const response = await fetch(`/blogs/{{ blog.slug }}/vote`, {
                 method: "POST",
                 headers: {
                     "Content-Type": "application/json",
                 },
                 body: JSON.stringify({ voteType }),
             });
+
+            if (response.url.includes("/sign-in")) {
+                window.location.href = "/sign-in";
+                return;
+            }
 
             const data = await response.json();
 
@@ -254,6 +261,7 @@
             }
         } catch (error) {
             console.error("Error:", error);
+            alert("Error updating vote");
         }
     }
 </script>
