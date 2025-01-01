@@ -1,81 +1,111 @@
-const axios = require("axios");
+const fuzzball = require("fuzzball");
+const Recipe = require("../models/Recipe");
+const Blog = require("../models/Blog");
 
 class RecommendationService {
-    static baseUrl = 'http://localhost:5001';
-    static initialized = false;
-    static maxRetries = 3;
-    static retryDelay = 1000;
-
-    static async retry(fn, retries = this.maxRetries) {
+    static async getRecommendedRecipes(currentRecipe, limit = 4) {
         try {
-            return await fn();
-        } catch (error) {
-            if (retries > 0) {
-                console.log(`Retrying... (${retries} attempts left)`);
-                await new Promise(resolve => setTimeout(resolve, this.retryDelay));
-                return this.retry(fn, retries - 1);
-            }
-            throw error;
-        }
-    }
+            // Get all other recipes except current one
+            const allRecipes = await Recipe.find({
+                _id: { $ne: currentRecipe._id },
+            })
+                .populate("author", "username first_name last_name profile_picture")
+                .lean();
 
-    static async initialize() {
-        if (this.initialized) return;
+            console.log("Fetched all recipes:", allRecipes.length);
 
-        try {
-            const response = await axios.post(`${this.baseUrl}/initialize`);
-            console.log('Recommendation service initialized:', response.data);
-            this.initialized = true;
-        } catch (error) {
-            console.error('Initialization error:', error.message);
-            throw error;
-        }
-    }
+            // Calculate similarity scores
+            const scoredRecipes = allRecipes.map((recipe) => {
+                const titleScore = fuzzball.ratio(
+                    currentRecipe.title.toLowerCase(),
+                    recipe.title.toLowerCase(),
+                );
+                const descScore = fuzzball.ratio(
+                    currentRecipe.description.toLowerCase(),
+                    recipe.description.toLowerCase(),
+                );
 
-    static async getRecommendations(recipeId) {
-        try {
-            if (!this.initialized) {
-                await this.initialize();
-            }
+                // Calculate ingredient similarity
+                const ingredientScores = currentRecipe.ingredients.map((ing1) => {
+                    return Math.max(
+                        ...recipe.ingredients.map((ing2) =>
+                            fuzzball.ratio(ing1.name.toLowerCase(), ing2.name.toLowerCase()),
+                        ),
+                    );
+                });
+                const ingredientScore =
+                    ingredientScores.reduce((a, b) => a + b, 0) / ingredientScores.length;
 
-            const response = await axios.get(`${this.baseUrl}/recommendations/${recipeId}`, {
-                timeout: 10000,
-                headers: {
-                    'Accept': 'application/json'
-                }
+                // Weighted average of different scores
+                const totalScore = titleScore * 0.3 + descScore * 0.3 + ingredientScore * 0.4;
+
+                return {
+                    ...recipe,
+                    similarityScore: totalScore,
+                };
             });
 
-            // Kiểm tra và xử lý response
-            if (!response.data || !Array.isArray(response.data)) {
-                console.log('Invalid response format');
-                return [];
-            }
-
-            // Sắp xếp theo similarity_score và lấy 4 công thức đầu tiên
-            const recommendations = response.data
-                .sort((a, b) => b.similarity_score - a.similarity_score)
-                .slice(0, 4);
-
-            console.log('Top 4 recommendations:', 
-                recommendations.map(r => `${r.title} (score: ${r.similarity_score})`));
-
-            return recommendations;
-
+            // Sort by similarity score and return top N
+            return scoredRecipes
+                .sort((a, b) => b.similarityScore - a.similarityScore)
+                .slice(0, limit);
         } catch (error) {
-            console.error('Recommendation service error:', error);
+            console.error("Error getting recipe recommendations:", error);
             return [];
         }
     }
 
-    static async checkService() {
+    static async getRecommendedBlogs(currentBlog, limit = 4) {
         try {
-            const response = await this.retry(async () => {
-                return await axios.get(`${this.baseUrl}/health`);
+            // Get all other blogs except current one
+            const allBlogs = await Blog.find({
+                _id: { $ne: currentBlog._id },
+                status: "published",
+            })
+                .populate("author", "username first_name last_name profile_picture")
+                .lean();
+
+            // Calculate similarity scores
+            const scoredBlogs = allBlogs.map((blog) => {
+                const titleScore = fuzzball.ratio(
+                    currentBlog.title.toLowerCase(),
+                    blog.title.toLowerCase(),
+                );
+                const descScore = fuzzball.ratio(
+                    currentBlog.description.toLowerCase(),
+                    blog.description.toLowerCase(),
+                );
+                const categoryScore = currentBlog.category === blog.category ? 100 : 0;
+
+                // Calculate tag similarity
+                const tagScores = currentBlog.tags.map((tag1) => {
+                    return Math.max(
+                        ...blog.tags.map((tag2) =>
+                            fuzzball.ratio(tag1.toLowerCase(), tag2.toLowerCase()),
+                        ),
+                    );
+                });
+                const tagScore = tagScores.length
+                    ? tagScores.reduce((a, b) => a + b, 0) / tagScores.length
+                    : 0;
+
+                // Weighted average of different scores
+                const totalScore =
+                    titleScore * 0.3 + descScore * 0.2 + categoryScore * 0.3 + tagScore * 0.2;
+
+                return {
+                    ...blog,
+                    similarityScore: totalScore,
+                };
             });
-            return response.status === 200;
+
+            // Sort by similarity score and return top N
+            return scoredBlogs
+                .sort((a, b) => b.similarityScore - a.similarityScore)
+                .slice(0, limit);
         } catch (error) {
-            console.log('Service health check failed:', error.message);
-            return false;
+            console.error("Error getting blog recommendations:", error);
+            return [];
         }
     }
 }

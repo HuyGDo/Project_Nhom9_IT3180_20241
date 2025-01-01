@@ -524,6 +524,17 @@
             }
         }
     }
+
+    &__recommended {
+        margin-top: 60px;
+        padding-top: 40px;
+        border-top: 1px solid #eee;
+
+        .content-detail__section-title {
+            text-align: center;
+            margin-bottom: 32px;
+        }
+    }
 }
 
 // Override cho blog

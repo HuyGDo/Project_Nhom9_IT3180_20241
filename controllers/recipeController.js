@@ -2,10 +2,9 @@ const Recipe = require("../models/Recipe");
 const fs = require("fs");
 const path = require("path");
 const notificationService = require("../services/notificationService");
-// const recommendationService = require('../services/recommendationService');
 const { uploadRecipeImage } = require("../services/uploadService");
-const RecommendationService = require('../services/recommendationService');
-const fuzzball = require('fuzzball');
+const RecommendationService = require("../services/recommendationService");
+const fuzzball = require("fuzzball");
 
 // [GET] /recipes/
 module.exports.showRecipes = async (req, res) => {
@@ -18,8 +17,8 @@ module.exports.showRecipes = async (req, res) => {
             layout: "default",
             title: "Browse Recipes",
             recipes,
-            searchType: 'recipes',
-            searchPlaceholder: 'recipes'
+            searchType: "recipes",
+            searchPlaceholder: "recipes",
         });
     } catch (err) {
         console.error(err);
@@ -34,18 +33,19 @@ module.exports.showRecipes = async (req, res) => {
 module.exports.showRecipeDetail = async (req, res) => {
     try {
         const recipe = await Recipe.findOne({ slug: req.params.slug })
-            .populate('author')
+            .populate("author")
             .populate({
-                path: 'comments.user_id',
-                select: 'username first_name last_name profile_picture'
-            }).lean();
+                path: "comments.user_id",
+                select: "username first_name last_name profile_picture",
+            })
+            .lean();
 
         if (!recipe) {
-            console.log('Recipe not found');
             return res.render("default/404");
         }
 
-        console.log('Found recipe:', recipe._id);
+        // Get recommended recipes
+        const recommendedRecipes = await RecommendationService.getRecommendedRecipes(recipe);
 
         // Add userVoted info if user is logged in
         if (req.user) {
@@ -58,78 +58,17 @@ module.exports.showRecipeDetail = async (req, res) => {
             };
         }
 
-
         // Increment view count
         await Recipe.findByIdAndUpdate(recipe._id, { $inc: { views: 1 } });
 
+        // Check if the logged-in user is following the recipe author
         const isFollowing = req.user ? req.user.following.includes(recipe.author._id) : false;
-
-        // Get recommendations
-        let recommendedRecipes = [];
-        try {
-            console.log('Getting recommendations for recipe:', recipe._id);
-            const recommendations = await RecommendationService.getRecommendations(recipe._id.toString());
-            console.log('Raw recommendations:', recommendations);
-
-            if (recommendations && recommendations.length > 0) {
-                // Get recipes from database using recommendation IDs
-                const recipeIds = recommendations.map(r => r.id);
-                console.log('Looking for recipes with IDs:', recipeIds);
-
-                const recipesFromDb = await Recipe.find({
-                    _id: { $in: recipeIds }
-                })
-                .select("title image description slug author votes views prepTime cookTime servings difficulty")
-                .populate("author", "username first_name last_name profile_picture")
-                .lean();
-
-                console.log('Found recipes from DB:', recipesFromDb.map(r => r.title));
-
-                // Create a map for quick recipe lookup
-                const recipeMap = new Map(
-                    recipesFromDb.map(recipe => [recipe._id.toString(), recipe])
-                );
-
-                // Map recommendations preserving order and scores
-                recommendedRecipes = recommendations
-                    .map(rec => {
-                        const recipe = recipeMap.get(rec.id);
-                        if (recipe) {
-                            console.log(`Processing recommendation: ${recipe.title} (score: ${rec.similarity_score})`);
-                            return {
-                                ...recipe,
-                                similarity_score: rec.similarity_score
-                            };
-                        }
-                        console.log(`Recipe not found for id: ${rec.id}`);
-                        return null;
-                    })
-                    .filter(Boolean);
-
-                console.log('Final recommendations:', 
-                    recommendedRecipes.map(r => `${r.title} (score: ${r.similarity_score})`));
-            }
-
-            if (recommendedRecipes.length === 0) {
-                // Get top 4 recipes by views/votes as fallback
-                recommendedRecipes = await Recipe.find({ _id: { $ne: recipe._id } })
-                    .sort({ views: -1 })
-                    .limit(4)
-                    .select("title image description slug author votes views prepTime cookTime servings difficulty")
-                    .populate("author", "username first_name last_name profile_picture")
-                    .lean();
-
-                console.log('Using fallback recommendations based on popularity');
-            }
-        } catch (error) {
-            console.error("Error getting recommendations:", error);
-            recommendedRecipes = [];
-        }
 
         res.render("recipes/recipe-detail", {
             layout: "default",
             title: recipe.title,
             recipe,
+            recommendedRecipes,
             isAuthenticated: !!req.user,
             isFollowing,
             user: req.user,
@@ -137,7 +76,6 @@ module.exports.showRecipeDetail = async (req, res) => {
                 success: req.flash("success"),
                 error: req.flash("error"),
             },
-            recommendations: recommendedRecipes
         });
     } catch (error) {
         console.error(error);
@@ -414,80 +352,88 @@ module.exports.showStoredRecipes = async (req, res) => {
 // Search recipes
 module.exports.searchRecipes = async (req, res) => {
     try {
-        console.log('Search query:', req.query);
+        console.log("Search query:", req.query);
         const query = req.query.q;
         if (!query) {
-            console.log('No query provided, redirecting to /recipes');
-            return res.redirect('/recipes');
+            console.log("No query provided, redirecting to /recipes");
+            return res.redirect("/recipes");
         }
 
         // 1. Text search
         const textMatches = await Recipe.find({
-            $text: { $search: query }
+            $text: { $search: query },
         })
-        .populate("author", "username first_name last_name profile_picture")
-        .select("title description image prepTime cookTime difficulty cuisine category votes userVotes createdAt slug")
-        .limit(10)
-        .lean();
-        console.log('Text search results:', textMatches.length);
+            .populate("author", "username first_name last_name profile_picture")
+            .select(
+                "title description image prepTime cookTime difficulty cuisine category votes userVotes createdAt slug",
+            )
+            .limit(10)
+            .lean();
+        console.log("Text search results:", textMatches.length);
 
         // 2. Fuzzy regex search
         const regexMatches = await Recipe.find({
             $or: [
-                { title: { $regex: query, $options: 'i' } },
-                { description: { $regex: query, $options: 'i' } },
-                { "ingredients.name": { $regex: query, $options: 'i' } },
-                { "instructions.description": { $regex: query, $options: 'i' } }
-            ]
+                { title: { $regex: query, $options: "i" } },
+                { description: { $regex: query, $options: "i" } },
+                { "ingredients.name": { $regex: query, $options: "i" } },
+                { "instructions.description": { $regex: query, $options: "i" } },
+            ],
         })
-        .populate("author", "username first_name last_name profile_picture")
-        .select("title description image prepTime cookTime difficulty cuisine category votes userVotes createdAt slug")
-        .limit(10)
-        .lean();
-        console.log('Regex search results:', regexMatches.length);
+            .populate("author", "username first_name last_name profile_picture")
+            .select(
+                "title description image prepTime cookTime difficulty cuisine category votes userVotes createdAt slug",
+            )
+            .limit(10)
+            .lean();
+        console.log("Regex search results:", regexMatches.length);
 
         // 3. Fuzzy scoring
         const allRecipes = await Recipe.find()
             .populate("author", "username first_name last_name profile_picture")
-            .select("title description image prepTime cookTime difficulty cuisine category votes userVotes createdAt slug")
+            .select(
+                "title description image prepTime cookTime difficulty cuisine category votes userVotes createdAt slug",
+            )
             .limit(50)
             .lean();
 
         const fuzzyMatches = allRecipes
-            .map(recipe => ({
+            .map((recipe) => ({
                 ...recipe,
                 score: Math.max(
                     fuzzball.partial_ratio(query.toLowerCase(), recipe.title.toLowerCase()),
-                    fuzzball.partial_ratio(query.toLowerCase(), recipe.description.toLowerCase())
-                )
+                    fuzzball.partial_ratio(query.toLowerCase(), recipe.description.toLowerCase()),
+                ),
             }))
-            .filter(match => match.score > 70)
+            .filter((match) => match.score > 70)
             .sort((a, b) => b.score - a.score)
             .slice(0, 10);
 
         // Combine and deduplicate results using _id
         const seenIds = new Set();
-        const combinedResults = [...textMatches, ...regexMatches, ...fuzzyMatches].filter(recipe => {
-            if (seenIds.has(recipe._id.toString())) {
-                return false;
-            }
-            seenIds.add(recipe._id.toString());
-            return true;
-        });
+        const combinedResults = [...textMatches, ...regexMatches, ...fuzzyMatches].filter(
+            (recipe) => {
+                if (seenIds.has(recipe._id.toString())) {
+                    return false;
+                }
+                seenIds.add(recipe._id.toString());
+                return true;
+            },
+        );
 
-        console.log('Total combined results:', combinedResults.length);
+        console.log("Total combined results:", combinedResults.length);
 
         // Render the correct view
-        res.render('recipes/recipe-browse', {
+        res.render("recipes/recipe-browse", {
             title: `Search Results for "${query}"`,
             recipes: combinedResults,
             query,
-            searchType: 'recipes',
-            searchPlaceholder: 'recipes',
-            isRecipes: true
+            searchType: "recipes",
+            searchPlaceholder: "recipes",
+            isRecipes: true,
         });
     } catch (error) {
-        console.error('Search error:', error);
-        res.status(500).send('Server Error');
+        console.error("Search error:", error);
+        res.status(500).send("Server Error");
     }
 };

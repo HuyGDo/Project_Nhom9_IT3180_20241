@@ -100,15 +100,21 @@
 
                     {{!-- Comments Section --}}
                     <section class="content-detail__comments">
-                        <h2 class="content-detail__section-title">Comments ({{blog.comments.length}})</h2>
-                        
+                        <h2 class="content-detail__section-title">
+                            Comments ({{ blog.comments.length }})
+                        </h2>
+
                         {{!-- Comment Form --}}
                         {{#if user}}
-                        <form action="/blogs/{{blog.slug}}/comment" method="POST" class="content-detail__comment-form">
+                        <form
+                            action="/blogs/{{ blog.slug }}/comment"
+                            method="POST"
+                            class="content-detail__comment-form"
+                        >
                             <div class="comment-form__group">
-                                <textarea 
-                                    name="content" 
-                                    class="comment-form__input" 
+                                <textarea
+                                    name="content"
+                                    class="comment-form__input"
                                     placeholder="Write your comment..."
                                     required
                                 ></textarea>
@@ -124,11 +130,13 @@
                         {{!-- Comments List --}}
                         <div class="comments-list">
                             {{#if blog.comments.length}}
-                                {{#each blog.comments}}
-                                    {{> comment comment=this user=../user}}
-                                {{/each}}
+                            {{#each blog.comments}}
+                            {{> comment comment=this user=../user}}
+                            {{/each}}
                             {{else}}
-                                <p class="comments-list__empty">No comments yet. Be the first to comment!</p>
+                            <p class="comments-list__empty">
+                                No comments yet. Be the first to comment!
+                            </p>
                             {{/if}}
                         </div>
                     </section>
@@ -192,6 +200,19 @@
                         </div>
                     </div>
                 </div>
+
+                {{#if recommendedBlogs.length}}
+                <section class="content-detail__recommended">
+                    <h2 class="content-detail__section-title">Related Articles</h2>
+                    <div class="row row-cols-4 gy-4">
+                        {{#each recommendedBlogs}}
+                        <div class="col">
+                            {{> blog-card}}
+                        </div>
+                        {{/each}}
+                    </div>
+                </section>
+                {{/if}}
             </div>
         </div>
     </main>

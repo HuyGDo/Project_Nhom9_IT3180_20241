@@ -1,4 +1,3 @@
-
 const mongoose = require("mongoose");
 const slug = require("mongoose-slug-updater");
 mongoose.plugin(slug);
@@ -20,12 +19,12 @@ const commentSchema = new mongoose.Schema({
     updatedAt: {
         type: Date,
         default: Date.now,
-    }
+    },
 });
 
 // Add pre-save middleware to update the updated_at timestamp
-commentSchema.pre('save', function(next) {
-    if (this.isModified('content')) {
+commentSchema.pre("save", function (next) {
+    if (this.isModified("content")) {
         this.updatedAt = Date.now();
     }
     next();
@@ -130,10 +129,10 @@ const recipeSchema = new mongoose.Schema(
 
 // Add text indexes for search
 recipeSchema.index({
-    title: 'text',
-    description: 'text',
-    'ingredients.name': 'text',
-    'instructions.description': 'text'
+    title: "text",
+    description: "text",
+    "ingredients.name": "text",
+    "instructions.description": "text",
 });
 
 // Add virtual to check if user has voted

@@ -8,7 +8,7 @@ const flash = require("connect-flash");
 const cookieParser = require("cookie-parser");
 const session = require("express-session");
 const hbsHelpers = require("./helpers/handlebars");
-const { formatTimeAgo, generateNotificationLink } = require('./helpers/notificationHelpers');
+const { formatTimeAgo, generateNotificationLink } = require("./helpers/notificationHelpers");
 // const { setupWeeklyEmailCronJob } = require("./services/cronService");
 const app = express();
 /* Configure Mongoose */
@@ -38,7 +38,7 @@ const hbs = engine({
         sum: (a, b) => a + b,
         eq: (a, b) => a === b,
         formatTimeAgo,
-        generateNotificationLink
+        generateNotificationLink,
     },
 });
 app.engine("hbs", hbs);
@@ -69,35 +69,10 @@ app.use(methodOverride("_method"));
 const route = require("./routes/siteRouters");
 route(app);
 
-/* Initialize cronjob */
-// setupWeeklyEmailCronJob();
-
 // Serve static files from uploads directory
 app.use("/uploads", express.static(path.join(__dirname, "uploads")));
 
 app.use("/uploads", express.static("public/uploads"));
-
-const blogRouters = require("./routes/blogRouters");
-
-app.use("/blogs", blogRouters);
-
-const RecommendationService = require('./services/recommendationService');
-
-// Khởi tạo recommendation service
-async function initializeServices() {
-    try {
-        const isServiceRunning = await RecommendationService.checkService();
-        if (isServiceRunning) {
-            await RecommendationService.initialize();
-            console.log('Recommendation service initialized successfully');
-        } else {
-            console.log('Recommendation service is not available');
-        }
-    } catch (error) {
-        console.error('Failed to initialize recommendation service:', error.message);
-        // Tiếp tục chạy server ngay cả khi recommendation service không hoạt động
-    }
-}
 
 const notificationRouters = require("./routes/notificationRouters");
 
@@ -106,5 +81,4 @@ app.use("/notifications", notificationRouters);
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => {
     console.log(`Server is running on: http://localhost:${PORT}`);
-    initializeServices();
 });

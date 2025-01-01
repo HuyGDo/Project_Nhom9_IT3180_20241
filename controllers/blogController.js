@@ -1,6 +1,7 @@
 const Blog = require("../models/Blog");
 const notificationService = require("../services/notificationService");
 const fuzzball = require("fuzzball");
+const RecommendationService = require("../services/recommendationService");
 
 // [GET] /blogs
 module.exports.showBlogs = async (req, res) => {
@@ -28,10 +29,10 @@ module.exports.showBlogs = async (req, res) => {
 module.exports.showBlogDetail = async (req, res) => {
     try {
         const blog = await Blog.findOne({ slug: req.params.slug })
-            .populate('author')
+            .populate("author")
             .populate({
-                path: 'comments.user_id',
-                select: 'username first_name last_name profile_picture'
+                path: "comments.user_id",
+                select: "username first_name last_name profile_picture",
             })
             .lean();
 
@@ -39,10 +40,13 @@ module.exports.showBlogDetail = async (req, res) => {
             return res.render("default/404");
         }
 
+        // Get recommended blogs
+        const recommendedBlogs = await RecommendationService.getRecommendedBlogs(blog);
+
         // Add userVoted info if user is logged in
         if (req.user) {
             const userVote = blog.userVotes.find(
-                (vote) => vote.user.toString() === req.user._id.toString()
+                (vote) => vote.user.toString() === req.user._id.toString(),
             );
             blog.userVoted = {
                 up: userVote?.voteType === "up",
@@ -60,6 +64,7 @@ module.exports.showBlogDetail = async (req, res) => {
             layout: "default",
             title: blog.title,
             blog,
+            recommendedBlogs,
             isAuthenticated: !!req.user,
             isFollowing,
             user: req.user,
