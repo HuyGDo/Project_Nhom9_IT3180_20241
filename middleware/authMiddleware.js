@@ -1,72 +1,133 @@
 const jwt = require("jsonwebtoken");
 const User = require("../models/User");
+require("dotenv").config();
+const notificationService = require("../services/notificationService");
 
-module.exports = {
-    requireAuth: (req, res, next) => {
-        const token = req.cookies.jwt;
+const getTokenFromRequest = (req) => {
+    // Check cookie first
+    const cookieToken = req.cookies.jwt;
+    if (cookieToken) return cookieToken;
+
+    // Then check Authorization header
+    const authHeader = req.headers.authorization;
+    if (authHeader && authHeader.startsWith("Bearer ")) {
+        return authHeader.split(" ")[1];
+    }
+
+    return null;
+};
+
+// Create a single exports object
+const middleware = {
+    checkLoggedIn: async (req, res, next) => {
+        const token = getTokenFromRequest(req);
 
         if (token) {
-            jwt.verify(token, "bussin cookin secret", async (err, decodedToken) => {
-                if (err) {
-                    console.log(err.message);
-                    res.redirect("/sign-in");
+            try {
+                const decodedToken = await jwt.verify(token, process.env.JWT_SECRET);
+                const user = await User.findById(decodedToken.id).lean();
+
+                if (user) {
+                    req.user = user;
+                    res.locals.user = user;
+                    res.locals.isAuthenticated = true;
+
+                    // Get unread notifications count and recent notifications
+                    try {
+                        const unreadCount = await notificationService.getUnreadCount(user._id);
+                        const notifications = await notificationService.getUserNotifications(
+                            user._id,
+                            5,
+                        );
+
+                        res.locals.unreadNotifications = unreadCount;
+                        res.locals.notifications = notifications;
+                    } catch (error) {
+                        console.error("Error fetching notifications:", error);
+                        res.locals.unreadNotifications = 0;
+                        res.locals.notifications = [];
+                    }
                 } else {
-                    console.log(decodedToken);
-                    req.user = await User.findById(decodedToken._id);
-                    next();
+                    res.locals.isAuthenticated = false;
+                    res.locals.user = null;
                 }
-            });
+            } catch (err) {
+                console.log("Token verification failed:", err.message);
+                res.locals.isAuthenticated = false;
+                res.locals.user = null;
+                res.clearCookie("jwt");
+            }
         } else {
-            res.redirect("/sign-in");
+            res.locals.isAuthenticated = false;
+            res.locals.user = null;
+        }
+        next();
+    },
+
+    requireAuth: async (req, res, next) => {
+        const token = getTokenFromRequest(req);
+
+        if (!token) {
+            return res.redirect("/sign-in");
+        }
+
+        try {
+            const decodedToken = await jwt.verify(token, process.env.JWT_SECRET);
+            const user = await User.findById(decodedToken.id);
+
+            if (!user) {
+                res.clearCookie("jwt");
+                return res.redirect("/sign-in");
+            }
+
+            req.user = user;
+            next();
+        } catch (err) {
+            console.error("Authentication error:", err.message);
+            res.clearCookie("jwt");
+            return res.redirect("/sign-in");
         }
     },
-    
-    checkUser: (req, res, next) => {
-        const token = req.cookies.jwt;
+
+    checkUser: async (req, res, next) => {
+        const token = getTokenFromRequest(req);
 
         if (token) {
-            jwt.verify(token, "bussin cookin secret", async (err, decodedToken) => {
-                if (err) {
-                    console.log(err.message);
-                    res.locals.user = null;
-                    req.user = null;
-                    next();
-                } else {
-                    console.log(decodedToken);
-                    let user = await User.findById(decodedToken._id);
-                    res.locals.user = user;
+            try {
+                const decodedToken = await jwt.verify(token, process.env.JWT_SECRET);
+                const user = await User.findById(decodedToken.id).lean();
+
+                if (user) {
                     req.user = user;
-                    next();
+                    res.locals.user = user;
+                    res.locals.isAuthenticated = true;
+                } else {
+                    res.locals.user = null;
+                    res.locals.isAuthenticated = false;
                 }
-            });
+            } catch (err) {
+                res.locals.user = null;
+                res.locals.isAuthenticated = false;
+            }
         } else {
             res.locals.user = null;
-            req.user = null;
-            next();
+            res.locals.isAuthenticated = false;
         }
+        next();
     },
 
-    // Thêm middleware mới vào object export
-    requireAuthAPI: (req, res, next) => {
-        const token = req.cookies.jwt;
-        
-        if (!token) {
-            return res.status(401).json({
-                success: false,
-                message: 'Vui lòng đăng nhập để thực hiện chức năng này'
-            });
-        }
+    setCurrentUser: (req, res, next) => {
+        res.locals.currentUser = req.user;
+        next();
+    },
 
-        jwt.verify(token, "bussin cookin secret", async (err, decodedToken) => {
-            if (err) {
-                return res.status(401).json({
-                    success: false,
-                    message: 'Phiên đăng nhập không hợp lệ'
-                });
-            }
-            
-            req.user = await User.findById(decodedToken._id);
+    requireAdmin: (req, res, next) => {
+        if (req.user && req.user.role === "admin") {
             next();
-        });
-    }
+        } else {
+            res.redirect("/");
+        }
+    },
 };
+
+module.exports = middleware;

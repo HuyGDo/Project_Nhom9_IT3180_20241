@@ -1,74 +1,150 @@
 .slider {
     position: relative;
-    width: 100%;
-    max-width: 100vw;
-    margin: 0 auto;
     overflow: hidden;
+    height: 500px;
+    border-radius: 24px;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
 
     &__list {
         display: flex;
+        height: 100%;
+        transition: transform 0.5s cubic-bezier(0.4, 0, 0.2, 1);
     }
 
     &__item {
+        flex: 0 0 100%;
         position: relative;
-        flex-shrink: 0;
-        width: 100%;
-        padding-top: 32%;
-    }
 
-    &__img {
-        position: absolute;
-        top: 0;
-        left: 0;
-        width: 100%;
-        height: 100%;
-        object-fit: cover;
-        border-radius: 20px;
-    }
-
-    &__btn-wrapper {
-        position: absolute;
-        top: 50%;
-        left: 5%;
-        width: 90%;
-        display: flex;
-        justify-content: space-between;
-    }
-
-    &__btn {
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        width: 50px;
-        height: 50px;
-        transform: translateY(-50%);
-        border-radius: 50%;
-        background-color: #fff;
-
-        &-img {
-            height: 50%;
+        img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
         }
     }
 
+    &__content {
+        position: absolute;
+        bottom: 0;
+        left: 0;
+        right: 0;
+        padding: 40px;
+        background: linear-gradient(to top, rgba(0, 0, 0, 0.8), transparent);
+        color: white;
+        transition: background 0.5s ease;
+    }
+
+    &__title {
+        font-size: 3.2rem;
+        font-weight: 700;
+        margin-bottom: 12px;
+        text-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+    }
+
+    &__desc {
+        font-size: 1.6rem;
+        margin-bottom: 20px;
+        opacity: 0.9;
+    }
+
+    &__btn {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        padding: 12px 24px;
+        background: var(--primary-color);
+        color: white;
+        border-radius: 100px;
+        font-size: 1.6rem;
+        font-weight: 500;
+        text-decoration: none;
+        transition: all 0.3s ease;
+
+        &:hover {
+            background: #ffb601;
+            transform: translateY(-2px);
+        }
+    }
+
+    // Navigation buttons
+    &__nav {
+        position: absolute;
+        top: 50%;
+        transform: translateY(-50%);
+        width: 48px;
+        height: 48px;
+        background: white;
+        border-radius: 50%;
+        border: none;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+        cursor: pointer;
+        z-index: 10;
+        transition: all 0.3s ease;
+
+        &:hover {
+            background: var(--primary-color);
+            color: white;
+            transform: translateY(-50%) scale(1.1);
+        }
+
+        &--prev {
+            left: 20px;
+        }
+
+        &--next {
+            right: 20px;
+        }
+    }
+
+    // Dots navigation
     &__dots {
         position: absolute;
+        bottom: 20px;
         left: 50%;
         transform: translateX(-50%);
-        bottom: 10px;
-        color: #fff;
         display: flex;
-        justify-content: center;
-        gap: 10px;
+        gap: 8px;
+        z-index: 10;
     }
 
     &__dot {
-        width: 10px;
-        height: 10px;
-        background-color: #fff;
-        border-radius: 9999px;
+        width: 12px;
+        height: 12px;
+        border-radius: 50%;
+        background: rgba(255, 255, 255, 0.5);
+        border: 2px solid white;
+        cursor: pointer;
+        transition: all 0.3s ease;
 
         &.active {
-            width: 30px;
+            background: var(--primary-color);
+            border-color: var(--primary-color);
+            transform: scale(1.2);
+        }
+    }
+
+    // Hover effects
+    &:hover {
+        .slider__nav {
+            opacity: 1;
+        }
+    }
+}
+
+@media (max-width: 768px) {
+    .slider {
+        height: 400px;
+
+        &__title {
+            font-size: 2.4rem;
+        }
+
+        &__desc {
+            font-size: 1.4rem;
+        }
+
+        &__nav {
+            width: 40px;
+            height: 40px;
         }
     }
 }

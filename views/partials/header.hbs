@@ -1,38 +1,110 @@
 <div class="container">
-    <div class="top-bar">
-        {{!-- Logo --}}
-        {{>logo}}
+    <div class="header__wrapper">
+        {{!-- Left Section --}}
+        <div class="header__left">
+            {{!-- Logo --}}
+            {{> logo}}
 
-        {{!-- Navbar --}}
-        <nav class="navbar">
-            <ul class="navbar__list">
-                <li class="navbar__item">
-                    <a href="/" class="navbar__link">Home </a>
-                </li>
-                <li class="navbar__item">
-                    <a href="/recipes" class="navbar__link">Recipes </a>
-                </li>
-                <li class="navbar__item">
-                    <a href="/blogs" class="navbar__link">Blogs </a>
-                </li>
+            {{!-- Main Navigation --}}
+            <nav class="header__nav">
+                <a href="/" class="header__nav-link {{#if isHome}}active{{/if}}">
+                    <i class="fas fa-home"></i>
+                    <span>Home</span>
+                </a>
+                <a href="/recipes" class="header__nav-link {{#if isRecipes}}active{{/if}}">
+                    <i class="fas fa-utensils"></i>
+                    <span>Recipes</span>
+                </a>
+                <a href="/blogs" class="header__nav-link {{#if isBlogs}}active{{/if}}">
+                    <i class="fas fa-blog"></i>
+                    <span>Blogs</span>
+                </a>
+                <a href="/users" class="header__nav-link {{#if isUsers}}active{{/if}}">
+                    <i class="fas fa-users"></i>
+                    <span>Community</span>
+                </a>
+            </nav>
+        </div>
 
-                <li class="navbar__item">
-                    <a href="/recipes/create" class="navbar__link">Create Recipes </a>
-                </li>
-            </ul>
-        </nav>
+        {{!-- Right Section --}}
+        <div class="header__right">
+            {{!-- Search --}}
+            <div class="header__search">
+                <form action="{{#if isRecipes}}/recipes/search{{else if isBlogs}}/blogs/search{{else}}/recipes/search{{/if}}" method="GET" class="header__search-form">
+                    <div class="header__search-wrapper">
+                        <input
+                            type="text"
+                            name="q"
+                            class="header__search-input"
+                            placeholder="Search for {{#if searchPlaceholder}}{{searchPlaceholder}}{{else}}recipes{{/if}}..."
+                            value="{{query}}"
+                            autocomplete="off"
+                        />
+                        <button type="submit" class="header__search-btn">
+                            <i class="fas fa-search"></i>
+                        </button>
+                    </div>
+                </form>
+            </div>
 
-        {{!-- Actions --}}
-        <div class="top-act">
             {{#if user}}
-            <p>Welcome, {{ user.email }}!</p>
-            <a href="/log-out" class="btn btn--text">Log out</a>
+            {{!-- Notifications --}}
+            <div class="header__notifications">
+                <button type="button" class="header__notifications-btn" id="notificationsToggle">
+                    <i class="fas fa-bell"></i>
+                    <span class="header__notifications-badge" id="notificationCount">0</span>
+                </button>
+                <div class="header__notifications-dropdown" id="notificationsDropdown">
+                    {{> notification-dropdown}}
+                </div>
+            </div>
 
+            {{!-- User Profile --}}
+            <div class="header__user">
+                <a href="/users/me" class="header__user-link">
+                    <img
+                        src="{{#if user.profile_picture}}{{
+                            user.profile_picture
+                        }}{{else}}/assets/img/avatar.jpg{{/if}}"
+                        alt="User avatar"
+                        class="header__user-avatar"
+                    />
+                    <span class="header__user-name">{{ user.first_name }}</span>
+                    <i class="fas fa-chevron-down"></i>
+                </a>
+            </div>
             {{else}}
-            <a href="/sign-in" class="btn btn--text">Sign In</a>
-            <a href="/sign-up" class="btn btn--text">Sign Up</a>
+            {{!-- Auth Buttons --}}
+            <div class="header__auth">
+                <a href="/sign-in" class="btn btn--outline btn--sm">Sign In</a>
+                <a href="/sign-up" class="btn btn--primary btn--sm">Sign Up</a>
+            </div>
+            {{/if}}
+        </div>
+    </div>
+</div>
 
-            {{/if }}
+{{!-- Search Modal --}}
+<div class="modal fade" id="searchModal" tabindex="-1">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Search Recipes</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <form action="/search" method="GET">
+                    <div class="input-group">
+                        <input
+                            type="text"
+                            name="q"
+                            class="form-control"
+                            placeholder="Enter keywords..."
+                        />
+                        <button class="btn btn-primary" type="submit">Search</button>
+                    </div>
+                </form>
+            </div>
         </div>
     </div>
 </div>

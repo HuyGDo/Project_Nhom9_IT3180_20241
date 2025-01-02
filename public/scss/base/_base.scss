@@ -1,9 +1,10 @@
-@use '../abstracts';
+@use "../abstracts";
 
 *,
 ::before,
 ::after {
     box-sizing: border-box;
+    user-select: none;
 }
 
 * {
@@ -16,7 +17,7 @@ html {
 
 body {
     font-size: 1.6rem;
-    font-family: 'Gordita', sans-serif;
+    font-family: "Gordita", sans-serif;
     color: var(--text-color);
     background-color: var(--body-bg);
 }
@@ -71,4 +72,11 @@ em {
 b,
 strong {
     font-weight: 600;
+}
+
+input,
+textarea,
+[contenteditable="true"],
+.selectable {
+    user-select: text !important;
 }

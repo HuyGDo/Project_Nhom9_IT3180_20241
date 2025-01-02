@@ -1,0 +1,79 @@
+<div class="filter-panel">
+    {{#if isRecipe}}
+    <h3 class="filter-panel__heading">Categories</h3>
+    <div class="filter-panel__section">
+        <div class="filter-panel__list">
+            <label class="filter-panel__item">
+                <input type="checkbox" name="category" value="main-course" />
+                Main Course
+            </label>
+            <label class="filter-panel__item">
+                <input type="checkbox" name="category" value="appetizer" />
+                Appetizer
+            </label>
+            <label class="filter-panel__item">
+                <input type="checkbox" name="category" value="dessert" />
+                Dessert
+            </label>
+            <label class="filter-panel__item">
+                <input type="checkbox" name="category" value="beverage" />
+                Beverage
+            </label>
+        </div>
+    </div>
+
+    <h3 class="filter-panel__heading">Cooking Time</h3>
+    <div class="filter-panel__section">
+        <div class="filter-panel__list">
+            <label class="filter-panel__item">
+                <input type="checkbox" name="time" value="quick" />
+                Under 30 mins
+            </label>
+            <label class="filter-panel__item">
+                <input type="checkbox" name="time" value="medium" />
+                30-60 mins
+            </label>
+            <label class="filter-panel__item">
+                <input type="checkbox" name="time" value="long" />
+                Over 60 mins
+            </label>
+        </div>
+    </div>
+    {{else}}
+    <h3 class="filter-panel__heading">Categories</h3>
+    <div class="filter-panel__section">
+        <div class="filter-panel__list">
+            <label class="filter-panel__item">
+                <input type="checkbox" name="category" value="cooking-tips" />
+                Cooking Tips
+            </label>
+            <label class="filter-panel__item">
+                <input type="checkbox" name="category" value="food-culture" />
+                Food Culture
+            </label>
+            <label class="filter-panel__item">
+                <input type="checkbox" name="category" value="health" />
+                Health & Nutrition
+            </label>
+            <label class="filter-panel__item">
+                <input type="checkbox" name="category" value="reviews" />
+                Recipe Reviews
+            </label>
+        </div>
+    </div>
+    {{/if}}
+
+    <h3 class="filter-panel__heading">Sort By</h3>
+    <div class="filter-panel__section">
+        <div class="filter-panel__list">
+            <label class="filter-panel__item">
+                <input type="radio" name="sort" value="newest" checked />
+                Newest First
+            </label>
+            <label class="filter-panel__item">
+                <input type="radio" name="sort" value="popular" />
+                Most Popular
+            </label>
+        </div>
+    </div>
+</div>

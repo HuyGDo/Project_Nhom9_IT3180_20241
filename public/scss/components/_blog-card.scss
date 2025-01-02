@@ -1,0 +1,126 @@
+.blog-card {
+    background: white;
+    border-radius: 16px;
+    overflow: hidden;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    transition: transform 0.3s ease;
+
+    &:hover {
+        transform: translateY(-5px);
+
+        .blog-card__thumb {
+            transform: scale(1.05);
+        }
+    }
+
+    &__img-wrap {
+        position: relative;
+        padding-top: 60%;
+        overflow: hidden;
+    }
+
+    &__thumb {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        transition: transform 0.3s ease;
+    }
+
+    &__content {
+        padding: 24px;
+        flex: 1;
+        display: flex;
+        flex-direction: column;
+    }
+
+    &__title {
+        font-size: 2rem;
+        font-weight: 600;
+        line-height: 1.4;
+        margin-bottom: 16px;
+
+        a {
+            color: #1a162e;
+            &:hover {
+                color: #ffb601;
+            }
+        }
+    }
+
+    &__meta {
+        margin-bottom: 12px;
+    }
+
+    &__author {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        margin-bottom: 8px;
+
+        img {
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            object-fit: cover;
+            border: 2px solid #ffb601;
+        }
+
+        span {
+            font-size: 1.4rem;
+            font-weight: 500;
+            color: #1a162e;
+        }
+    }
+
+    &__stats {
+        display: flex;
+        gap: 16px;
+    }
+
+    &__stat {
+        display: flex;
+        align-items: center;
+        gap: 6px;
+        font-size: 1.3rem;
+        color: #666;
+
+        i {
+            font-size: 1.4rem;
+            color: #ffb601;
+        }
+    }
+
+    &__desc {
+        font-size: 1.5rem;
+        color: #666;
+        line-height: 1.6;
+        margin-bottom: 24px;
+        display: -webkit-box;
+        -webkit-line-clamp: 3;
+        -webkit-box-orient: vertical;
+        overflow: hidden;
+        flex: 1;
+    }
+
+    &__actions {
+        display: flex;
+        gap: 12px;
+        margin-top: auto;
+    }
+
+    &__btn {
+        flex: 1;
+        height: 40px;
+        font-size: 1.4rem;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 8px;
+    }
+}

@@ -1,0 +1,49 @@
+// Recommendations Section Styling
+.recommendations {
+    &-section {
+        margin: 40px 0;
+        padding: 20px;
+        background-color: #f8f9fa;
+        border-radius: 8px;
+    }
+
+    &-title {
+        font-size: 24px;
+        color: #333;
+        margin-bottom: 20px;
+        padding-bottom: 10px;
+        border-bottom: 2px solid #e9ecef;
+    }
+
+    &-content {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+        gap: 20px;
+        padding: 10px;
+
+        // Ensure recipe cards fit well in the grid
+        .content-card {
+            height: 100%;
+            margin: 0;  // Remove any default margins
+        }
+    }
+}
+
+// Responsive Design
+@media (max-width: 768px) {
+    .recommendations-grid {
+        grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+    }
+}
+
+@media (max-width: 480px) {
+    .recommendations {
+        &-grid {
+            grid-template-columns: 1fr;
+        }
+        
+        &-section {
+            padding: 15px;
+        }
+    }
+}

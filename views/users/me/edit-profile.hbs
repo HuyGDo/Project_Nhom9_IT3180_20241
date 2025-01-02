@@ -1,0 +1,154 @@
+<!-- views/me/edit-profile.hbs -->
+<main class="edit-profile">
+    <div class="container">
+        <div class="edit-profile__container">
+            <h1 class="edit-profile__heading">Edit Your Profile</h1>
+
+            <form
+                action="/users/me/edit-profile"
+                method="POST"
+                class="edit-profile__form"
+                enctype="multipart/form-data"
+            >
+                <div class="edit-profile__section">
+                    <h2 class="edit-profile__section-title">
+                        <i class="fas fa-user-circle"></i>
+                        Profile Picture
+                    </h2>
+                    <div class="edit-profile__section-content">
+                        <div class="edit-profile__avatar-section">
+                            <img
+                                src="{{#if user.profile_picture}}{{
+                                    user.profile_picture
+                                }}{{else}}/assets/img/avatar.jpg{{/if}}"
+                                alt="Profile Picture"
+                                class="edit-profile__avatar"
+                                id="avatarPreview"
+                            />
+                            <div class="edit-profile__upload">
+                                <label for="profile_picture" class="edit-profile__upload-label">
+                                    <i class="fas fa-camera"></i>
+                                    Change Profile Picture
+                                </label>
+                                <input
+                                    type="file"
+                                    name="profile_picture"
+                                    id="profile_picture"
+                                    class="edit-profile__upload-input"
+                                    accept="image/*"
+                                    onchange="previewImage(this)"
+                                />
+                                {{#if errors.profile_picture}}
+                                <p class="form__error">{{ errors.profile_picture }}</p>
+                                {{/if}}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="edit-profile__section">
+                    <h2 class="edit-profile__section-title">
+                        <i class="fas fa-info-circle"></i>
+                        Basic Information
+                    </h2>
+                    <div class="edit-profile__section-content">
+                        <div class="edit-profile__grid">
+                            <div class="form__group">
+                                <label class="form__label">First Name</label>
+                                <input
+                                    type="text"
+                                    name="first_name"
+                                    class="form__input"
+                                    value="{{ user.first_name }}"
+                                />
+                                {{#if errors.first_name}}
+                                <p class="form__error">{{ errors.first_name }}</p>
+                                {{/if}}
+                            </div>
+
+                            <div class="form__group">
+                                <label class="form__label">Last Name</label>
+                                <input
+                                    type="text"
+                                    name="last_name"
+                                    class="form__input"
+                                    value="{{ user.last_name }}"
+                                />
+                                {{#if errors.last_name}}
+                                <p class="form__error">{{ errors.last_name }}</p>
+                                {{/if}}
+                            </div>
+
+                            <div class="form__group">
+                                <label class="form__label">Username</label>
+                                <input
+                                    type="text"
+                                    name="username"
+                                    class="form__input"
+                                    value="{{ user.username }}"
+                                />
+                                {{#if errors.username}}
+                                <p class="form__error">{{ errors.username }}</p>
+                                {{/if}}
+                            </div>
+
+                            <div class="form__group">
+                                <label class="form__label">Email</label>
+                                <input
+                                    type="email"
+                                    name="email"
+                                    class="form__input"
+                                    value="{{ user.email }}"
+                                />
+                                {{#if errors.email}}
+                                <p class="form__error">{{ errors.email }}</p>
+                                {{/if}}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="edit-profile__section">
+                    <h2 class="edit-profile__section-title">
+                        <i class="fas fa-lock"></i>
+                        Security
+                    </h2>
+                    <div class="edit-profile__section-content">
+                        <div class="form__group">
+                            <label class="form__label">New Password (Optional)</label>
+                            <input
+                                type="password"
+                                name="password"
+                                class="form__input"
+                                placeholder="Enter new password"
+                            />
+                            {{#if errors.password}}
+                            <p class="form__error">{{ errors.password }}</p>
+                            {{/if}}
+                            <div id="passwordStrength" class="password-strength"></div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="edit-profile__actions">
+                    <button type="submit" class="btn btn--primary">Update Profile</button>
+                    <a href="/users/me" class="btn btn--secondary">Cancel</a>
+                </div>
+            </form>
+        </div>
+    </div>
+</main>
+
+<script>
+    function previewImage(input) {
+        if (input.files && input.files[0]) {
+            const reader = new FileReader();
+
+            reader.onload = function (e) {
+                document.getElementById("avatarPreview").src = e.target.result;
+            };
+
+            reader.readAsDataURL(input.files[0]);
+        }
+    }
+</script>

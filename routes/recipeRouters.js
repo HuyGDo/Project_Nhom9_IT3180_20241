@@ -2,26 +2,36 @@ const express = require("express");
 const router = express.Router();
 const recipeController = require("../controllers/recipeController");
 const auth = require("../middleware/authMiddleware");
+const multer = require("multer");
+const { uploadRecipeImage } = require("../services/uploadService");
+const commentController = require("../controllers/commentController");
 
-// Route to get all recipes
-router.get("/", recipeController.showRecipes);
+// Setup multer for recipe image uploads
+const upload = multer({ dest: "uploads/recipes/" });
 
-// Route to create new recipe
 router.get("/create", auth.requireAuth, recipeController.createRecipe);
-
-// Route to store new recipe
-router.post("/store", recipeController.storeRecipe);
+router.post(
+    "/store",
+    auth.requireAuth,
+    upload.single("recipe-image"),
+    recipeController.storeRecipe,
+);
 
 // Route to update recipe
-router.get("/:id/edit", recipeController.editRecipe);
-router.put("/:id", recipeController.updateRecipe);
-
-// Route to delete recipe
-router.delete("/:id", recipeController.deleteRecipe);
-
-// Route to vote recipe 
-router.post('/:id/vote', auth.requireAuthAPI, recipeController.handleVote);
-// Route to recipe details 
-router.get("/:id", recipeController.showRecipeDetail);
+router.get("/", recipeController.showRecipes);
+router.get("/search", recipeController.searchRecipes);
+router.get("/:slug", recipeController.showRecipeDetail);
+router.post("/:slug/vote", auth.requireAuth, recipeController.handleVote);
+router.post("/:slug/comment", auth.requireAuth, commentController.addComment);
+router.put("/:slug/comment/edit", auth.requireAuth, commentController.updateComment);
+router.delete("/:slug/comment/delete", auth.requireAuth, commentController.deleteComment);
+router.get("/:slug/edit", auth.requireAuth, recipeController.editRecipe);
+router.put(
+    "/:slug",
+    auth.requireAuth,
+    upload.single("recipe-image"),
+    recipeController.updateRecipe,
+);
+router.delete("/:slug", auth.requireAuth, recipeController.deleteRecipe);
 
 module.exports = router;

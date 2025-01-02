@@ -1,0 +1,64 @@
+<main class="user-list">
+    <div class="container">
+        <div class="user-list__header">
+            <div>
+                <h1 class="user-list__heading">Followers</h1>
+                <p class="user-list__subtitle">People who follow you</p>
+            </div>
+            <div class="user-list__filters">
+                <button class="user-list__filter-btn active">Most Recent</button>
+                <button class="user-list__filter-btn">A-Z</button>
+            </div>
+        </div>
+
+        {{#if followers.length}}
+        <div class="user-list__grid">
+            {{#each followers}}
+            <div class="user-list__card">
+                <img
+                    src="{{#if this.profile_picture}}{{
+                        this.profile_picture
+                    }}{{else}}/assets/img/avatar.jpg{{/if}}"
+                    alt="{{ this.first_name }}'s avatar"
+                    class="user-list__avatar"
+                />
+                <div class="user-list__info">
+                    <h2 class="user-list__name">{{ this.first_name }} {{ this.last_name }}</h2>
+                    <p class="user-list__username">@{{ this.username }}</p>
+                    <p class="user-list__stats">
+                        <span>{{ this.followers.length }} followers</span>
+                        <span>•</span>
+                        <span>{{ this.recipes.length }} recipes</span>
+                    </p>
+                </div>
+                <div class="user-list__action">
+                    {{#if this.isFollowing}}
+                    <button
+                        onclick="handleFollowAction('unfollow', '{{ this._id }}')"
+                        class="btn btn--outline user-list__follow-btn"
+                    >
+                        Unfollow
+                    </button>
+                    {{else}}
+                    <button
+                        onclick="handleFollowAction('follow', '{{ this._id }}')"
+                        class="btn btn--primary user-list__follow-btn"
+                    >
+                        Follow
+                    </button>
+                    {{/if}}
+                </div>
+            </div>
+            {{/each}}
+        </div>
+        {{else}}
+        <div class="user-list__empty">
+            <img src="/assets/img/no-followers.svg" alt="No followers" />
+            <h2>No Followers Yet</h2>
+            <p>Share your recipes and interact with others to gain followers!</p>
+        </div>
+        {{/if}}
+    </div>
+</main>
+
+<script src="/js/userActions.js"></script>

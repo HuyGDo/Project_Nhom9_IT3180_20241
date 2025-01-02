@@ -1,3 +1,4 @@
+<!-- views/auth/sign-in.hbs -->
 <main class="auth">
     <!-- Auth decor -->
     <div class="auth__left">
@@ -10,44 +11,65 @@
             <h1 class="auth__heading">Sign In</h1>
             <p class="auth__desc">Welcome back! Let's sign in and start cookin'!</p>
             <form method="POST" action="/sign-in" class="form auth__form">
+                {{!-- Add hidden input for returnUrl --}}
+                <input type="hidden" name="returnUrl" value="{{returnUrl}}" />
+                
+                {{#if message}}
+                <div class="alert alert-info">
+                    {{message}}
+                </div>
+                {{/if}}
+
                 {{!-- Email --}}
                 <div class="form__group auth__form-item">
-                    <div class="form__text-input">
-                        <input
-                            type="text"
-                            name="email"
-                            id="email"
-                            value="{{ newUserdata.email }}"
-                            placeholder="Email"
-                            class="form__input"
-                        />
-                        <img src="./assets/icons/message.svg" alt="" class="form__input-icon" />
-                        <img
-                            src="./assets/icons/form-error.svg"
-                            alt=""
-                            class="form__input-icon-error"
-                        />
+                    <div class="form-input__list">
+                        <div class="form-input__item">
+                            <input
+                                type="text"
+                                name="email"
+                                id="email"
+                                value="{{ newUserdata.email }}"
+                                placeholder="Email"
+                                class="form-input__input"
+                            />
+                            <img
+                                src="./assets/icons/message.svg"
+                                alt=""
+                                class="form-input__input-icon"
+                            />
+                            <img
+                                src="./assets/icons/form-error.svg"
+                                alt=""
+                                class="form-input__input-icon-error"
+                            />
+                        </div>
                     </div>
                     <p class="form__error">{{ errors.email }}</p>
                 </div>
 
                 {{!-- Password --}}
                 <div class="form__group auth__form-item">
-                    <div class="form__text-input">
-                        <input
-                            type="password"
-                            name="password"
-                            id="password"
-                            value="{{ newUserdata.password }}"
-                            placeholder="Password"
-                            class="form__input"
-                        />
-                        <img src="./assets/icons/lock.svg" alt="" class="form__input-icon" />
-                        <img
-                            src="./assets/icons/form-error.svg"
-                            alt=""
-                            class="form__input-icon-error"
-                        />
+                    <div class="form-input__list">
+                        <div class="form-input__item">
+                            <input
+                                type="password"
+                                name="password"
+                                id="password"
+                                value="{{ newUserdata.password }}"
+                                placeholder="Password"
+                                class="form-input__input"
+                            />
+                            <img
+                                src="./assets/icons/lock.svg"
+                                alt=""
+                                class="form-input__input-icon"
+                            />
+                            <img
+                                src="./assets/icons/form-error.svg"
+                                alt=""
+                                class="form-input__input-icon-error"
+                            />
+                        </div>
                     </div>
                     <p class="form__error">{{ errors.password }}</p>
                 </div>
@@ -58,7 +80,7 @@
                         <span class="form__checkbox-label">Remember me</span>
                     </label>
 
-                    <a href="#!" class="auth__link">Forgot Password?</a>
+                    <a href="/reset-password" class="auth__link">Forgot Password?</a>
                 </div>
 
                 <div class="form__group auth__form-item">
@@ -84,3 +106,9 @@
         </div>
     </div>
 </main>
+
+{{#if redirectMessage}}
+    <div class="alert alert-info">
+        {{redirectMessage}}
+    </div>
+{{/if}}

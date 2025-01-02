@@ -1,5 +1,6 @@
 const User = require("../models/User");
 const jwt = require("jsonwebtoken");
+const bcrypt = require("bcrypt");
 
 // Error handler
 const errorHandler = (err) => {
@@ -36,9 +37,9 @@ const errorHandler = (err) => {
     return errors;
 };
 
-const maxAge = 24 * 60 * 60; // 1 days
+const maxAge = 24 * 60 * 60; // 1 day in seconds
 const createToken = (id) => {
-    return jwt.sign({ id }, "bussin cookin secret", {
+    return jwt.sign({ id }, process.env.JWT_SECRET, {
         expiresIn: maxAge,
     });
 };
@@ -48,24 +49,35 @@ module.exports.showSignIn = (req, res) => {
     res.render("auth/sign-in", {
         layout: "auth",
         title: "Sign In",
+        returnUrl: req.query.returnUrl || "/",
+        message: "Please login to continue",
     });
 };
 
 // [POST] /sign-in/
 module.exports.authenticate = async (req, res) => {
     const formData = req.body;
+    const returnUrl = req.body.returnUrl || "/";
+
     try {
         const user = await User.signin(formData.email, formData.password);
         const token = createToken(user._id);
         res.cookie("jwt", token, { httpOnly: true, maxAge: maxAge * 1000 });
-        console.log(user);
+
+        // Redirect to the return URL if it exists
+        res.redirect(returnUrl);
     } catch (err) {
+        console.log("Login error:", err.message);
         const errors = errorHandler(err);
         res.render("auth/sign-in", {
             layout: "auth",
             title: "Sign In",
             errors,
-            formData,
+            returnUrl,
+            formData: {
+                email: formData.email,
+                password: "",
+            },
         });
     }
 };
@@ -79,25 +91,32 @@ module.exports.showSignUp = (req, res) => {
 };
 
 // [POST] /sign-up/
-module.exports.createUser = (req, res) => {
-    const newUserdata = req.body;
-    const user = new User(newUserdata);
-    user.save()
-        .then(() => {
-            const token = createToken(user._id);
-            res.cookie("jwt", token, { httpOnly: true, maxAge: maxAge * 1000 });
-            res.json({ user: user._id });
-        })
-        .catch((err) => {
-            const errors = errorHandler(err);
-            console.log(errors.email);
-            res.render("auth/sign-up", {
-                layout: "auth",
-                title: "Sign Up",
-                errors,
-                newUserdata,
-            });
+module.exports.createUser = async (req, res) => {
+    try {
+        const newUserdata = req.body;
+        const user = new User(newUserdata);
+        await user.save();
+
+        // Create JWT token and set cookie - same as login
+        const token = createToken(user._id);
+        res.cookie("jwt", token, { httpOnly: true, maxAge: maxAge * 1000 });
+
+        // Set authentication state
+        res.locals.user = user;
+        res.locals.isAuthenticated = true;
+
+        // Redirect to home page
+        res.redirect("/");
+    } catch (err) {
+        const errors = errorHandler(err);
+        console.log(errors);
+        res.render("auth/sign-up", {
+            layout: "auth",
+            title: "Sign Up",
+            errors,
+            newUserdata: req.body,
         });
+    }
 };
 
 module.exports.logOut = (req, res) => {
@@ -105,31 +124,43 @@ module.exports.logOut = (req, res) => {
     res.redirect("/");
 };
 
-// const mongoose = require("mongoose");
+// Thêm route này chỉ trong môi trường development
+module.exports.resetPassword = async (req, res) => {
+    try {
+        const { email, password } = req.body;
+        console.log("Resetting password for email:", email);
 
-// // Function to check if the index on 'username' exists and remove it
-// async function removeUsernameIndexIfExists() {
-//     try {
-//         // List all indexes on the 'users' collection
-//         const indexes = await User.collection.indexes();
+        const user = await User.findOne({ email });
+        if (!user) {
+            return res.status(404).json({ error: "User not found" });
+        }
 
-//         // Check if there's an index on the 'username' field
-//         const usernameIndex = indexes.find((index) => index.key && index.key.username);
+        // Hash new password
+        const salt = await bcrypt.genSalt(10);
+        const hashedPassword = await bcrypt.hash(password, salt);
 
-//         if (usernameIndex) {
-//             console.log("Found index on 'username': ${usernameIndex.name}. Removing it...");
+        // Update directly in database to bypass middleware
+        await User.updateOne({ email }, { $set: { password: hashedPassword } });
 
-//             // Drop the index
-//             await User.collection.dropIndex(usernameIndex.name);
+        console.log("Password reset successful");
 
-//             console.log("Index '${usernameIndex.name}' on 'username' has been removed.");
-//         } else {
-//             console.log('No index found on "username".');
-//         }
-//     } catch (error) {
-//         console.error("Error checking or removing index:", error);
-//     }
-// }
+        if (req.xhr || req.headers.accept.indexOf("json") > -1) {
+            return res.json({ message: "Password reset successful" });
+        }
 
-// // Call the function
-// removeUsernameIndexIfExists();
+        // Redirect to login page with success message
+        req.flash("success", "Password reset successful. Please login again.");
+        res.redirect("/sign-in");
+    } catch (error) {
+        console.error("Password reset error:", error);
+        res.status(500).json({ error: "Unable to reset password" });
+    }
+};
+
+// Thêm controller này
+module.exports.showResetPassword = (req, res) => {
+    res.render("auth/reset-password", {
+        layout: "auth",
+        title: "Reset Password",
+    });
+};

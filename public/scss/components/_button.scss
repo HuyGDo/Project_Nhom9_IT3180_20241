@@ -1,47 +1,107 @@
 .btn {
-    display: flex;
+    display: inline-flex;
     align-items: center;
     justify-content: center;
-
-    height: 50px;
-    padding: 0 20px;
-    border-radius: 6px;
-
-    font-size: 1.8rem;
+    padding: 0 32px;
+    height: 56px;
+    font-size: 1.6rem;
     font-weight: 500;
-    user-select: none;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    text-decoration: none;
 
-    transition: opacity 0.25s;
-
-    &--text {
-        background-color: transparent;
-        font-weight: 500;
-    }
-
+    // Primary button
     &--primary {
-        background-color: #ffb601;
+        background: #ffb601;
+        color: white;
+
+        &:hover {
+            background: darken(#ffb601, 5%);
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(255, 182, 1, 0.2);
+        }
     }
 
+    // Outline button
     &--outline {
-        background-color: transparent;
-        border: 1.5px solid var(--outline-btn-border-color);
+        background: transparent;
+        border: 2px solid #eee;
+        color: #666;
+
+        &:hover {
+            border-color: #ffb601;
+            color: #ffb601;
+            transform: translateY(-2px);
+        }
     }
 
-    &--rounded {
-        border-radius: 99999px;
+    // Small button
+    &--sm {
+        height: 40px;
+        padding: 0 20px;
+        font-size: 1.4rem;
     }
 
-    &--link {
-        text-decoration: underline;
+    // Add button
+    &--add {
+        background: white;
+        color: #666;
+        border: 2px solid #eee;
+        width: 100%;
+        margin-top: 16px;
+        gap: 8px;
+
+        &:hover {
+            border-color: #ffb601;
+            color: #ffb601;
+        }
+
+        &::before {
+            content: "+";
+            font-size: 2rem;
+            font-weight: 400;
+        }
     }
 
-    &[disabled],
-    &--disabled {
+    // Danger button
+    &--danger {
+        background-color: #dc3545;
+        color: white;
+
+        &:hover {
+            background-color: darken(#dc3545, 10%);
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(220, 53, 69, 0.2);
+        }
+    }
+
+    // Loading state
+    &.loading {
+        opacity: 0.7;
+        cursor: not-allowed;
+    }
+
+    // Disabled state
+    &:disabled {
         opacity: 0.5;
+        cursor: not-allowed;
         pointer-events: none;
     }
+}
 
-    &:hover {
-        opacity: 0.8;
+.recipe-card {
+    &__actions {
+        display: flex;
+        gap: 8px;
+        margin-top: 16px;
+    }
+
+    &__btn {
+        flex: 1;
+        height: 36px;
+        font-size: 1.4rem;
+        padding: 0 12px;
     }
 }
